@@ -31,3 +31,12 @@ Contributors
 ================
 * Julien Peloton (peloton at lal.in2p3.fr)
 * Christian Arnault (arnault at lal.in2p3.fr)
+
+Scenario for manipulating large astronomical data with Apache Spark
+=============================================================
+We have to distribute the computation for a very large amount of 2D or 3D data, eventually exceeding the memory available 
+in our cluster (The Spark cluster).
+In addition, the JVM does not allow to create collections beyond 2G elements (due to the fundamental JVM indexing properties based on 32 bits indexes).
+Thus we have to construct a pipeline scenario exploiting the iterator mechanisms (both true for Scala and Apache Spark)
+Therefore we start by decomposing the large collection into two-level collections (Collection of Collections).
+

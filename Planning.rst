@@ -1,4 +1,4 @@
-- Add action for packaging librairies (Fits, 3D)
+- Add action for packaging libraries (Fits, 3D)
 - Work on images
 
   + How to transfer image sets from data sinks (CC, SLAC, ?) to Spark Cluster and then to HDFS
@@ -7,7 +7,7 @@
 
 - publishing :
 
-  + prépare contribution to Oxford meeting
+  + prepare contribution to Oxford meeting
   + prepare paper to Michel's journal
 
 - benchmarks for FITS
@@ -25,4 +25,3 @@
   + distance between objects
   + neighbouring
   + correlation functions
-  

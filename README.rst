@@ -32,32 +32,41 @@ Contributors
 * Julien Peloton (peloton at lal.in2p3.fr)
 * Christian Arnault (arnault at lal.in2p3.fr)
 
-Scenario for manipulating large astronomical data with Apache Spark
+Goals of Spark3D
 =============================================================
-We have to distribute the computation for a very large amount of 2D or 3D data, eventually exceeding the memory available 
-in our cluster (The Spark cluster).
-In addition, the JVM does not allow to create collections beyond 2G elements (due to the fundamental JVM indexing properties based on 32 bits indexes).
-Thus we have to construct a pipeline scenario exploiting the iterator mechanisms (both true for Scala and Apache Spark).
+We have to distribute the computation for a very large amount of 2D or 3D data,
+eventually exceeding the memory available in our cluster (The Spark cluster).
 Several goals have to be undertaken in this project:
 
-- construct a highly scalable architecture so as to accept very large dataset. (typically greater than what can be handled by practical memory sets) 
-- datasets are sets of 3D data, ie. object data contining both 3D information plus additional physics related data.
-- méchanisms should offer:
+- construct a highly scalable architecture so as to accept very large dataset. (typically greater than what can be handled by practical memory sets)
+- datasets are sets of 3D data, ie. object data containing both 3D information plus additional related data.
+- mechanisms should offer:
   + indexing mechanisms
-  + ways to define a matric (ie. distance between objects) 
+  + ways to define a metric (ie. distance between objects)
   + selection capability of objects or objects within a region
-  
-Data storage
+- work with as many input file format as possible (CSV, JSON, FITS, and so on)
+- package the developments into an open-source library.
+
+Data storage and distribution across machines
 ============
-Since the scientific domain considered here is mostly the Atrophysics domain, the natural storage or exchange file format is the FITS format. 
-Therefore we consider as part of the problem, the possibility to allow FITS files to be directly injected into the HDFS infrastructure, so as to develop a Spark based applications.
 
-The usual cfitsio software, as welle as the FITS i/o format is not adapted to a distributed file system as HDFS.
+Since the scientific domain considered here is mostly the Astrophysics domain,
+the natural storage or exchange file format is the FITS format.
+Therefore we consider as part of the problem, the possibility to allow FITS files
+to be directly injected into the HDFS infrastructure,
+so as to develop a Spark based applications.
 
-Therefore we'll have to develop low level Reader/Writer services, to support direct access to FITS data, without copy nor conversion needs.
+The usual `cfitsio <https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html>`_ library,
+as well as the FITS I/O format are not adapted to a distributed file system as HDFS.
 
+Therefore we will have to develop low level Reader/Writer services,
+to support direct access to FITS data, without copy nor conversion needs.
 
+To tackle this challenge, we started a new project called
+`spark-fits <https://github.com/JulienPeloton/spark-fits>`_, which provides a
+Spark connector for FITS data, and a Scala library for manipulating FITS file.
 
+Use case for large astronomical data sets with Apache Spark
+============
 
-
-
+TBD

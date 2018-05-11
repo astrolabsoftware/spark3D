@@ -1,0 +1,5 @@
+target/
+metastore_db
+derby.log
+old/
+.ipynb_checkpoints/

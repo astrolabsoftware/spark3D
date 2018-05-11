@@ -1,0 +1,26 @@
+language: scala
+scala:
+  - 2.10.6
+  - 2.11.8
+
+jdk:
+  - oraclejdk8
+cache:
+  directories:
+    - $HOME/.m2/repository
+    - $HOME/.sbt
+    - $HOME/.ivy2
+    - $HOME/.sbt/launchers/
+
+before_script:
+  - mkdir -p $HOME/.sbt/launchers/0.13.8/
+  - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
+
+script:
+  - echo "Scala version:" $TRAVIS_SCALA_VERSION
+  - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
+  # Trick to avoid unnecessary cache updates
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

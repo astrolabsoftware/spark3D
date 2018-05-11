@@ -71,8 +71,9 @@ developers := List(
  Developer(
  "ChristianArnault",
  "Christian Arnault",
- "xx@yy.zz"
- )
+ "xx@yy.zz",
+ url("https://github.com/ChristianArnault")
+ ),
  Developer(
  "mayurdb",
  "Mayur Bhosale",

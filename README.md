@@ -33,13 +33,6 @@ distributed systems, we enter in a new area of possibilities.
 [spark3D](https://github.com/JulienPeloton/spark3D) extends Apache Spark to
 efficiently load, process, and analyze large-scale 3D spatial data sets across machines.
 
-Contributors
-============
-
-* Julien Peloton (peloton at lal.in2p3.fr)
-* Christian Arnault (arnault at lal.in2p3.fr)
-* Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.
-
 Goals of Spark3D
 ============
 We have to distribute the computation for a very large amount of 2D or 3D data,
@@ -78,3 +71,10 @@ Use case for large astronomical data sets with Apache Spark
 ============
 
 TBD
+
+Contributors
+============
+
+* Julien Peloton (peloton at lal.in2p3.fr)
+* Christian Arnault (arnault at lal.in2p3.fr)
+* Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.

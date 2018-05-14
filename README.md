@@ -1,5 +1,17 @@
 ![logo](https://github.com/JulienPeloton/spark3D/blob/master/pic/spark3d_logo.jpg)
 
+  spark3D
+  ------------------------------------------------------------------------------------------------------------------
+
+[![Build Status](https://travis-ci.org/JulienPeloton/spark3D.svg?branch=geometryObjects)](https://travis-ci.org/JulienPeloton/spark3D)
+[![codecov](https://codecov.io/gh/JulienPeloton/spark3D/branch/geometryObjects/graph/badge.svg)](https://codecov.io/gh/JulienPeloton/spark3D)
+
+The package is under an active development! Here is the short term development list:
+
+- While GeoSpark relies on the package JTS for 2D objects, there is no support for 3D objects in JTS, so we have to develop them ourselves.
+- Upgrade 2D RDD to 3D RDD (circle -> sphere, parallelogram -> parallelepiped, and so on).
+- Upgrade 2D methods for partitioning/join/query/indexing to 3D.
+
 Why spark3D?
 ================
 
@@ -24,16 +36,12 @@ distributed systems, we enter in a new area of possibilities.
 [spark3D](https://github.com/JulienPeloton/spark3D) extends Apache Spark to
 efficiently load, process, and analyze large-scale 3D spatial data sets across machines.
 
-The package
-================
-
-[![Build Status](https://travis-ci.org/JulienPeloton/spark3D.svg?branch=geometryObjects)](https://travis-ci.org/JulienPeloton/spark3D)
-[![codecov](https://codecov.io/gh/JulienPeloton/spark3D/branch/geometryObjects/graph/badge.svg)](https://codecov.io/gh/JulienPeloton/spark3D)
-
 Contributors
 ================
+
 * Julien Peloton (peloton at lal.in2p3.fr)
 * Christian Arnault (arnault at lal.in2p3.fr)
+* Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.
 
 Goals of Spark3D
 =============================================================

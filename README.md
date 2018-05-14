@@ -13,7 +13,7 @@ The package is under an active development! Here is the short term development l
 - Upgrade 2D methods for partitioning/join/query/indexing to 3D.
 
 Why spark3D?
-================
+============
 
 The volume of data recorded by current and
 future High Energy Physics & Astrophysics experiments,
@@ -37,14 +37,14 @@ distributed systems, we enter in a new area of possibilities.
 efficiently load, process, and analyze large-scale 3D spatial data sets across machines.
 
 Contributors
-================
+============
 
 * Julien Peloton (peloton at lal.in2p3.fr)
 * Christian Arnault (arnault at lal.in2p3.fr)
 * Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.
 
 Goals of Spark3D
-=============================================================
+============
 We have to distribute the computation for a very large amount of 2D or 3D data,
 eventually exceeding the memory available in our cluster (The Spark cluster).
 Several goals have to be undertaken in this project:

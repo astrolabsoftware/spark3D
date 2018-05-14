@@ -33,10 +33,9 @@ distributed systems, we enter in a new area of possibilities.
 [spark3D](https://github.com/JulienPeloton/spark3D) extends Apache Spark to
 efficiently load, process, and analyze large-scale 3D spatial data sets across machines.
 
-Goals of Spark3D
+Goals of spark3D
 ============
-We have to distribute the computation for a very large amount of 2D or 3D data,
-eventually exceeding the memory available in our cluster (The Spark cluster).
+We have to distribute the computation for a very large amount of 3D data.
 Several goals have to be undertaken in this project:
 
 - construct a highly scalable architecture so as to accept very large dataset. (typically greater than what can be handled by practical memory sets)
@@ -48,18 +47,16 @@ Several goals have to be undertaken in this project:
 - work with as many input file format as possible (CSV, JSON, FITS, and so on)
 - package the developments into an open-source library.
 
-Data storage and distribution across machines
+Data source
 ============
 
 Since the scientific domain considered here is mostly the Astrophysics domain,
 the natural storage or exchange file format is the FITS format.
 Therefore we consider as part of the problem, the possibility to allow FITS files
-to be directly injected into the HDFS infrastructure,
-so as to develop a Spark based applications.
+to be directly injected into the HDFS infrastructure, so as to develop a Spark based applications.
 
 The usual [cfitsio](https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) library,
 as well as the FITS I/O format are not adapted to a distributed file system as HDFS.
-
 Therefore we will have to develop low level Reader/Writer services,
 to support direct access to FITS data, without copy nor conversion needs.
 

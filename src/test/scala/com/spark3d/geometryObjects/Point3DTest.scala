@@ -36,4 +36,10 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p2 = new Point3D(1.0, 1.0, 1.0)
     assert(p1.distanceTo(p2) == math.sqrt(3))
   }
+
+  // Test method to compute the distance between 2 points.
+  test("Return correctly the coordinates of a point?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0)
+    assert(p1.getCoordinate == List(0.0, 1.0, 0.0))
+  }
 }

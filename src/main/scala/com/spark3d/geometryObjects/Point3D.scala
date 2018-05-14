@@ -18,7 +18,7 @@ package com.spark3d.geometryObjects
 /**
   * Class for describing a point in 3D space.
   */
-class Point3D(x: Double, y: Double, z: Double) {
+class Point3D(val x: Double, val y: Double, val z: Double) {
 
   /**
     * Returns the distance between the point and another.
@@ -31,27 +31,18 @@ class Point3D(x: Double, y: Double, z: Double) {
     */
   def distanceTo(p : Point3D) : Double = {
     val module = math.sqrt(
-      (x - p.getX)*(x - p.getX) +
-      (y - p.getY)*(y - p.getY) +
-      (z - p.getZ)*(z - p.getZ))
+      (this.x - p.x)*(this.x - p.x) +
+      (this.y - p.y)*(this.y - p.y) +
+      (this.z - p.z)*(this.z - p.z))
     module
   }
 
   /**
-    * Get the X coordinate
-    * @return (Double) X coordinate
+    * Return the coordinates (x, y, z) of the point.
+    *
+    * @return (List[Double]) The list of coordinates.
     */
-  def getX : Double = x
-
-  /**
-    * Get the Y coordinate
-    * @return (Double) Y coordinate
-    */
-  def getY : Double = y
-
-  /**
-    * Get the Z coordinate
-    * @return (Double) Z coordinate
-    */
-  def getZ : Double = z
+  def getCoordinate : List[Double] = {
+    List(this.x, this.y, this.z)
+  }
 }

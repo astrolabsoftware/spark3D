@@ -42,4 +42,24 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     assert(p1.getCoordinate == List(0.0, 1.0, 0.0))
   }
+
+  // Test method to test whether two points intersect
+  test("Can you identify two different points?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0)
+    val p2 = new Point3D(0.1, 1.0, 0.0)
+    assert(!p1.intersect(p2))
+  }
+
+  // Test method to test whether two points intersect
+  test("Can you identify two identical points?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0)
+    val p2 = new Point3D(0.0, 1.0, 0.0)
+    assert(p1.intersect(p2))
+  }
+
+  // Volume of a point
+  test("Can you compute the volume of a point?") {
+    val sphere = new Point3D(0.0, 0.0, 0.0)
+    assert(sphere.getVolume == 0.0)
+  }
 }

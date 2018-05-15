@@ -18,18 +18,21 @@ package com.spark3d.geometryObjects
 import com.spark3d.geometryObjects.Shape3D._
 
 /**
-  * Class for describing a point in 3D space.
+  * Class to handle a Sphere
+  *
+  * @param x : (Double)
+  *   X coordinate of the center
+  * @param y : (Double)
+  *   Y coordinate of the center
+  * @param z : (Double)
+  *   Z coordinate of the center
+  * @param radius : (Double)
+  *   Radius of the Sphere
   */
-class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
+class Sphere(val x: Double, val y: Double, val z: Double, override val radius: Double) extends Shape3D with Serializable {
 
-  // The center of the point is the point
-  val center : Point3D = this
-
-  // Zero radius
-  val radius : Double = 0.0
-
-  // Zero volume
-  override def getVolume : Double = 0.0
+  // Center of our Sphere
+  val center = new Point3D(this.x, this.y, this.z)
 
   /**
     * Methods to determine whether two shapes overlap.
@@ -56,28 +59,11 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
   }
 
   /**
-    * Returns the distance between the point and another.
-    * Space is supposed flat (euclidean).
-    *
-    * @param p : (Point3D)
-    *   Another instance of Point3D
-    * @return (Double) Distance between the two points.
+    * Volume of a Sphere.
+    * @return (Double) 4/3 * pi * R**3
     *
     */
-  def distanceTo(p : Point3D) : Double = {
-    val module = math.sqrt(
-      (this.x - p.x)*(this.x - p.x) +
-      (this.y - p.y)*(this.y - p.y) +
-      (this.z - p.z)*(this.z - p.z))
-    module
-  }
-
-  /**
-    * Return the coordinates (x, y, z) of the point.
-    *
-    * @return (List[Double]) The list of coordinates.
-    */
-  def getCoordinate : List[Double] = {
-    List(this.x, this.y, this.z)
+  override def getVolume : Double = {
+    4.0 / 3.0 * math.Pi * this.radius * this.radius * this.radius
   }
 }

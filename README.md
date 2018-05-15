@@ -1,7 +1,7 @@
 ![logo](https://github.com/JulienPeloton/spark3D/blob/master/pic/spark3d_logo.jpg)
 
-[![Build Status](https://travis-ci.org/JulienPeloton/spark3D.svg?branch=geometryObjects)](https://travis-ci.org/JulienPeloton/spark3D)
-[![codecov](https://codecov.io/gh/JulienPeloton/spark3D/branch/geometryObjects/graph/badge.svg)](https://codecov.io/gh/JulienPeloton/spark3D)
+[![Build Status](https://travis-ci.org/JulienPeloton/spark3D.svg?branch=master)](https://travis-ci.org/JulienPeloton/spark3D)
+[![codecov](https://codecov.io/gh/JulienPeloton/spark3D/branch/master/graph/badge.svg)](https://codecov.io/gh/JulienPeloton/spark3D)
 
 The package is under an active development! Here is the short term development list:
 

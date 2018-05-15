@@ -18,6 +18,26 @@ package com.spark3d.geometryObjects
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import com.spark3d.geometryObjects._
+import com.spark3d.geometryObjects.Shape3D._
+
+/**
+  * Dummy class with no specific implementation to test errors
+  */
+class nonShape extends Shape3D {
+  // Centered in 0
+  val center : Point3D = new Point3D(0.0, 0.0, 0.0)
+
+  // Zero radius
+  val radius : Double = 0.0
+
+  // No intersection
+  override def intersect(otherShape : Shape3D) : Boolean = {
+    false
+  }
+
+  // Zero volume
+  override def getVolume : Double = 0.0
+}
 
 /**
   * Test class for the Point3DTest class.
@@ -41,5 +61,35 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
   test("Return correctly the coordinates of a point?") {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     assert(p1.getCoordinate == List(0.0, 1.0, 0.0))
+  }
+
+  // Test method to test whether two points intersect
+  test("Can you identify two different points?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0)
+    val p2 = new Point3D(0.1, 1.0, 0.0)
+    assert(!p1.intersect(p2))
+  }
+
+  // Test method to test whether two points intersect
+  test("Can you identify two identical points?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0)
+    val p2 = new Point3D(0.0, 1.0, 0.0)
+    assert(p1.intersect(p2))
+  }
+
+  // Volume of a point
+  test("Can you compute the volume of a point?") {
+    val p = new Point3D(0.0, 0.0, 0.0)
+    assert(p.getVolume == 0.0)
+  }
+
+  // Detect problems with unknown shape when doing intersection
+  test("Can you deal with unknown shape when doing intersection?") {
+    val p = new Point3D(0.0, 0.0, 0.0)
+    val wrong = new nonShape
+    val exception = intercept[AssertionError] {
+      p.intersect(wrong)
+    }
+    assert(exception.getMessage.contains("Cannot perform intersection"))
   }
 }

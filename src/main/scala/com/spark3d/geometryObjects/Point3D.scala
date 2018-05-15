@@ -34,8 +34,6 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
   /**
     * Methods to determine whether two shapes overlap.
     * Implement different ways for different shapes.
-    * E.g. for sphere and point, we compare the distance between
-    * the two centers with the sum of the two radii.
     *
     * @param otherShape : (Shape3D)
     *   An instance of Shape3D (or extension)
@@ -47,12 +45,16 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
     // Different methods to handle different shapes
     // Keep in mind a point is a sphere with radius 0.
     if (otherShape.isInstanceOf[Sphere] | otherShape.isInstanceOf[Point3D]) {
-      val distance = center.distanceTo(otherShape.center)
-      val sumRadii = this.radius + otherShape.radius
-      if (sumRadii >= distance) {
-        true
-      } else false
-    } else false
+      sphereSphereIntersection(this, otherShape)
+    } else {
+      throw new AssertionError("""
+        Cannot perform intersection because the type of shape is unknown!
+        Currently implemented:
+          - sphere x sphere
+          - sphere x point
+          - point  x point
+        """)
+    }
   }
 
   /**

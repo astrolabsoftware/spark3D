@@ -53,4 +53,41 @@ object Shape3D extends Serializable {
       */
     def getVolume : Double
   }
+
+  /**
+    * Intersection between two spheres. We compare the distance between
+    * the two centers with the sum of the two radii.
+    * Work also with points (sphere with zero radius).
+    *
+    * @param sphere1 : (Shape3D)
+    *   Instance of Shape3D, and more specifically Sphere.
+    * @param sphere2 : (Shape3D)
+    *   Instance of Shape3D, and more specifically Sphere.
+    */
+  def sphereSphereIntersection(sphere1: Shape3D, sphere2: Shape3D) : Boolean = {
+
+    // Quick check on the types of objects
+    if (!sphere1.isInstanceOf[Sphere] && !sphere1.isInstanceOf[Point3D]) {
+      throw new AssertionError("""
+        You are using sphereSphereIntersection with a non-spherical object
+        """)
+    }
+
+    if (!sphere2.isInstanceOf[Sphere] && !sphere2.isInstanceOf[Point3D]) {
+      throw new AssertionError("""
+        You are using sphereSphereIntersection with a non-spherical object
+        """)
+    }
+
+    // Compute the distance between the two centers
+    val distance = sphere1.center.distanceTo(sphere2.center)
+
+    // Compute the sum of the two sphere radii
+    val sumRadii = sphere1.radius + sphere2.radius
+
+    // Compare the distance between centers, and the radius sum.
+    if (sumRadii >= distance) {
+      true
+    } else false
+  }
 }

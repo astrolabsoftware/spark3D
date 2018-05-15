@@ -18,7 +18,7 @@ package com.spark3d.geometryObjects
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**
-  * Test class for the Point3DTest class.
+  * Test class for the Sphere class.
   */
 class SphereTest extends FunSuite with BeforeAndAfterAll {
 
@@ -53,5 +53,14 @@ class SphereTest extends FunSuite with BeforeAndAfterAll {
   test("Can you compute the volume of a sphere?") {
     val sphere = new Sphere(0.0, 0.0, 0.0, 3.0)
     assert(sphere.getVolume == 36 * math.Pi)
+  }
+
+  test("Can you deal with unknown shape when doing intersection?") {
+    val p = new Sphere(0.0, 0.0, 0.0, 1.0)
+    val wrong = new nonShape
+    val exception = intercept[AssertionError] {
+      p.intersect(wrong)
+    }
+    assert(exception.getMessage.contains("Cannot perform intersection"))
   }
 }

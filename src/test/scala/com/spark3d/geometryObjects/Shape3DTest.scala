@@ -24,7 +24,6 @@ import com.spark3d.geometryObjects.Shape3D._
   * Test class for the Shape3D methods.
   */
 class Shape3DTest extends FunSuite with BeforeAndAfterAll {
-  // Just test the Sphere class constructor.
   test("Can you catch bad intersections between a spherical and a non-spherical object?") {
     val p = new Point3D(0.0, 0.0, 0.0)
     val wrong = new nonShape

@@ -15,4 +15,17 @@
  */
 package com.spark3d.utils
 
-object Utils
+import com.spark3d.utils._
+
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
+
+/**
+  * Test class for the Sphere class.
+  */
+class GridTypeTest extends FunSuite with BeforeAndAfterAll {
+
+  // Just test the Sphere class constructor.
+  test("Do you know how many spatial partitionings are implemented?") {
+    assert(GridType.maxId == 1)
+  }
+}

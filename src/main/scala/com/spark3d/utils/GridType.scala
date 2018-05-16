@@ -15,4 +15,17 @@
  */
 package com.spark3d.utils
 
-object Utils
+/**
+  * Define a new enumeration with a type alias
+  * and work with the full set of enumerated values.
+  * The Java equivalent is enum.
+  *
+  */
+object GridType extends Enumeration {
+
+  type GridType = Value
+
+  // Add new GridType name here once implementation done.
+  // Names should be comma separated: val EQUALGRID, TOTO = Value
+  val EQUALGRID = Value
+}

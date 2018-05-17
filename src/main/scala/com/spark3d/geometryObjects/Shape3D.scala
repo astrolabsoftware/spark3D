@@ -113,7 +113,7 @@ object Shape3D extends Serializable {
     }
 
     // Distance to the center
-    val distance = math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z)
+    val distance = p.distanceTo(lower_sphere.center)
 
     // Whether the point is in between the two spheres.
     if (distance >= lower_sphere.radius && distance < upper_sphere.radius) {

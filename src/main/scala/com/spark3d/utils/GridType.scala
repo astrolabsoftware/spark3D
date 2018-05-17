@@ -26,6 +26,6 @@ object GridType extends Enumeration {
   type GridType = Value
 
   // Add new GridType name here once implementation done.
-  // Names should be comma separated: val EQUALGRID, TOTO = Value
-  val EQUALGRID = Value
+  // Names should be comma separated: val ONIONGRID, TOTO = Value
+  val ONIONGRID = Value
 }

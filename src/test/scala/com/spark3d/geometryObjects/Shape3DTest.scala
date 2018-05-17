@@ -37,4 +37,28 @@ class Shape3DTest extends FunSuite with BeforeAndAfterAll {
     }
     assert(exception2.getMessage.contains("non-spherical object"))
   }
+
+  test("Can you detect that a point belong to a shell?") {
+    val p = new Point3D(1.0, 1.0, 1.0)
+    val lower_sphere = new Sphere(0.0, 0.0, 0.0, 1.0)
+    val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
+    assert(isPointInShell(lower_sphere, upper_sphere, p))
+  }
+
+  test("Can you detect that a point outside a shell?") {
+    val p = new Point3D(10.0, 10.0, 10.0)
+    val lower_sphere = new Sphere(0.0, 0.0, 0.0, 1.0)
+    val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
+    assert(!isPointInShell(lower_sphere, upper_sphere, p))
+  }
+
+  test("Can you detect a bad shell (non-centered spheres)?") {
+    val p = new Point3D(1.0, 1.0, 1.0)
+    val lower_sphere = new Sphere(1.0, 0.0, 0.0, 1.0)
+    val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
+    val exception = intercept[AssertionError] {
+      isPointInShell(lower_sphere, upper_sphere, p)
+    }
+    assert(exception.getMessage.contains("must be centered"))
+  }
 }

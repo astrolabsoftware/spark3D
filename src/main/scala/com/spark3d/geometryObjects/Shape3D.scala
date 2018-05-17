@@ -90,4 +90,34 @@ object Shape3D extends Serializable {
       true
     } else false
   }
+
+  /**
+    * Check whether a point belong to a spherical shell made by the difference
+    * of two spheres.
+    *
+    * @param lower_sphere : (Sphere)
+    *   Lower sphere defining the lower bound of the shell (included).
+    * @param upper_sphere : (Sphere)
+    *   Upper sphere defining the upper bound of the shell (excluded).
+    * @param p : (Point3D)
+    *   Point of the space
+    * @return (Boolean) True if the point is between the two sphere.
+    *
+    */
+  def isPointInShell(lower_sphere : Sphere, upper_sphere : Sphere, p : Point3D): Boolean = {
+
+    if (lower_sphere.center.getCoordinate != upper_sphere.center.getCoordinate) {
+      throw new AssertionError("""
+        The two spheres must be centered on the same point!
+        """)
+    }
+
+    // Distance to the center
+    val distance = math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z)
+
+    // Whether the point is in between the two spheres.
+    if (distance >= lower_sphere.radius && distance < upper_sphere.radius) {
+      true
+    } else false
+  }
 }

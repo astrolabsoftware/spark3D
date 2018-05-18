@@ -72,7 +72,7 @@ class OnionPartitioner(gridType : GridType, grids : List[Sphere]) extends Spatia
     // Grab the center of the geometrical objects
     val center = spatialObject.center
     var containFlag : Boolean = false
-    val notIncludedID = grids.size
+    val notIncludedID = grids.size - 1
     val result = HashSet.empty[Tuple2[Int, T]]
 
     for (pos <- 0 to grids.size - 2) {

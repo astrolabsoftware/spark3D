@@ -51,10 +51,17 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
   }
 
   // Test method to compute the distance between 2 points.
-  test("Can you compute the distance between 2 points?") {
+  test("Can you compute the distance between 2 points (euclidean)?") {
     val p1 = new Point3D(0.0, 0.0, 0.0)
     val p2 = new Point3D(1.0, 1.0, 1.0)
     assert(p1.distanceTo(p2) == math.sqrt(3))
+  }
+
+  // Test method to compute the distance between 2 points.
+  test("Can you compute the distance between 2 points (spherical)?") {
+    val p1 = new Point3D(0.0, 0.0, 0.0, true)
+    val p2 = new Point3D(1.0, math.Pi/2.0, math.Pi, true)
+    assert(p1.distanceTo(p2) == 1.0)
   }
 
   // Test method to compute the distance between 2 points.

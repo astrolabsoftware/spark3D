@@ -25,6 +25,10 @@ import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.api.java.function.FlatMapFunction
 import org.apache.spark.api.java.function.PairFlatMapFunction
 
+/**
+  * Class to handle Point3D RDD.
+  * It takes as input a RDD[Point3D] with random partitioning, and apply a
+  */
 class Point3DRDD(rdd: RDD[Point3D]) extends Shape3DRDD[Point3D] {
 
   def spatialPartitioning(minZ : Double, maxZ : Double, dZ : Double) : JavaRDD[Point3D] = {

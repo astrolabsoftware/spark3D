@@ -19,8 +19,19 @@ import com.spark3d.geometryObjects.Shape3D._
 
 /**
   * Class for describing a point in 3D space.
+  * By default, the input coordinates are supposed euclidean, that is (x, y, z).
+  * The user can also work with spherical input coordinates (x=r, y=theta, z=phi)
+  * by setting the argument spherical=true.
+  *
+  * @param x : (Double)
+  *   Input X coordinate in Euclidean space, and R in spherical space.
+  * @param y : (Double)
+  *   Input Y coordinate in Euclidean space, and THETA in spherical space.
+  * @param z : (Double)
+  *   Input Z coordinate in Euclidean space, and PHI in spherical space.
+  *
   */
-class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
+class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolean = false) extends Shape3D with Serializable {
 
   // The center of the point is the point
   val center : Point3D = this
@@ -67,10 +78,21 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
     *
     */
   def distanceTo(p : Point3D) : Double = {
-    val module = math.sqrt(
-      (this.x - p.x)*(this.x - p.x) +
-      (this.y - p.y)*(this.y - p.y) +
-      (this.z - p.z)*(this.z - p.z))
+    val module = if (!this.spherical) {
+      math.sqrt(
+        (this.x - p.x)*(this.x - p.x) +
+        (this.y - p.y)*(this.y - p.y) +
+        (this.z - p.z)*(this.z - p.z)
+      )
+    } else {
+      math.sqrt(
+        this.x * this.x + p.x * p.x - 2 * this.x * p.x * (
+          math.sin(this.y) * math.sin(p.y) *
+          math.cos(this.z - p.z) +
+          math.cos(this.y) * math.cos(p.y)
+        )
+      )
+    }
     module
   }
 

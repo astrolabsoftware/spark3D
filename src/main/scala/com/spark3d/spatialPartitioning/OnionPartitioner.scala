@@ -15,7 +15,8 @@
  */
 package com.spark3d.spatialPartitioning
 
-// import java.util.HashSet
+import collection.JavaConverters._
+
 import scala.collection.mutable.HashSet
 
 import com.spark3d.geometryObjects.Sphere
@@ -47,18 +48,19 @@ class OnionPartitioner(gridType : GridType, grids : List[Sphere]) extends Spatia
     * @return (Int) the number of partition
     */
   override def numPartitions : Int = {
-    grids.size - 1
+    grids.size
   }
 
   /**
     * Associate geometrical objects (Point3D, Sphere, etc) to grid elements of
     * the onion space.
+    * 
     */
-  override def placeObject[T<:Shape3D](spatialObject : T) : Iterator[Tuple2[Int, T]] = {
+  override def placeObject[T<:Shape3D](spatialObject : T) : java.util.Iterator[Tuple2[Int, T]] = {
 
     val center = spatialObject.center
     var containFlag : Boolean = false
-    val notIncludedID = -1
+    val notIncludedID = grids.size
     val result = HashSet.empty[Tuple2[Int, T]]
 
     for (pos <- 0 to grids.size - 2) {
@@ -75,7 +77,8 @@ class OnionPartitioner(gridType : GridType, grids : List[Sphere]) extends Spatia
       result += new Tuple2(notIncludedID, spatialObject)
     }
 
-    result.toIterator
+    // Make it Java for GeoSpark compatibility
+    result.toIterator.asJava
   }
 
 }

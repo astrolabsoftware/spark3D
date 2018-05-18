@@ -35,11 +35,6 @@ abstract class SpatialPartitioner(gridType : GridType, grids : List[Shape3D]) ex
     */
   def getGrids : List[Shape3D] = grids
 
-  // def placeObject[T](spatialObject : T) : Iterator[Tuple2[Int, T]] = {
-  //   new NotImplementedError("""
-  //     placeObject must be implemented for each specific partitioner.
-  //     """)
-  // }
   /**
     * Method to place a spatialObject (could a Point3D, a Sphere, and so on) on
     * a grid. In practice it will assign a key (Int) to the spatialObject
@@ -50,7 +45,7 @@ abstract class SpatialPartitioner(gridType : GridType, grids : List[Shape3D]) ex
     * @return (Iterator[Tuple2[Int, T]]) Iterator over a tuple (Key, Object).
     *
     */
-  def placeObject[T<:Shape3D](spatialObject : T) : Iterator[Tuple2[Int, T]] = ???
+  def placeObject[T<:Shape3D](spatialObject : T) : java.util.Iterator[Tuple2[Int, T]] = ???
 
   /**
     * Method to return the ID of a partition

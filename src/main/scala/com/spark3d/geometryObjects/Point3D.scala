@@ -20,7 +20,7 @@ import com.spark3d.geometryObjects.Shape3D._
 /**
   * Class for describing a point in 3D space.
   */
-class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D {
+class Point3D(val x: Double, val y: Double, val z: Double) extends Shape3D with Serializable {
 
   // The center of the point is the point
   val center : Point3D = this

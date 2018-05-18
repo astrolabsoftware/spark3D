@@ -51,8 +51,8 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
     val p = new Point3D(0.0, 0.0, 10.0)
     val iterator = partitioner.placeObject(p)
 
-    // Check that the point lies outside (-1 index)
-    assert(iterator.next()._1 == -1)
+    // Check that the point lies outside (number of elements (10) + 1)
+    assert(iterator.next()._1 == grids.size)
   }
 
   test("Can you guess how many partitions are needed for the onion space?") {
@@ -61,6 +61,7 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
     val grids = partitioning.getGrids
     val partitioner = new OnionPartitioner(GridType.ONIONGRID, grids)
 
-    assert(partitioner.numPartitions == 9)
+    // 9 partitions for inside + 1 for outside points
+    assert(partitioner.numPartitions == 10)
   }
 }

@@ -23,10 +23,7 @@ import com.spark3d.geometryObjects.Sphere
   * https://github.com/JulienPeloton/spark3D/issues/11
   *
   * The difference between 2 concentric spheres will define the
-  * elements of the grid (from the partition point of view).
-  * In a sense, we will have a onion space!
-  * For each elements, the objects will be projected into shells,
-  * and the surface will be split using Healpix.
+  * elements of the grid (Spark partitions) such that we will have a onion space!
   *
   */
 class OnionPartitioning extends Serializable {

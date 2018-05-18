@@ -31,21 +31,30 @@ import com.spark3d.geometryObjects.Sphere
   */
 class OnionPartitioning extends Serializable {
 
-  // Elements of the grid
+  /**
+    * Elements of the Grid as List[Sphere]
+    */
   val grids = List.newBuilder[Sphere]
 
   /**
-    * Instantiate a new Onion space
+    * Initialise a new Onion space, by linearly slicing the radial coordinate.
+    * The space is made of concentric spheres, and each partition is the
+    * difference between two subsequent spheres.
     *
     * @param minZ : (Double)
+    *   Smallest radial coordinate value for our space.
     * @param maxZ : (Double)
+    *   Highest radial coordinate value for our space.
     * @param dZ : (Double)
+    *   Resolution of the space, that is radial distance between two partitions.
     */
-  def OnionPartitioning(minZ : Double, maxZ : Double, dZ : Double) : Unit = {
+  def LinearOnionPartitioning(minZ : Double, maxZ : Double, dZ : Double) : Unit = {
 
-    // Number of Spark partition in our space
-    // This is just a linear split of the Z coordinate.
+    // Number of Spark partitions in our space
+    // This is just a linear split of the radial coordinate.
     val npd : Double = (maxZ - minZ) / dZ
+
+    // Add one more partitions if the result is not an integer
     val num_partitions = if (npd % npd.toInt == 0) {
       npd.toInt
     } else {

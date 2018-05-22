@@ -66,8 +66,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   test("Can you repartition a RDD with the onion space?") {
     val pointRDD = new Point3DRDD(spark, fn_fits, 1, "RA,DEC,Z_COSMO")
 
-    // Partition my space
-    // TODO: include that in method to update the RDD...
+    // Partition the space using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
 
     // Collect the size of each partition
@@ -80,7 +79,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   test("Can you repartition a RDD with the onion space with more partitions?") {
     val pointRDD = new Point3DRDD(spark, fn_fits, 1, "RA,DEC,Z_COSMO")
 
-    // Partition my space with 10 data shells + 1 (outside)
+    // Partition my space with 10 data shells + 1 (outside) using
+    // the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 10)
 
     // Collect the size of each partition

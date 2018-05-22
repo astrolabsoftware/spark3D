@@ -52,4 +52,20 @@ class UtilsTest extends FunSuite with BeforeAndAfterAll {
     }
     assert(exception2.getMessage.contains("already in spherical coordinates"))
   }
+
+  // deg to rad conversion
+  test("Can you convert RA/Dec (deg) to theta/phi (rad) correctly?") {
+    val ra = 180.0
+    val dec = 0.0
+
+    assert(dec2theta(dec) == math.Pi/2.0 && ra2phi(ra) == math.Pi)
+  }
+
+  // rad to rad conversion
+  test("Can you convert RA/Dec (rad) to theta/phi (rad) correctly?") {
+    val ra = math.Pi
+    val dec = 0.0
+
+    assert(dec2theta(dec, true) == math.Pi/2.0 && ra2phi(ra, true) == math.Pi)
+  }
 }

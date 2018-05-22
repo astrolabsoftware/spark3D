@@ -24,24 +24,53 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.api.java.function.FlatMapFunction
 import org.apache.spark.api.java.function.PairFlatMapFunction
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.col
 
 /**
-  * Class to handle Point3D RDD.
-  * It takes as input a RDD[Point3D] with random partitioning, and apply a
+  * The Point3DRDD object containing class to handle Point3DRDD classes.
+  *
   */
-class Point3DRDD(rdd: RDD[Point3D]) extends Shape3DRDD[Point3D] {
+object Point3DRDD {
 
-  def spatialPartitioning(minZ : Double, maxZ : Double, dZ : Double) : JavaRDD[Point3D] = {
-    // Initialise our space
-    val partitioning = new OnionPartitioning
-    partitioning.LinearOnionPartitioning(minZ, maxZ, dZ)
+  /**
+    * Class to make a Point3D RDD from FITS data.
+    * {{{
+    *   val fn = "src/test/resources/astro_obs.fits"
+    *   val point3RDD = new Point3DRDD(spark, fn, 1, "RA,Dec,Z_COSMO")
+    * }}}
+    *
+    * @param spark : (SparkSession)
+    *   The spark session
+    * @param filename : (String)
+    *   File name where the data is stored
+    * @param hdu : (Int)
+    *   HDU to load.
+    * @param colnames : (String)
+    * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
+    *
+    */
+  class Point3DRDD(spark : SparkSession, filename : String, hdu : Int, colnames : String) extends Shape3DRDD[Point3D] {
 
-    // Grab the grid elements
-    val grids = partitioning.getGrids
+    // Load the data as DataFrame using spark-fits
+    val df = spark.read
+      .format("com.sparkfits")
+      .option("hdu", hdu)
+      .load(filename)
 
-    // Build our partitioner
-    val partitioner = new OnionPartitioner(GridType.LINEARONIONGRID, grids)
+    // Grab the name of columns
+    val csplit = colnames.split(",")
 
-    partition[Point3D](rdd, partitioner)
+    // Select the 3 columns (x, y, z)
+    // and cast to double in case.
+    override val rawRDD = df.select(
+        col(csplit(0)).cast("double"),
+        col(csplit(1)).cast("double"),
+        col(csplit(2)).cast("double")
+      )
+      // DF to RDD
+      .rdd
+      // map to Point3D
+      .map(x => new Point3D(x.getDouble(0), x.getDouble(1), x.getDouble(2)))
   }
 }

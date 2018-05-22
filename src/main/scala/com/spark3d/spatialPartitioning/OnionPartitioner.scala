@@ -19,7 +19,6 @@ import collection.JavaConverters._
 
 import scala.collection.mutable.HashSet
 
-import com.spark3d.utils.GridType._
 import com.spark3d.spatialPartitioning
 import com.spark3d.geometryObjects.Sphere
 import com.spark3d.geometryObjects.Shape3D._
@@ -32,14 +31,12 @@ import com.spark3d.geometryObjects.Shape3D._
   * The difference between 2 concentric spheres will define the
   * elements of the grid (Spark partitions) such that we will have a onion space!
   *
-  * @param gridType : (GridType)
-  *   One of the available grid type listed in GridType.
   * @param grids : (List[Sphere])
   *   List of concentric spheres which partition the space. Radius of the
   *   spheres must be increasing.
   *
   */
-class OnionPartitioner(gridType : GridType, grids : List[Sphere]) extends SpatialPartitioner(gridType, grids) {
+class OnionPartitioner(grids : List[Sphere]) extends SpatialPartitioner(grids) {
 
   /**
     * The number of partitions is the number of sphere as grid elements

@@ -19,8 +19,8 @@ import xerial.sbt.Sonatype._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.3.0",
-     mainClass in Compile := Some("com.sparkfits.ReadFits")
+     version      := "0.1.0",
+     mainClass in Compile := Some("com.sparkfits.examples.OnionSpace")
    )),
    // Name of the application
    name := "spark3D",
@@ -36,7 +36,7 @@ lazy val root = (project in file(".")).
    // Do not publish artifact in test
    publishArtifact in Test := false,
    // Exclude runner class for the coverage
-   // coverageExcludedPackages := "<empty>;com.sparkfits.ReadFits*;com.sparkfits.ReadImage*",
+   coverageExcludedPackages := "<empty>;com.spark3d.examples*",
    // Excluding Scala library JARs that are included in the binary Scala distribution
    // assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
    // Shading to avoid conflicts with pre-installed nom.tam.fits library

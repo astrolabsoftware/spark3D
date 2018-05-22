@@ -5,9 +5,13 @@
 
 The package is under an active development! Here is the short term development list:
 
-- While GeoSpark relies on the package JTS for 2D objects, there is no support for 3D objects in JTS, so we have to develop them ourselves.
-- Upgrade 2D RDD to 3D RDD (circle -> sphere, parallelogram -> parallelepiped, and so on).
+- While GeoSpark relies on the package JTS for 2D objects, there is no support for 3D objects in JTS, so we develop them ourselves (Shape3D).
+- Upgrade 2D RDD to 3D RDD.
 - Upgrade 2D methods for partitioning/join/query/indexing to 3D.
+
+Currently spark3D provides 2 main steps:
+- creating a Shape3D RDD (Point3D, Sphere) from a raw RDD. The Shape3D RDD are RDD whose elements are Shape3D. They have the same partitioning as the raw RDD. Advantage: intersection, covering methods.
+- re-partition a Shape3D RDD, based on implemented partitioners. Partitioned Shape3D RDD are RDD whose elements are Shape3D, plus a specific partitioning. Advantage: indexing, fast joins.
 
 Why spark3D?
 ============

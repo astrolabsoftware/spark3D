@@ -64,4 +64,42 @@ object Utils {
     // Return the new point in spherical coordinates
     new Point3D(x, y, z, false)
   }
+
+  /**
+    * Convert declination into theta
+    *
+    * @param dec : (Double)
+    *   declination coordinate in degree
+    * @param inputInRadian : (Boolean)
+    *   If true, assume the input is in radian. Otherwise make the conversion
+    *   deg2rad. Default is false.
+    * @return (Double) theta coordinate in radian
+    */
+  def dec2theta(dec : Double, inputInRadian : Boolean = false) : Double = {
+    if (!inputInRadian) {
+      math.Pi / 2.0 - math.Pi / 180.0 * dec
+    } else {
+      math.Pi / 2.0 - dec
+    }
+
+  }
+
+  /**
+    * Convert right ascension into phi
+    *
+    * @param ra : (Double)
+    *   RA coordinate in degree
+    * @param inputInRadian : (Boolean)
+    *   If true, assume the input is in radian. Otherwise make the conversion
+    *   deg2rad. Default is false.
+    * @return (Double) phi coordinate in radian
+    *
+    */
+  def ra2phi(ra : Double, inputInRadian : Boolean = false) : Double = {
+    if (!inputInRadian) {
+      math.Pi / 180.0 * ra
+    } else {
+      ra
+    }
+  }
 }

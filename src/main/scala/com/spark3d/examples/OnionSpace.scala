@@ -37,7 +37,7 @@ object OnionSpace {
   def main(args : Array[String]) = {
 
     val fn_fits = args(0).toString
-    val pointRDD = new Point3DRDD(spark, fn_fits, args(1).toInt, args(2).toString)
+    val pointRDD = new Point3DRDD(spark, fn_fits, args(1).toInt, args(2).toString, true)
     val partitionsBefore = pointRDD.rawRDD.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
@@ -50,5 +50,7 @@ object OnionSpace {
 
     println("Before: ", partitionsBefore.toList)
     println("After : ", partitionsAfter.toList)
+
+    pointRDD_part.map(x=>x.center.getCoordinate).saveAsTextFile("test_part2.txt")
   }
 }

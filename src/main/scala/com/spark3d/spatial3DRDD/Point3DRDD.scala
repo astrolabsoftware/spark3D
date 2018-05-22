@@ -50,7 +50,7 @@ object Point3DRDD {
     * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
     *
     */
-  class Point3DRDD(spark : SparkSession, filename : String, hdu : Int, colnames : String) extends Shape3DRDD[Point3D] {
+  class Point3DRDD(spark : SparkSession, filename : String, hdu : Int, colnames : String, spherical : Boolean = false) extends Shape3DRDD[Point3D] {
 
     // Load the data as DataFrame using spark-fits
     val df = spark.read
@@ -71,6 +71,6 @@ object Point3DRDD {
       // DF to RDD
       .rdd
       // map to Point3D
-      .map(x => new Point3D(x.getDouble(0), x.getDouble(1), x.getDouble(2)))
+      .map(x => new Point3D(x.getDouble(0), x.getDouble(1), x.getDouble(2), spherical))
   }
 }

@@ -87,6 +87,6 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val partitions = pointRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 11 && partitions(5) == 4651)
+    assert(partitions.size == 11 && partitions(5) == 2148 && partitions.sum == 20000)
   }
 }

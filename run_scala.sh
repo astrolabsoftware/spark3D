@@ -24,15 +24,20 @@ VERSION=0.1.0
 sbt ++${SBT_VERSION} package
 
 # Parameters (put your file)
-fitsfn="file://$PWD/src/test/resources/astro_obs.fits"
+fitsfn="file://$PWD/src/test/resources/astro_obs2.fits"
 hdu=1
-columns="RA,Dec,Z_COSMO"
+columns="Z_COSMO,RA,Dec"
+display="show"
+
+## Dependencies
+jars="lib/jhealpix.jar,lib/swingx-0.9.1.jar"
+packages="com.github.JulienPeloton:spark-fits_2.11:0.3.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
 
 # Run it!
 spark-submit \
   --master local[*] \
   --class com.spark3d.examples.OnionSpace \
-  --jars lib/jhealpix.jar \
-  --packages com.github.JulienPeloton:spark-fits_2.11:0.3.0 \
+  --jars ${jars} \
+  --packages ${packages} \
   target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \
-  $fitsfn $hdu $columns
+  $fitsfn $hdu $columns $display

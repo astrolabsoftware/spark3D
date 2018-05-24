@@ -19,8 +19,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import com.spark3d.geometryObjects.Point3D
 import com.spark3d.utils.GridType
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
-import com.spark3d.spatial3DRDD.Point3DRDDFromCSV
+import com.spark3d.spatial3DRDD._
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.DataFrame
@@ -105,5 +104,15 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
       iter => Array(iter.size).iterator, true).collect()
 
     assert(partitions.size == 2 && partitions(0) == 20000)
+  }
+
+  test("RDD: Can you construct a Point3DRDD from a RDD[Point3D]?") {
+    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "RA,DEC,Z_COSMO", true)
+
+    val rdd = pointRDD.rawRDD
+
+    val newRDD = new Point3DRDDFromRDD(rdd)
+
+    assert(newRDD.isInstanceOf[Shape3DRDD[Point3D]])
   }
 }

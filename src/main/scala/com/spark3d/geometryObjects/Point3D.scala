@@ -35,9 +35,13 @@ import healpix.essentials.Scheme.RING
   *   Input Y coordinate in Euclidean space, and THETA in spherical space.
   * @param z : (Double)
   *   Input Z coordinate in Euclidean space, and PHI in spherical space.
+  * @param spherical : (Boolean)
+  *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
+  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
   *
   */
-class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolean = false) extends Shape3D with Serializable {
+class Point3D(val x: Double, val y: Double, val z: Double,
+    val spherical: Boolean = false) extends Shape3D with Serializable {
 
   // The center of the point is the point
   val center : Point3D = this

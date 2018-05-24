@@ -19,6 +19,18 @@ import com.spark3d.geometryObjects._
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
+import org.apache.spark.rdd.RDD
+
+/**
+  * Construct a Point3DRDD from a RDD[Point3D]
+  *
+  * @param rdd : (RDD[Point3D])
+  *   RDD whose elements are Point3D instances.
+  *
+  */
+class Point3DRDDFromRDD(rdd : RDD[Point3D]) extends Shape3DRDD[Point3D] {
+  override val rawRDD = rdd
+}
 
 /**
   * Construct a Point3DRDD from CSV data.

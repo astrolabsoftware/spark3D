@@ -53,4 +53,4 @@ jupyter toree install --spark_home=${SPARK_HOME}
 ```
 
 Once done, just launch a notebook `jupyter notebook` and choose the kernel Toree.
-You can also play with the provided examples (including visualisation using smile!).
+You can also play with the provided examples (including visualisation using [smile](https://github.com/haifengl/smile)!).

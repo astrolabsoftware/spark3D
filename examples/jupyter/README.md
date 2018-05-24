@@ -3,19 +3,20 @@ Spark & Jupyter Notebook
 
 Data exploration without visualisation or tools to interactively explore the data
 is no fun. There exists several way of mixing Spark with notebook. Among those
-Zeppelin and Jupyter Notebook with Apache Toree kernel are great.
+[Zeppelin](https://zeppelin.apache.org/) and Jupyter Notebook
+with the [Apache Toree](https://toree.incubator.apache.org/) kernel are great.
 
-Installing Apache Toree kernel
+Installing Apache Toree as kernel in Jupyter
 ============
 
-The easiest way to install the toree kernel is
+The easiest way to install the Toree kernel is
 
 ```bash
-$ ## To see the list of available kernels
+## To see the list of available kernels
 $ jupyter kernelspec list
-$ ## Download and install the kernel on your machine
+## Download and install the kernel on your machine
 $ pip install toree
-$ ## SPARK_HOME must be defined!
+## SPARK_HOME must be defined!
 $ jupyter toree install --spark_home=${SPARK_HOME}
 ```
 
@@ -43,13 +44,13 @@ Exception in thread "main" java.lang.NoSuchMethodError: scala.collection.immutab
 	at scala.util.Try$.apply(Try.scala:192)
 ```
 
-This is a known issue as of mid-2018, and the way to solve it is to install
-the latest SNAPSHOT version (not the default release):
+This is a known issue as of mid-2018 (e.g. [TOREE-354](https://issues.apache.org/jira/browse/TOREE-354) and [TOREE-336](https://issues.apache.org/jira/browse/TOREE-336)), and the way
+to solve it is to install the latest SNAPSHOT version (not the default release):
 
 ```bash
 pip install https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz
 jupyter toree install --spark_home=${SPARK_HOME}
 ```
 
-One done, just launch a notebook `jupyter notebook` and choose the kernel Toree.
+Once done, just launch a notebook `jupyter notebook` and choose the kernel Toree.
 You can also play with the provided examples (including visualisation using smile!).

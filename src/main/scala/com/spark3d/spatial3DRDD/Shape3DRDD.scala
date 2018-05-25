@@ -15,11 +15,20 @@
  */
 package com.spark3d.spatial3DRDD
 
-import com.spark3d.spatialPartitioning._
+// Re-partitioning
+import com.spark3d.spatialPartitioning.SpatialPartitioner
+import com.spark3d.spatialPartitioning.OnionPartitioning
+import com.spark3d.spatialPartitioning.OnionPartitioner
+
+// 3D Objects
 import com.spark3d.geometryObjects._
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.utils.GridType
 
+// Grids
+import com.spark3d.utils.GridType
+import com.spark3d.utils.GridType._
+
+// Spark
 import org.apache.spark.rdd.RDD
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.api.java.function.FlatMapFunction
@@ -29,21 +38,76 @@ import org.apache.spark.api.java.function.PairFlatMapFunction
   * Class to handle generic 3D RDD.
   * The output type is T which extends the class Shape3D.
   */
-class Shape3DRDD[T<:Shape3D] extends Serializable {
+abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
+
+  /** RDD containing the initial data formated as T. */
+  val rawRDD : RDD[T]
+
+  /**
+    * Apply a spatial partitioning to the RDD[T].
+    * The list of available partitioning can be found in utils/GridType.
+    * By default, the outgoing level of parallelism is the same as the incoming
+    * one (i.e. same number of partitions).
+    *
+    * @param gridtype : (GridType)
+    *   Type of partitioning to apply. See utils/GridType.
+    * @param numPartitions : (Int)
+    *   Number of partitions for the partitioned RDD. By default (-1), the
+    *   number of partitions is that of the raw RDD. You can force it to be
+    *   different by setting manually this parameter.
+    *   Be aware of shuffling though...
+    * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
+    *
+    */
+  def spatialPartitioning(gridtype : GridType, numPartitions : Int = -1) : RDD[T] = {
+
+    val numPartitionsRaw = if (numPartitions == -1) {
+      // Same number of partitions as the rawRDD
+      rawRDD.getNumPartitions
+    } else {
+      // Force new partition number
+      numPartitions
+    }
+
+    // Add here new cases.
+    val partitioner = gridtype match {
+      case GridType.LINEARONIONGRID => {
+        // Initialise our space
+        val partitioning = new OnionPartitioning
+        partitioning.LinearOnionPartitioning(
+          numPartitionsRaw,
+          partitioning.getMaxZ(rawRDD)
+        )
+
+        // Grab the grid elements
+        val grids = partitioning.getGrids
+
+        // Build our partitioner
+        new OnionPartitioner(grids)
+      }
+      case _ => throw new AssertionError("""
+        Unknown grid type! See utils.GridType for available grids.""")
+    }
+
+    // Apply the partitioner and return the RDD
+    partition(partitioner)
+  }
 
   /**
     * Repartion a RDD[T] according to a custom partitioner.
+    * We follow the GeoSpark method for the moment (using the Java API).
+    * In the future, that would be good to write that using the Scala API.
     *
     * @param rdd : (RDD[T])
     *   RDD of T (must extends Shape3D).
     * @param partitioner : (SpatialPartitioner)
     *   Instance of SpatialPartitioner or any extension of it.
-    * @return (JavaRDD) Return a JavaRDD (for GeoSpark compatibility)
+    * @return (RDD[T]) Return a RDD[T] repartitioned.
     *
     */
-  def partition[T<:Shape3D](rdd: RDD[T], partitioner: SpatialPartitioner) : JavaRDD[T] = {
+  def partition(partitioner: SpatialPartitioner) : RDD[T] = {
     // RDD -> JavaRDD -> JavaPairRDD with custom partitioner
-    rdd.toJavaRDD.flatMapToPair(
+    rawRDD.toJavaRDD.flatMapToPair[Int, T](
       new PairFlatMapFunction[T, Int, T]() {
         override def call(spatialObject: T) : java.util.Iterator[Tuple2[Int, T]] = {
           partitioner.placeObject[T](spatialObject)
@@ -62,6 +126,6 @@ class Shape3DRDD[T<:Shape3D] extends Serializable {
           }
         }
       }, true
-    )
+    ).rdd
   }
 }

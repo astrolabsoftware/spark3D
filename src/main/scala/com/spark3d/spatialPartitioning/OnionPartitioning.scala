@@ -15,7 +15,11 @@
  */
 package com.spark3d.spatialPartitioning
 
+import org.apache.spark.rdd.RDD
+
 import com.spark3d.geometryObjects.Sphere
+import com.spark3d.geometryObjects.Point3D
+import com.spark3d.geometryObjects.Shape3D._
 
 /**
   * Class to deal with the onion space.
@@ -34,35 +38,44 @@ class OnionPartitioning extends Serializable {
   val grids = List.newBuilder[Sphere]
 
   /**
+    * Get the highest radial coordinate value (max(Z)).
+    *
+    * @param rdd (RDD[T])
+    *   RDD of type T (which must extends Shape3D)
+    * @return (Double) the highest radial coordinate value (max(Z)).
+    */
+  def getMaxZ[T<:Shape3D](rdd : RDD[T]) : Double = {
+    rdd.map(x => x.center.distanceTo(new Point3D(0.0, 0.0, 0.0))).max
+  }
+
+  /**
     * Initialise a new Onion space, by linearly slicing the radial coordinate.
     * The space is made of concentric spheres, and each partition is the
     * difference between two subsequent spheres.
+    * The resolution of the space, that is the radial distance between
+    * two partitions is given by the highest radial coordinate value divided by
+    * the number of partitions.
     *
-    * @param minZ : (Double)
-    *   Smallest radial coordinate value for our space.
+    * @param numPartitions : (Int)
+    *   Number RDD partitions
     * @param maxZ : (Double)
     *   Highest radial coordinate value for our space.
-    * @param dZ : (Double)
-    *   Resolution of the space, that is radial distance between two partitions.
     */
-  def LinearOnionPartitioning(minZ : Double, maxZ : Double, dZ : Double) : Unit = {
+  def LinearOnionPartitioning(numPartitions : Int, maxZ : Double) : Unit = {
 
-    // Number of Spark partitions in our space
-    // This is just a linear split of the radial coordinate.
-    val npd : Double = (maxZ - minZ) / dZ
-
-    // Add one more partitions if the result is not an integer
-    val num_partitions = if (npd % npd.toInt == 0) {
-      npd.toInt
-    } else {
-      npd.toInt + 1
-    }
+    // The resolution of the space
+    val dZ : Double = maxZ / numPartitions
 
     // Add concentric spheres. Note that there is n+1 spheres as
     // shells are created by the difference between 2 subsequent spheres
     // (n+1 spheres give n shells).
-    for (pos <- 0 to num_partitions) {
-      val sphere = new Sphere(0.0, 0.0, 0.0, dZ * pos)
+    for (pos <- 0 to numPartitions) {
+      val sphere = if (pos == numPartitions) {
+        // Pad the boundary to include points at the boundaries.
+        new Sphere(0.0, 0.0, 0.0, 1.1 * dZ * pos)
+      } else {
+        new Sphere(0.0, 0.0, 0.0, dZ * pos)
+      }
       grids += sphere
     }
   }

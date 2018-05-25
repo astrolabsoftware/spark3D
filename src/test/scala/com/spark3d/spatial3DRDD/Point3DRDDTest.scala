@@ -18,6 +18,8 @@ package com.spark3d.spatial3DRDD
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import com.spark3d.geometryObjects.Point3D
+import com.spark3d.utils.GridType
+import com.spark3d.spatial3DRDD._
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.DataFrame
@@ -38,7 +40,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   Logger.getLogger("akka").setLevel(Level.OFF)
 
   private val master = "local[2]"
-  private val appName = "sparkfitsTest"
+  private val appName = "spark3dtest"
 
   private var spark : SparkSession = _
 
@@ -60,32 +62,57 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   }
   // END TODO
 
+  // Test files
   val fn_fits = "src/test/resources/astro_obs.fits"
-  test("Can you repartition a RDD with the onion space?") {
-    // Load data from a FITS file
-    val df = spark.read
-      .format("com.sparkfits")
-      .option("hdu", 1)
-      .load(fn_fits)
+  val fn_csv = "src/test/resources/astro_obs.csv"
 
-    // Reshape the data (x, y, z) into Point3D (euclidean)
-    val rdd = df.rdd.map(x => new Point3D(
-      x.getFloat(0).toDouble,
-      x.getFloat(1).toDouble,
-      x.getFloat(2).toDouble)
-    )
+  test("FITS: Can you repartition a RDD with the onion space?") {
+    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "RA,DEC,Z_COSMO", true)
 
-    // Initialise my 3D RDD
-    val pointRDD = new Point3DRDD(rdd)
-
-    // Partition my space
-    // TODO: include that in method to update the RDD...
-    val pointRDD_part = pointRDD.spatialPartitioning(0.0, 1.0, 0.1)
+    // Partition the space using the LINEARONIONGRID
+    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
 
     // Collect the size of each partition
-    val partitions = pointRDD_part.rdd
-      .mapPartitions(iter => Array(iter.size).iterator, true).collect()
+    val partitions = pointRDD_part.mapPartitions(
+      iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 11 && partitions(5) == 979)
+    assert(partitions.size == 2 && partitions(0) == 20000)
+  }
+
+  test("FITS: Can you repartition a RDD with the onion space with more partitions?") {
+    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "RA,DEC,Z_COSMO", true)
+
+    // Partition my space with 10 data shells + 1 (outside) using
+    // the LINEARONIONGRID
+    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 10)
+
+    // Collect the size of each partition
+    val partitions = pointRDD_part.mapPartitions(
+      iter => Array(iter.size).iterator, true).collect()
+
+    assert(partitions.size == 11 && partitions(5) == 2068 && partitions.sum == 20000)
+  }
+
+  test("CSV: Can you repartition a RDD with the onion space?") {
+    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "RA,DEC,Z_COSMO", true)
+
+    // Partition the space using the LINEARONIONGRID
+    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
+
+    // Collect the size of each partition
+    val partitions = pointRDD_part.mapPartitions(
+      iter => Array(iter.size).iterator, true).collect()
+
+    assert(partitions.size == 2 && partitions(0) == 20000)
+  }
+
+  test("RDD: Can you construct a Point3DRDD from a RDD[Point3D]?") {
+    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "RA,DEC,Z_COSMO", true)
+
+    val rdd = pointRDD.rawRDD
+
+    val newRDD = new Point3DRDDFromRDD(rdd)
+
+    assert(newRDD.isInstanceOf[Shape3DRDD[Point3D]])
   }
 }

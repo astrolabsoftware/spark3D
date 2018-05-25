@@ -25,25 +25,11 @@ import com.spark3d.geometryObjects.Shape3D._
   * This class extends the Spark Partitioner class, and any new 3D partitioner
   * must extend in turn the SpatialPartitioner class.
   *
-  * @param gridType : (GridType)
-  *   One of the available grid type listed in GridType.
   * @param grids : (List[Shape3D])
   *   List of Shape3D objects which partition the space.
   *
   */
-abstract class SpatialPartitioner(gridType : GridType, grids : List[Shape3D]) extends Partitioner with Serializable {
-
-  /**
-    * Returns the type of the Grid.
-    * @return (GridType) The type of the grid as defined in GridType.
-    */
-  def getGridType : GridType = gridType
-
-  /**
-    * Returns the list of grid elements.
-    * @return (List[Shape3D]) List of Shape3D objects.
-    */
-  def getGrids : List[Shape3D] = grids
+abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner with Serializable {
 
   /**
     * Method to place a spatialObject (could a Point3D, a Sphere, and so on) on

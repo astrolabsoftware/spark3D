@@ -16,6 +16,12 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils._
+import com.spark3d.utils.ExtPointing
+
+import healpix.essentials.HealpixBase
+import healpix.essentials.Pointing
+import healpix.essentials.Scheme.RING
 
 /**
   * Class for describing a point in 3D space.
@@ -29,36 +35,41 @@ import com.spark3d.geometryObjects.Shape3D._
   *   Input Y coordinate in Euclidean space, and THETA in spherical space.
   * @param z : (Double)
   *   Input Z coordinate in Euclidean space, and PHI in spherical space.
+  * @param spherical : (Boolean)
+  *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
+  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
   *
   */
-class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolean = false) extends Shape3D with Serializable {
+class Point3D(val x: Double, val y: Double, val z: Double,
+    val spherical: Boolean = false) extends Shape3D with Serializable {
 
   // The center of the point is the point
-  val center : Point3D = this
+  val center: Point3D = this
 
   // Zero radius
-  val radius : Double = 0.0
+  val radius: Double = 0.0
 
   // Zero volume
-  override def getVolume : Double = 0.0
+  override def getVolume: Double = 0.0
 
   /**
     * Methods to determine whether two shapes overlap.
     * Implement different ways for different shapes.
     *
     * @param otherShape : (Shape3D)
-    *   An instance of Shape3D (or extension)
+    *                   An instance of Shape3D (or extension)
     * @return (Boolean) true if the two objects intersect.
     *
     */
-  override def intersect(otherShape : Shape3D): Boolean = {
+  override def intersect(otherShape: Shape3D): Boolean = {
 
     // Different methods to handle different shapes
     // Keep in mind a point is a sphere with radius 0.
     if (otherShape.isInstanceOf[Sphere] | otherShape.isInstanceOf[Point3D]) {
       sphereSphereIntersection(this, otherShape)
     } else {
-      throw new AssertionError("""
+      throw new AssertionError(
+        """
         Cannot perform intersection because the type of shape is unknown!
         Currently implemented:
           - sphere x sphere
@@ -73,24 +84,24 @@ class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolea
     * Space is supposed flat (euclidean).
     *
     * @param p : (Point3D)
-    *   Another instance of Point3D
+    *          Another instance of Point3D
     * @return (Double) Distance between the two points.
     *
     */
-  def distanceTo(p : Point3D) : Double = {
+  def distanceTo(p: Point3D): Double = {
     val module = if (!this.spherical) {
       math.sqrt(
-        (this.x - p.x)*(this.x - p.x) +
-        (this.y - p.y)*(this.y - p.y) +
-        (this.z - p.z)*(this.z - p.z)
+        (this.x - p.x) * (this.x - p.x) +
+          (this.y - p.y) * (this.y - p.y) +
+          (this.z - p.z) * (this.z - p.z)
       )
     } else {
       math.sqrt(
         this.x * this.x + p.x * p.x - 2 * this.x * p.x * (
           math.sin(this.y) * math.sin(p.y) *
-          math.cos(this.z - p.z) +
-          math.cos(this.y) * math.cos(p.y)
-        )
+            math.cos(this.z - p.z) +
+            math.cos(this.y) * math.cos(p.y)
+          )
       )
     }
     module
@@ -101,10 +112,53 @@ class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolea
     *
     * @return (List[Double]) The list of coordinates.
     */
-  def getCoordinate : List[Double] = {
+  def getCoordinate: List[Double] = {
     List(this.x, this.y, this.z)
   }
 
+  /**
+    * Compute the healpix index of the Point.
+    * By default, the method considers that this.x = ra, this.y = dec.
+    * You can also bypass that, and force this.x = theta, this.y = phi by
+    * settinh thetaphi = true.
+    * We only consider RING scheme for the moment.
+    *
+    * @param nside    : (Int)
+    *                 Resolution of the healpix map.
+    * @param thetaphi : (Boolean)
+    *   this.x = ra, this.y = dec is false. this.x = theta, this.y = phi
+    *   otherwise. Default is false.
+    * @return (Long) Healpix index of the point for the resolution chosen.
+    *
+    */
+  def healpixIndex(nside: Int, thetaphi: Boolean = false): Long = {
+    assert(this.spherical)
+
+    // Initialise the Pointing object
+    var ptg = new ExtPointing
+
+    // Initialise HealpixBase functionalities
+    val hp = new HealpixBase(nside, RING)
+
+    // Make coordinate conversion if needed
+    ptg.theta = if (!thetaphi) {
+      dec2theta(this.y)
+    } else this.x
+
+    ptg.phi = if (!thetaphi) {
+      ra2phi(this.x)
+    } else this.y
+
+    // Compute the index
+    hp.ang2pix(ptg)
+  }
+
+  /**
+    * Return if the input Point3D is equal this Point3D
+    *
+    * @param p Point3D for which the equality is to be checked
+    * @return true if the two Point3Ds are equal
+    */
   def isEqual(p: Point3D): Boolean = {
     x == p.x &&
     y == p.y &&

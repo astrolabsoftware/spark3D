@@ -15,33 +15,105 @@
  */
 package com.spark3d.spatial3DRDD
 
-import com.spark3d.spatialPartitioning.OnionPartitioning
-import com.spark3d.spatialPartitioning.OnionPartitioner
 import com.spark3d.geometryObjects._
-import com.spark3d.utils.GridType
 
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
-import org.apache.spark.api.java.JavaRDD
-import org.apache.spark.api.java.function.FlatMapFunction
-import org.apache.spark.api.java.function.PairFlatMapFunction
 
 /**
-  * Class to handle Point3D RDD.
-  * It takes as input a RDD[Point3D] with random partitioning, and apply a
+  * Construct a Point3DRDD from a RDD[Point3D]
+  *
+  * @param rdd : (RDD[Point3D])
+  *   RDD whose elements are Point3D instances.
+  *
   */
-class Point3DRDD(rdd: RDD[Point3D]) extends Shape3DRDD[Point3D] {
+class Point3DRDDFromRDD(rdd : RDD[Point3D]) extends Shape3DRDD[Point3D] {
+  override val rawRDD = rdd
+}
 
-  def spatialPartitioning(minZ : Double, maxZ : Double, dZ : Double) : JavaRDD[Point3D] = {
-    // Initialise our space
-    val partitioning = new OnionPartitioning
-    partitioning.LinearOnionPartitioning(minZ, maxZ, dZ)
+/**
+  * Construct a Point3DRDD from CSV data.
+  *
+  * @param spark : (SparkSession)
+  *   The spark session
+  * @param filename : (String)
+  *   File name where the data is stored
+  * @param colnames : (String)
+  * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
+  * @param spherical : (Boolean)
+  *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
+  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+  *
+  *
+  */
+class Point3DRDDFromCSV(spark : SparkSession, filename : String, colnames : String,
+    spherical : Boolean = false) extends Shape3DRDD[Point3D] {
+  val df = spark.read
+    .option("header", true)
+    .csv(filename)
 
-    // Grab the grid elements
-    val grids = partitioning.getGrids
+  // Grab the name of columns
+  val csplit = colnames.split(",")
 
-    // Build our partitioner
-    val partitioner = new OnionPartitioner(GridType.LINEARONIONGRID, grids)
+  // Select the 3 columns (x, y, z)
+  // and cast to double in case.
+  override val rawRDD = df.select(
+    col(csplit(0)).cast("double"),
+    col(csplit(1)).cast("double"),
+    col(csplit(2)).cast("double")
+  )
+  // DF to RDD
+  .rdd
+  // map to Point3D
+  .map(x => new Point3D(
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), spherical)
+  )
+}
 
-    partition[Point3D](rdd, partitioner)
-  }
+/**
+  * Class to make a Point3D RDD from FITS data.
+  * {{{
+  *   val fn = "src/test/resources/astro_obs.fits"
+  *   val point3RDD = new Point3DRDD(spark, fn, 1, "RA,Dec,Z_COSMO")
+  * }}}
+  *
+  * @param spark : (SparkSession)
+  *   The spark session
+  * @param filename : (String)
+  *   File name where the data is stored
+  * @param hdu : (Int)
+  *   HDU to load.
+  * @param colnames : (String)
+  * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
+  * @param spherical : (Boolean)
+  *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
+  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+  *
+  */
+class Point3DRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
+    colnames : String, spherical : Boolean = false) extends Shape3DRDD[Point3D] {
+
+  // Load the data as DataFrame using spark-fits
+  val df = spark.read
+    .format("com.sparkfits")
+    .option("hdu", hdu)
+    .load(filename)
+
+  // Grab the name of columns
+  val csplit = colnames.split(",")
+
+  // Select the 3 columns (x, y, z)
+  // and cast to double in case.
+  override val rawRDD = df.select(
+    col(csplit(0)).cast("double"),
+    col(csplit(1)).cast("double"),
+    col(csplit(2)).cast("double")
+  )
+  // DF to RDD
+  .rdd
+  // map to Point3D
+  .map(x => new Point3D(
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), spherical)
+  )
 }

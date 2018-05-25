@@ -19,37 +19,37 @@ package com.spark3d.geometry
 import scala.math._
 import com.spark3d.geometryObjects._
 
-/** Defines a spherical/cubical region of 3D coordinate space.
+/** Defines a cubical region of 3D coordinate space.
   * This can be used to define a bounding box of a geometryObject
   *
-  * An Envelope can be uniqely defined based on minimum and maximum coordinates along all
-  * 2 axes. On creating the Envelope initially, the min's and max's are setted automatically.
+  * An cube Envelope can be uniquely defined based on minimum and maximum coordinates along all
+  * three axes. On creating the cube Envelope initially, the min's and max's are assigned automatically.
   *
-  * Default constructor is kept private to avoid creating an instance of the Envelope class without initialising
+  * Default constructor is kept private to avoid creating an instance of the cube Envelope class without initialising
   * the min/max coordinates along axes incorrectly.
   *
-  * @param minX minimum coordinate of Envelope along X-axis
-  * @param maxX maximum coordinate of Envelope along X-axis
-  * @param minY minimum coordinate of Envelope along Y-axis
-  * @param maxY maximum coordinate of Envelope along Y-axis
-  * @param minZ minimum coordinate of Envelope along Z-axis
-  * @param maxZ maximum coordinate of Envelope along Z-axis
+  * @param minX minimum coordinate of cube Envelope along X-axis
+  * @param maxX maximum coordinate of cube Envelope along X-axis
+  * @param minY minimum coordinate of cube Envelope along Y-axis
+  * @param maxY maximum coordinate of cube Envelope along Y-axis
+  * @param minZ minimum coordinate of cube Envelope along Z-axis
+  * @param maxZ maximum coordinate of cube Envelope along Z-axis
   */
-class Envelope private (
+class CubeEnvelope private(
     var minX: Double, var maxX: Double,
     var minY: Double, var maxY: Double,
     var minZ: Double, var maxZ: Double)
   extends Serializable {
 
   /**
-    * Creates a null Envelope
+    * Creates a null cube Envelope
     */
   def this() {
     this(0.0, -1.0, 0.0, -1.0, 0.0, -1.0)
   }
 
   /**
-    * Creates an Envelope for a region defined by three coordinates.
+    * Creates an cube Envelope for a region defined by three coordinates.
     *
     * @param p1 first coordinate
     * @param p2 second coordinate
@@ -64,7 +64,7 @@ class Envelope private (
   }
 
   /**
-    * Creates an Envelope for a region defined by two coordinates.
+    * Creates an cube Envelope for a region defined by two coordinates.
     *
     * @param p1 first coordinate
     * @param p2 second coordinate
@@ -78,7 +78,7 @@ class Envelope private (
   }
 
   /**
-    * Creates an Envelope for a region defined one coordinate. The Envelope in this case will also be a point.
+    * Creates an cube Envelope for a region defined one coordinate. The cube Envelope in this case will be a point.
     *
     * @param p1 the coordinate
     */
@@ -87,18 +87,18 @@ class Envelope private (
   }
 
   /**
-    * Clones an existing Envelope to create a duplicate Envelope.
+    * Clones an existing cube Envelope to create a duplicate cube Envelope.
     *
-    * @param env original Envelope to be cloned
+    * @param env original cube Envelope to be cloned
     */
-  def this(env: Envelope) {
+  def this(env: CubeEnvelope) {
     this(env.minX, env.maxX, env.minY, env.maxY, env.minZ, env.maxZ)
   }
 
   /**
-    * Returns of this is a null envelope.
+    * Checks if this is a null envelope or not.
     *
-    * @return if this Envelope is null (empty Geometry) or nots
+    * @return if this cube Envelope is null (empty Geometry) or nots
     */
   def isNull(): Boolean = {
     ((minX > maxX) || (minY > maxY) || (minZ > maxZ))
@@ -106,7 +106,7 @@ class Envelope private (
 
 
   /**
-    * Sets this Envelope to a null Envelope.
+    * Sets this cube Envelope to null
     *
     */
   def setToNull: Unit = {
@@ -119,9 +119,9 @@ class Envelope private (
   }
 
   /**
-    * Return the difference between max and min X values of the Envelope.
+    * Return the difference between max and min X values of the cube Envelope.
     *
-    * @return maxX - minX, or 0 if the Envelope is null
+    * @return maxX - minX, or 0 if the cube Envelope is null
     */
   def getXLength(): Double = {
 
@@ -132,9 +132,9 @@ class Envelope private (
   }
 
   /**
-    * Return the difference between max and min Y value of the Envelope.
+    * Returns the difference between max and min Y value of the cube Envelope.
     *
-    * @return maxX - minY, or 0 if the Envelope is null
+    * @return maxX - minY, or 0 if the cube Envelope is null
     */
   def getYLength(): Double = {
 
@@ -145,9 +145,9 @@ class Envelope private (
   }
 
   /**
-    * Return the difference between max and min Z value of the Envelope.
+    * Return the difference between max and min Z value of the cube Envelope.
     *
-    * @return maxZ - minZ, or 0 if the Envelope is null
+    * @return maxZ - minZ, or 0 if the cube Envelope is null
     */
   def getZLength(): Double = {
 
@@ -158,9 +158,9 @@ class Envelope private (
   }
 
   /**
-    * Gets minimum extent of this Envelope across all three dimensions.
+    * Gets minimum extent of this cube Envelope across all three dimensions.
     *
-    * @return the minimum extent of this Envelope
+    * @return the minimum extent of this cube Envelope
     */
   def minExtent(): Double = {
     if (isNull) {
@@ -171,9 +171,9 @@ class Envelope private (
   }
 
   /**
-    * Gets maximum extent of this Envelope across all three dimensions.
+    * Gets maximum extent of this cube Envelope across all three dimensions.
     *
-    * @return the maximum extent of this Envelope
+    * @return the maximum extent of this cube Envelope
     */
   def maxExtent(): Double = {
     if (isNull) {
@@ -184,9 +184,9 @@ class Envelope private (
   }
 
   /**
-    * Returns the area of the Envelope.
+    * Returns the area of the cube Envelope.
     *
-    * @return the area od the envelope, 0.0 if the Envelope is null
+    * @return the area od the envelope, 0.0 if the cube Envelope is null
     */
   def getArea(): Double = {
     getXLength() * getYLength() * getZLength()
@@ -194,7 +194,7 @@ class Envelope private (
 
 
   /**
-    * Expand the Envelope so that it contains the given Point
+    * Expand the cube Envelope so that it contains the given Point
     *
     * @param p the Point to expand to include
     */
@@ -203,20 +203,20 @@ class Envelope private (
   }
 
   /**
-    * Expand Envelope by given distance along the all three dimensions.
+    * Expand cube Envelope by given distance along the all three dimensions.
     *
-    * @param delta the distance to expand the Envelope along all the axes
+    * @param delta the distance to expand the cube Envelope along all the axes
     */
   def expandBy(delta: Double): Unit = {
     expandBy(delta, delta, delta)
   }
 
   /**
-    * Expand Envelope by given distances along the three dimension.
+    * Expand cube Envelope by given distances along the three dimension.
     *
-    * @param deltaX the distance to expand the Envelope along the the X axis
-    * @param deltaY the distance to expand the Envelope along the the Y axis
-    * @param deltaZ the distance to expand the Envelope along the the Z axis
+    * @param deltaX the distance to expand the cube Envelope along the the X axis
+    * @param deltaY the distance to expand the cube Envelope along the the Y axis
+    * @param deltaZ the distance to expand the cube Envelope along the the Z axis
     */
   def expandBy(deltaX: Double, deltaY: Double, deltaZ: Double): Unit = {
     if (isNull) {
@@ -237,8 +237,8 @@ class Envelope private (
   }
 
   /**
-    * Enlarges this Envelope so that it contains the given point.
-    * Has no effect if the point is already on or within the evelope.
+    * Enlarges this cube Envelope so that it contains the given point.
+    * Has no effect if the point is already on or within the envelope.
     *
     * @param x the value to lower the minimum x to or to raise the maximum x to
     * @param y the value to lower the minimum y to or to raise the maximum y to
@@ -275,11 +275,11 @@ class Envelope private (
   }
 
   /**
-    * Expand the Envelope so that it includes the other Envelope.
+    * Expand the cube Envelope so that it includes the other cube Envelope.
     *
-    * @param env the Envelope to expand to include
+    * @param env the cube Envelope to expand to include
     */
-  def expandToInclude(env: Envelope): Unit = {
+  def expandToInclude(env: CubeEnvelope): Unit = {
 
     if (env.isNull) {
       return
@@ -335,9 +335,9 @@ class Envelope private (
   }
 
   /**
-    * Computes the coordinate of the centre of this envelope (as long as it is non-null
+    * Computes the coordinate of the centre of this cube Envelope (as long as it is non-null)
     *
-    * @return he centre coordinate of this envelope, null if the Envelope is null
+    * @return he centre coordinate of this cube Envelope, null if the cube Envelope is null
     */
   def center(): Point3D = {
     if (isNull) {
@@ -350,13 +350,13 @@ class Envelope private (
   }
 
   /**
-    * Comptutes the intersection of the two Envelopes/
+    * Comptutes the intersection of the two cube Envelopes
     *
     * @param env the envelope to find intersection with
-    * @return a new Envelope representing the intersection of the envelopes (this will be
+    * @return a new cube Envelope representing the intersection of the envelopes (this will be
     * the null envelope if either if the envelopes is null, or they do not intersect
     */
-  def intersection(env: Envelope): Envelope = {
+  def intersection(env: CubeEnvelope): CubeEnvelope = {
     if (isNull || env.isNull) {
       return null
     }
@@ -368,17 +368,17 @@ class Envelope private (
     val intMinZ = if (minZ < env.minZ) minZ else env.minZ
     val intMaxZ = if (maxZ < env.maxZ) maxZ else env.maxZ
 
-    new Envelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
+    new CubeEnvelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
   }
 
 
   /**
-    * Checks if the region of the input Envelope intersects the region of this Envelope.
+    * Checks if the region of the input cube Envelope intersects the region of this cube Envelope.
     *
-    * @param env the Envelope with which the intersection is being checked
-    * @return true if the Envelope intersects the other Envelope
+    * @param env the cube Envelope with which the intersection is being checked
+    * @return true if the cube Envelope intersects the other cube Envelope
     */
-  def intersects(env: Envelope): Boolean = {
+  def intersects(env: CubeEnvelope): Boolean = {
     if (env.isNull) {
       return false
     }
@@ -392,12 +392,12 @@ class Envelope private (
   }
 
   /**
-    * Checks if the region the three external points intersects the region of this Envelope.
+    * Checks if the region the three external points intersects the region of this cube Envelope.
     *
     * @param p1 the first external point
     * @param p2 the second external point
     * @param p3 the third external point
-    * @return true if the region intersects the other Envelope
+    * @return true if the region intersects the other cube Envelope
     */
   def intersects(p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
     if (isNull) {
@@ -439,12 +439,12 @@ class Envelope private (
 
   /**
     * Check if the point (x, y, z)
-    * intersects (lies inside) the region of this Envelope.
+    * intersects (lies inside) the region of this cube Envelope.
     *
     * @param  x the x-coordinate of the point
     * @param  y the y-coordinate of the point
     * @param  z the z-coordinate of the point
-    * @return true if the point overlaps this Envelope
+    * @return true if the point overlaps this cube Envelope
     */
   def intersects(x: Double, y: Double, z: Double): Boolean = {
     if (isNull) {
@@ -464,34 +464,31 @@ class Envelope private (
     *
     * @param p Point3D to be checked for the containment
     * @return true if the p lies in the interior or on the
-    *         boundary of this Envelope, false if the Envelope is null.
+    *         boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def contains(p: Point3D): Boolean = {
     covers(p)
   }
 
   /**
-    * Tests if the Envelope other
-    * lies wholely inside this Envelope (inclusive of the boundary).
+    * Tests if the cube Envelope other
+    * lies wholely inside this cube Envelope (inclusive of the boundary).
     *
-    * @param  env the Envelope to check
-    * @return true if this Envelope covers the other Envelope, false if either of these Envelope is null
+    * @param  env the cube Envelope to check
+    * @return true if this cube Envelope covers the other cube Envelope, false if either of these cube Envelope is null
     */
-  def contains(env: Envelope): Boolean = {
+  def contains(env: CubeEnvelope): Boolean = {
     covers(env)
   }
 
   /**
     * Tests if the given point lies in or on the envelope.
     *
-    * @param  x the x-coordinate of the point which this Envelope is
-    *           being checked for containment
-    * @param  y the y-coordinate of the point which this Envelope is
-    *           being checked for containment
-    * @param  z the z-coordinate of the point which this Envelope is
-    *           being checked for containment
+    * @param  x the x-coordinate of the point for which the containment is to be checked
+    * @param  y the y-coordinate of the point for which the containment is to be checked
+    * @param  z the z-coordinate of the point for which the containment is to be checked
     * @return true if (x, y, z) lies in the interior or
-    *         on the boundary of this Envelope, false if the Envelope is null.
+    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def contains(x: Double, y: Double, z: Double): Boolean = {
     covers(x, y, z)
@@ -502,7 +499,7 @@ class Envelope private (
     *
     * @param p Point3D to be checked for the containment
     * @return true if the p lies in the interior or on the
-    *         boundary of this Envelope, false if the Envelope is null.
+    *         boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def covers(p: Point3D): Boolean = {
     covers(p.x, p.y, p.z)
@@ -511,14 +508,14 @@ class Envelope private (
   /**
     * Tests if the given point lies in or on the envelope.
     *
-    * @param  x the x-coordinate of the point which this Envelope is
+    * @param  x the x-coordinate of the point for which this cube Envelope is
     *           being checked for containment
-    * @param  y the y-coordinate of the point which this Envelope is
+    * @param  y the y-coordinate of the point for which this cube Envelope is
     *           being checked for containment
-    * @param  z the z-coordinate of the point which this Envelope is
+    * @param  z the z-coordinate of the point for which this cube Envelope is
     *           being checked for containment
     * @return true if (x, y, z) lies in the interior or
-    *         on the boundary of this Envelope, false if the Envelope is null.
+    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def covers(x: Double, y: Double, z: Double): Boolean = {
     if (isNull) {
@@ -535,13 +532,13 @@ class Envelope private (
   }
 
   /**
-    * Tests if the Envelope other
-    * lies wholely inside this Envelope (inclusive of the boundary).
+    * Tests if the cube Envelope other
+    * lies completely inside this cube Envelope (inclusive of the boundary).
     *
-    * @param  env the Envelope to check
-    * @return true if this Envelope covers the other Envelope, false if either of these Envelope is null
+    * @param  env the cube Envelope to check
+    * @return true if this cube Envelope covers the other cube Envelope, false if either of these cube Envelope is null
     */
-  def covers(env: Envelope): Boolean = {
+  def covers(env: CubeEnvelope): Boolean = {
     if (isNull || env.isNull) {
       return false
     }
@@ -555,14 +552,14 @@ class Envelope private (
   }
 
   /**
-    * Computes the distance between this and another Envelope
-    * The distance between overlapping Envelopes is 0.  Otherwise, the
+    * Computes the distance between this and another cube Envelope
+    * The distance between overlapping cube Envelopes is 0.  Otherwise, the
     * distance is the Euclidean distance between the closest points.
     *
-    * @param env the other Envelope from which distance is to be computed
-    * @return the distance between the two Envelopes
+    * @param env the other cube Envelope from which distance is to be computed
+    * @return the distance between the two cube Envelopes
     */
-  def distance(env: Envelope): Double = {
+  def distance(env: CubeEnvelope): Double = {
     if(intersects(env)) return 0.0
 
     var dx = 0.0
@@ -590,19 +587,19 @@ class Envelope private (
   }
 
   /**
-    * Checks if the input Envelope is equal to the this Envelope. Return false if
-    * the input Object is not an instance of the Envelope class or either of these
-    * Envelopes is Empty.
+    * Checks if the input cube Envelope is equal to the this cube Envelope. Return false if
+    * the input Object is not an instance of the cube Envelope class or either of these
+    * cube Envelopes is Empty.
     *
-    * @param other the other Envelope for which the equality is to be checked
-    * @return true if the two Envelopes are equal, false otherwise
+    * @param other the other cube Envelope for which the equality is to be checked
+    * @return true if the two cube Envelopes are equal, false otherwise
     */
   def isEqual(other: AnyRef): Boolean = {
-    if (!(other.isInstanceOf[Envelope])) {
+    if (!(other.isInstanceOf[CubeEnvelope])) {
       return false
     }
 
-    val env: Envelope = other.asInstanceOf[Envelope]
+    val env: CubeEnvelope = other.asInstanceOf[CubeEnvelope]
 
     if (isNull) {
       return env.isNull
@@ -618,9 +615,9 @@ class Envelope private (
   }
 
   /**
-    * Represent the Envelope as a String
+    * Represent the cube Envelope as a String
     *
-    * @return String representation of the Envelope
+    * @return String representation of the cube Envelope
     */
   override def toString(): String = {
     "Env[" +
@@ -631,21 +628,16 @@ class Envelope private (
   }
 }
 
-object Envelope {
-
-  override def hashCode(): Int = {
-    // to do - implement hashing function
-    0
-  }
+object CubeEnvelope {
 
   /**
-    * Tests if the point q intersects the Envelope defined by the coordinates p1, p2 and p3, Envelope p1-p2-p3
+    * Tests if the point q intersects the cube Envelope defined by the coordinates p1, p2 and p3, cube Envelope p1-p2-p3
     *
     * @param q point to test intersection for
-    * @param p1 one external point to the Envelope
-    * @param p2 second external point of the Envelope
-    * @param p3 third external point of the Envelope
-    * @return returns true if the point intersects Envelope p1-p2
+    * @param p1 one external point to the cube Envelope
+    * @param p2 second external point of the cube Envelope
+    * @param p3 third external point of the cube Envelope
+    * @return returns true if the point intersects cube Envelope p1-p2
     */
   def intersects(q: Point3D, p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
     val minX = min(p1.x, min(p2.x, p3.x))
@@ -664,14 +656,14 @@ object Envelope {
   }
 
   /**
-    * Tests if the Envelope defined by the coordinates p1, p2 and p3 (Enveleop p1-p2-p3) intersects the Envelope defined
-    * by the coordinates q1, q2 and q3 (Envelope q1-q2-q3)
+    * Tests if the cube Envelope defined by the coordinates p1, p2 and p3 (Enveleop p1-p2-p3) intersects the cube Envelope defined
+    * by the coordinates q1, q2 and q3 (cube Envelope q1-q2-q3)
     *
-    * @param p1 one external point to the Envelope q1-q2-q3
-    * @param p2 one external point to the Envelope q1-q2-q3
-    * @param q1 one external point to the Envelope p1-p2-p3
-    * @param q2 one external point to the Envelope p1-p2-p3
-    * @return returns true if the Envelope p1-p2-p3 intersects Envelope q1-q2-q3
+    * @param p1 one external point to the cube Envelope q1-q2-q3
+    * @param p2 one external point to the cube Envelope q1-q2-q3
+    * @param q1 one external point to the cube Envelope p1-p2-p3
+    * @param q2 one external point to the cube Envelope p1-p2-p3
+    * @return returns true if the cube Envelope p1-p2-p3 intersects cube Envelope q1-q2-q3
     */
   def intersects(p1: Point3D, p2: Point3D, p3: Point3D, q1: Point3D, q2: Point3D, q3: Point3D): Boolean = {
     val minpX = min(p1.x, min(p2.x, p3.x))

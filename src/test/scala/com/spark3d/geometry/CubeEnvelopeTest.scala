@@ -23,9 +23,9 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 /**
   * Test class for the Envelope methods.
   */
-class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
+class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
-  var valid_env: Envelope = _
+  var valid_env: CubeEnvelope = _
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
@@ -34,12 +34,12 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p2 = new Point3D(7.1, 5.7, 1.2)
     val p3 = new Point3D(3.6, 6.8, 9.3)
 
-    valid_env = new Envelope(p1, p2, p3)
+    valid_env = new CubeEnvelope(p1, p2, p3)
   }
 
   test("Can you initialize a null Envelope?") {
 
-    val env = new Envelope()
+    val env = new CubeEnvelope()
     assert(env.minX == 0.0)
     assert(env.maxX == -1.0)
     assert(env.minY == 0.0)
@@ -53,7 +53,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(0.1, 1.0, 0.0)
     val p3 = new Point3D(1.0, -1.0, 1.0)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 1.0)
@@ -68,7 +68,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(0.1, 1.0, 0.0)
     val p3 = new Point3D(1.0, -1.0, 1.0)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 1.0)
@@ -82,7 +82,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(1.0, -1.0, 1.0)
-    val env = new Envelope(p1, p2)
+    val env = new CubeEnvelope(p1, p2)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 1.0)
@@ -95,7 +95,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
   test("Can you initialize the Envelope with one Point3D?") {
 
     val p1 = new Point3D(0.0, 1.0, 0.0)
-    val env = new Envelope(p1)
+    val env = new CubeEnvelope(p1)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 0.0)
@@ -108,7 +108,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
   test("Can you initialize the Envelope with one Point3D?") {
 
     val p1 = new Point3D(0.0, 1.0, 0.0)
-    val env = new Envelope(p1)
+    val env = new CubeEnvelope(p1)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 0.0)
@@ -120,7 +120,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you clone an existing Envelop to create a new Envelope?") {
 
-    val env = new Envelope(valid_env)
+    val env = new CubeEnvelope(valid_env)
 
     assert(env.minX == 0.0)
     assert(env.maxX == 1.0)
@@ -148,7 +148,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you expand the Envelope to by given separate extents along all three axes?") {
 
-    val clone_env = new Envelope(valid_env)
+    val clone_env = new CubeEnvelope(valid_env)
     clone_env.expandBy(1.2, 2.3, 3.4)
 
     assert(clone_env.minX == -6.8)
@@ -161,7 +161,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you expand the Envelope to include the given Point3D?") {
 
-    val clone_env = new Envelope(valid_env)
+    val clone_env = new CubeEnvelope(valid_env)
     clone_env.expandToInclude(new Point3D(11.2, 2.3, 3.4))
 
     assert(clone_env.minX == -5.6)
@@ -174,8 +174,8 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you expand the Envelope to include the given Envelope?") {
 
-    var clone_env = new Envelope(valid_env)
-    clone_env.expandToInclude(new Envelope(new Point3D(11.2, 2.3, 3.4)))
+    var clone_env = new CubeEnvelope(valid_env)
+    clone_env.expandToInclude(new CubeEnvelope(new Point3D(11.2, 2.3, 3.4)))
 
     assert(clone_env.minX == -5.6)
     assert(clone_env.maxX == 11.2)
@@ -187,8 +187,8 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you translate/move the Envelope by given lengths in all three axes?") {
 
-    val clone_env = new Envelope(valid_env)
-    clone_env.expandToInclude(new Envelope(new Point3D(11.2, 2.3, 3.4)))
+    val clone_env = new CubeEnvelope(valid_env)
+    clone_env.expandToInclude(new CubeEnvelope(new Point3D(11.2, 2.3, 3.4)))
 
     clone_env.translate(1.1, 2.2, 3.3)
 
@@ -209,7 +209,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(0.1, 1.0, 0.0)
     val p3 = new Point3D(1.0, -1.0, 1.0)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     val inter = valid_env.intersection(env)
     assert(inter.minX == -5.6)
@@ -224,7 +224,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(0.1, 1.0, 0.0)
     val p3 = new Point3D(1.0, -1.0, 1.0)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(valid_env.intersects(env))
     assert(valid_env.intersects(p1, p2, p3))
@@ -242,7 +242,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(2.2, 3.8, 1.5)
     val p2 = new Point3D(6.0, 5.4, 2.6)
     val p3 = new Point3D(4.2, 6.2, 8.2)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(valid_env.covers(env))
   }
@@ -251,7 +251,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(2.2, 9.1, 1.5)
     val p2 = new Point3D(6.0, 7.1, 2.6)
     val p3 = new Point3D(4.2, 12.2, 8.2)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(valid_env.distance(env) == 0.3)
   }
@@ -260,7 +260,7 @@ class EnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(2.2, 9.1, 1.5)
     val p2 = new Point3D(6.0, 7.1, 2.6)
     val p3 = new Point3D(4.2, 12.2, 8.2)
-    val env = new Envelope(p1, p2, p3)
+    val env = new CubeEnvelope(p1, p2, p3)
 
     assert(valid_env.distance(env) == 0.3)
   }

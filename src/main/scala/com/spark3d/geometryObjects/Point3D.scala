@@ -104,4 +104,10 @@ class Point3D(val x: Double, val y: Double, val z: Double, val spherical: Boolea
   def getCoordinate : List[Double] = {
     List(this.x, this.y, this.z)
   }
+
+  def isEqual(p: Point3D): Boolean = {
+    x == p.x &&
+    y == p.y &&
+    z == p.z
+  }
 }

@@ -362,11 +362,11 @@ class CubeEnvelope private(
     }
 
     val intMinX = if (minX < env.minX) minX else env.minX
-    val intMaxX = if (maxX < env.maxX) maxX else env.maxX
+    val intMaxX = if (maxX > env.maxX) maxX else env.maxX
     val intMinY = if (minY < env.minY) minY else env.minY
-    val intMaxY = if (maxY < env.maxY) maxY else env.maxY
+    val intMaxY = if (maxY > env.maxY) maxY else env.maxY
     val intMinZ = if (minZ < env.minZ) minZ else env.minZ
-    val intMaxZ = if (maxZ < env.maxZ) maxZ else env.maxZ
+    val intMaxZ = if (maxZ > env.maxZ) maxZ else env.maxZ
 
     new CubeEnvelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
   }

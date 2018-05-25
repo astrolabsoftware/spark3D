@@ -54,12 +54,21 @@ class ShellEnvelope(
   }
 
   /**
+    * Clones the existing shell Envelope
+    *
+    * @param env shell Envelope to be cloned
+    */
+  def this(env: ShellEnvelope) {
+    this(env.center, env.innerRadius, env.outerRadius)
+  }
+
+  /**
     * Returns if this is a null shell envelope.
     *
     * @return if this shell Envelope is null (empty Geometry) or not
     */
   def isNull(): Boolean = {
-    return if (innerRadius < 0 || outerRadius < 0 || innerRadius > outerRadius) false else true
+    return if (innerRadius < 0 || outerRadius < 0 || innerRadius > outerRadius) true else false
   }
 
   /**
@@ -87,7 +96,8 @@ class ShellEnvelope(
   }
 
   /**
-    * Expands the shell Envelope so that it contains the given Point
+    * Expands the shell Envelope so that it contains the given Point. This will expand both the inner and outer
+    * radius of the shell Envelope by same amount.
     *
     * @param p the Point to expand to include
     */
@@ -97,18 +107,27 @@ class ShellEnvelope(
     }
 
     val delta = p.distanceTo(center)
+
+    if(delta <= outerRadius) {
+      return
+    }
     expandBy(delta - outerRadius)
   }
 
   /**
     * Expands the shell Envelope so that it includes the other shell Envelope.
-    * This will expand this Envelope till the outer radius boundary of the other Envelope
+    * This will expand this Envelope till the outer radius boundary of the other Envelope and will
+    * expand both the inner and outer radius of the shell.
     *
     * @param spr the shell Envelope to be included
     */
   def expandToInclude(spr: ShellEnvelope): Unit = {
 
     if (spr.isNull) {
+      return
+    }
+
+    if(contains(spr)) {
       return
     }
 
@@ -133,11 +152,12 @@ class ShellEnvelope(
   }
 
   /**
-    * Expand the inner radius of the shell by given distance.
+    * Expand the inner radius of the shell by given distance. If inner radius becomes greater than the outer radius
+    * after this we set the shell Envelope to null
     *
     * @param delta the distance to expand the inner radius of the shell Envelope by
     */
-  def expandInnerSphere(delta: Double): Unit = {
+  def expandInnerRadius(delta: Double): Unit = {
     if(isNull) {
       return
     }
@@ -154,7 +174,7 @@ class ShellEnvelope(
     *
     * @param delta the distance to expand the outer radius of the shell Envelope by
     */
-  def expandOuterSphere(delta: Double): Unit = {
+  def expandOuterRadius(delta: Double): Unit = {
     if(isNull) {
       return
     }
@@ -164,6 +184,8 @@ class ShellEnvelope(
 
   /**
     * Checks if the region of the input shell Envelope intersects the region of this shell Envelope.
+    * The case where one shell Envelope lies completely within the another shell Envelope is considered as
+    * non-intersecting.
     *
     * @param spr the shell Envelope with which the intersection is being checked
     * @return true if the one shell Envelope intersects the other
@@ -175,7 +197,7 @@ class ShellEnvelope(
 
     val centerDist = center.distanceTo(spr.center)
 
-    // the case where one sphere lies completely within the another sphere
+    // the case where one shell Envelope lies completely within the another shell Envelope
     if ((centerDist + spr.outerRadius < innerRadius) || (centerDist + outerRadius < spr.innerRadius)) {
       return false
     }
@@ -189,7 +211,7 @@ class ShellEnvelope(
   }
 
   /**
-    * Check whether a point belong to a shell Envelope
+    * Check whether a point belong to a shell Envelope i.e.
     *
     * @param p the point for which the containment is to be checked
     * @return true if the shell Envelope contains the point

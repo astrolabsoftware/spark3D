@@ -30,7 +30,7 @@ class ShellEnvelope(
     var center: Point3D,
     var innerRadius: Double,
     var outerRadius: Double)
-  extends Serializable {
+  extends Envelope {
 
   /**
     * Creates a null shell Envelope.
@@ -123,7 +123,7 @@ class ShellEnvelope(
     */
   def expandToInclude(spr: ShellEnvelope): Unit = {
 
-    if (spr.isNull) {
+    if (isNull || spr.isNull) {
       return
     }
 

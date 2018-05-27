@@ -39,7 +39,7 @@ class CubeEnvelope private(
     var minX: Double, var maxX: Double,
     var minY: Double, var maxY: Double,
     var minZ: Double, var maxZ: Double)
-  extends Serializable {
+  extends Envelope {
 
   /**
     * Creates a null cube Envelope
@@ -230,10 +230,6 @@ class CubeEnvelope private(
     minZ -= deltaZ
     maxZ += deltaZ
 
-    // check if the envelope existence conditions are still valid after the expansions
-    if ((minX > maxX) || (minY > maxY) || (minZ > maxZ)) {
-      setToNull
-    }
   }
 
   /**
@@ -625,74 +621,5 @@ class CubeEnvelope private(
       minY + " : " + maxY + ", " +
       minZ + " : " + maxZ + ", " +
       "]"
-  }
-}
-
-object CubeEnvelope {
-
-  /**
-    * Tests if the point q intersects the cube Envelope defined by the coordinates p1, p2 and p3, cube Envelope p1-p2-p3
-    *
-    * @param q point to test intersection for
-    * @param p1 one external point to the cube Envelope
-    * @param p2 second external point of the cube Envelope
-    * @param p3 third external point of the cube Envelope
-    * @return returns true if the point intersects cube Envelope p1-p2
-    */
-  def intersects(q: Point3D, p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
-    val minX = min(p1.x, min(p2.x, p3.x))
-    val minY = min(p1.y, min(p2.y, p3.y))
-    val minZ = min(p1.z, min(p2.z, p3.z))
-    val maxX = max(p1.x, max(p2.x, p3.x))
-    val maxY = max(p1.y, max(p2.y, p3.y))
-    val maxZ = max(p1.z, max(p2.z, p3.z))
-
-    if ((q.x >= minX) && (q.x <= maxX) &&
-      (q.y >= minY) && (q.y <= maxY) &&
-      (q.z >= minZ) && (q.z <= maxZ)) {
-      return true
-    }
-    false
-  }
-
-  /**
-    * Tests if the cube Envelope defined by the coordinates p1, p2 and p3 (Enveleop p1-p2-p3) intersects the cube Envelope defined
-    * by the coordinates q1, q2 and q3 (cube Envelope q1-q2-q3)
-    *
-    * @param p1 one external point to the cube Envelope q1-q2-q3
-    * @param p2 one external point to the cube Envelope q1-q2-q3
-    * @param q1 one external point to the cube Envelope p1-p2-p3
-    * @param q2 one external point to the cube Envelope p1-p2-p3
-    * @return returns true if the cube Envelope p1-p2-p3 intersects cube Envelope q1-q2-q3
-    */
-  def intersects(p1: Point3D, p2: Point3D, p3: Point3D, q1: Point3D, q2: Point3D, q3: Point3D): Boolean = {
-    val minpX = min(p1.x, min(p2.x, p3.x))
-    val maxpX = max(p1.x, max(p2.x, p3.x))
-    val minqX = min(q1.x, min(q2.x, q3.x))
-    val maxqX = max(q1.x, max(q2.x, q3.x))
-
-    if ((minpX > maxqX) || (maxpX < minqX)) {
-      return false
-    }
-
-    val minpY = min(p1.y, min(p2.y, p3.y))
-    val maxpY = max(p1.y, max(p2.y, p3.y))
-    val minqY = min(q1.y, min(q2.y, q3.y))
-    val maxqY = max(q1.y, max(q2.y, q3.y))
-
-    if ((minpY > maxqY) || (maxpY < minqY)) {
-      return false
-    }
-
-    val minpZ = min(p1.z, min(p2.z, p3.z))
-    val maxpZ = max(p1.z, max(p2.z, p3.z))
-    val minqZ = min(q1.z, min(q2.z, q3.z))
-    val maxqZ = max(q1.z, max(q2.z, q3.z))
-
-    if ((minpZ > maxqZ) || (maxpZ < minqZ)) {
-      return false
-    }
-
-    true
   }
 }

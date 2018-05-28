@@ -121,7 +121,8 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you get the maxExtent of the cube Envelope?") {
-    assert(valid_env.maxExtent() == 12.7)
+    assert(null_env.maxExtent == 0.0)
+    assert(valid_env.maxExtent == 12.7)
   }
 
   test("Can you get the area of the cube Envelope?") {
@@ -169,14 +170,25 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(clone_null_env.maxZ == 3.4)
 
     val clone_env = new CubeEnvelope(valid_env)
-    clone_env.expandToInclude(new Point3D(11.2, 2.3, 3.4))
+    clone_env.expandToInclude(new Point3D(11.2, 2.3, -2.3))
 
     assert(clone_env.minX == -5.6)
     assert(clone_env.maxX == 11.2)
     assert(clone_env.minY == 2.3)
     assert(clone_env.maxY == 6.8)
-    assert(clone_env.minZ == 1.2)
+    assert(clone_env.minZ == -2.3)
     assert(clone_env.maxZ == 9.3)
+
+    // test cases for expansion of the min X and max Y,Z coordinates
+    val clone_env_rev = new CubeEnvelope(valid_env)
+    clone_env_rev.expandToInclude(new Point3D(-7.8, 12.3, 18.5))
+
+    assert(clone_env_rev.minX == -7.8)
+    assert(clone_env_rev.maxX == 7.1)
+    assert(clone_env_rev.minY == 3.4)
+    assert(clone_env_rev.maxY == 12.3)
+    assert(clone_env_rev.minZ == 1.2)
+    assert(clone_env_rev.maxZ == 18.5)
   }
 
   test("Can you expand the cube Envelope to include the given cube Envelope?") {
@@ -190,14 +202,26 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     clone_null_env.expandToInclude(valid_env)
     assert(clone_null_env.isEqual(valid_env))
 
-    clone_env.expandToInclude(new CubeEnvelope(new Point3D(11.2, 2.3, 3.4)))
+    clone_env.expandToInclude(new CubeEnvelope(new Point3D(11.2, 2.3, -3.4)))
 
     assert(clone_env.minX == -5.6)
     assert(clone_env.maxX == 11.2)
     assert(clone_env.minY == 2.3)
     assert(clone_env.maxY == 6.8)
-    assert(clone_env.minZ == 1.2)
+    assert(clone_env.minZ == -3.4)
     assert(clone_env.maxZ == 9.3)
+
+    // test cases for expansion of the min X and max Y,Z coordinates
+    var clone_env_rev = new CubeEnvelope(valid_env)
+    clone_env_rev.expandToInclude(new CubeEnvelope(new Point3D(-7.8, 12.3, 18.5)))
+
+    assert(clone_env_rev.minX == -7.8)
+    assert(clone_env_rev.maxX == 7.1)
+    assert(clone_env_rev.minY == 3.4)
+    assert(clone_env_rev.maxY == 12.3)
+    assert(clone_env_rev.minZ == 1.2)
+    assert(clone_env_rev.maxZ == 18.5)
+
   }
 
   test("Can you translate/move the cube Envelope by given lengths in all three axes?") {
@@ -231,16 +255,26 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     val p1 = new Point3D(0.0, 1.0, 0.0)
     val p2 = new Point3D(0.1, 1.0, 0.0)
-    val p3 = new Point3D(1.0, -1.0, 1.0)
+    val p3 = new Point3D(-11.0, -1.0, 1.0)
     val env = new CubeEnvelope(p1, p2, p3)
 
     val inter = valid_env.intersection(env)
-    assert(inter.minX == -5.6)
+    assert(inter.minX == -11.0)
     assert(inter.maxX == 7.1)
     assert(inter.minY == -1.0)
     assert(inter.maxY == 6.8)
     assert(inter.minZ == 0.0)
     assert(inter.maxZ == 9.3)
+
+    val env_rev = new CubeEnvelope(new Point3D(12.2, 12.2, 12.2))
+
+    val inter_rev = valid_env.intersection(env_rev)
+    assert(inter_rev.minX == -5.6)
+    assert(inter_rev.maxX == 12.2)
+    assert(inter_rev.minY == 3.4)
+    assert(inter_rev.maxY == 12.2)
+    assert(inter_rev.minZ == 1.2)
+    assert(inter_rev.maxZ == 12.2)
   }
 
   test("Can you test if the two cube Envelopes intersect?") {
@@ -257,11 +291,41 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you test if the point intersects the cube Envelope?") {
+    assert(null_env.intersects(-3.1, 4.2, 12.2) == false)
     assert(valid_env.intersects(-3.1, 4.2, 12.2) == false)
   }
 
+  test("Can you test if the area defined by the three Point 3D intersects the cube Envelope?") {
+
+
+    //test for intersection in x-plane
+    val p0: Point3D = new Point3D(12.2, 4.2, 12.2)
+    assert(!valid_env.intersects(p0, p0, p0))
+    val p1: Point3D = new Point3D(-12.2, 4.2, 12.2)
+    assert(!valid_env.intersects(p1, p1, p1))
+
+    //test for intersection in y-plane
+    val p2: Point3D = new Point3D(5.4, -12.2, 12.2)
+    assert(!valid_env.intersects(p2, p2, p2))
+    val p3: Point3D = new Point3D(5.4, 12.2, 12.2)
+    assert(!valid_env.intersects(p3, p3, p3))
+
+    //test for intersection in z-plane
+    val p4: Point3D = new Point3D(5.4, 5.4, -12.2)
+    assert(!valid_env.intersects(p4, p4, p4))
+    val p5: Point3D = new Point3D(5.4, 5.4, 12.2)
+    assert(!valid_env.intersects(p5, p5, p5))
+
+    assert(!null_env.intersects(p5, p5, p5))
+  }
+
   test("Can you test if the point lies inside of the cube Envelope?") {
-    assert(valid_env.covers(new Point3D(5.5, 5.5, 5.5)))
+    assert(!null_env.contains(5.5, 5.5, 5.5))
+    assert(valid_env.contains(5.5, 5.5, 5.5))
+  }
+
+  test("Can you test if the Point3D lies inside of the cube Envelope?") {
+    assert(valid_env.contains(new Point3D(5.5, 5.5, 5.5)))
   }
 
   test("Can you test if the input Envelope lies inside of the cube Envelope?") {
@@ -271,15 +335,25 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val env = new CubeEnvelope(p1, p2, p3)
 
     assert(valid_env.contains(env))
+
+    assert(!null_env.contains(env))
   }
 
   test("Can you compute the distance between the two cube Envelopes?") {
-    val p1 = new Point3D(2.2, 9.1, 1.5)
+    val p1 = new Point3D(12.2, 9.1, 1.5)
     val p2 = new Point3D(6.0, 7.1, 2.6)
-    val p3 = new Point3D(4.2, 12.2, 8.2)
+    val p3 = new Point3D(4.2, 12.2, 12.2)
     val env = new CubeEnvelope(p1, p2, p3)
 
     assert((math rint valid_env.distance(env) * 10) / 10  == 0.3)
+
+    //test for case when the point the point is contained by the cube Envelope
+    val p4 = new Point3D(0.0, 1.0, 0.0)
+    val p5 = new Point3D(0.1, 4.0, 0.0)
+    val p6 = new Point3D(1.0, -1.0, 1.3)
+    val env_rev = new CubeEnvelope(p4, p5, p6)
+
+    assert(valid_env.distance(env_rev) == 0.0)
   }
 
   test("Can you check if the two cube Envelopes are equal?") {
@@ -289,6 +363,8 @@ class CubeEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val env = new CubeEnvelope(p1, p2, p3)
 
     assert(!env.isEqual(valid_env))
+    assert(!env.isEqual(null))
+    assert(!null_env.isEqual(env))
   }
 
   test("Can you get the string representation of the cube Envelope?") {

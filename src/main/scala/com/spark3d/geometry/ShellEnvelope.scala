@@ -37,7 +37,7 @@ class ShellEnvelope(
     * Creates a null shell Envelope.
     */
   def this() {
-    this(new Point3D(0.0, 0.0, 0.0), -1.0, -2.0)
+    this(new Point3D(0.0, 0.0, 0.0, true), -1.0, -2.0)
   }
 
 
@@ -51,7 +51,7 @@ class ShellEnvelope(
     * @param outerRadius outer radius of the Envelope
     */
   def this(x: Double, y: Double, z: Double, innerRadius: Double, outerRadius: Double) {
-    this(new Point3D(x, y, z), innerRadius, outerRadius)
+    this(new Point3D(x, y, z, true), innerRadius, outerRadius)
   }
 
   /**

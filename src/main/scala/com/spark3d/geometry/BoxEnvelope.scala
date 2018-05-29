@@ -342,7 +342,8 @@ class BoxEnvelope private(
 
     new Point3D((minX + maxX) / 2.0,
       (minY + maxY) / 2.0,
-      (minZ + maxZ) / 2.0)
+      (minZ + maxZ) / 2.0,
+      false)
   }
 
   /**

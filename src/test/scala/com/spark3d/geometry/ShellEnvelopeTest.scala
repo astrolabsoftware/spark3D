@@ -27,11 +27,13 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   var valid_env: ShellEnvelope = _
   var null_env: ShellEnvelope = _
 
+  val isSpherical = false
+
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
-    val p2 = new Point3D(0.0, 0.0, 0.0)
+    val p2 = new Point3D(0.0, 0.0, 0.0, isSpherical)
 
     valid_env = new ShellEnvelope(p2, 5.0, 10.0)
     null_env = new ShellEnvelope(p2, 10.0, 5.0)
@@ -48,7 +50,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     val env_v1 = new ShellEnvelope(0.0, 0.0, 0.0, 2.0, 2.0)
     assert(!env_v1.isNull)
-    val p2 = new Point3D(0.0, 0.0, 0.0)
+    val p2 = new Point3D(0.0, 0.0, 0.0, isSpherical)
     val env = new ShellEnvelope(p2, 2.0, 3.0)
     assert(!env.isNull)
   }
@@ -69,9 +71,9 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   test("Can you expand the shell Envelope so that it includes the input Point?") {
     var env = new ShellEnvelope(valid_env)
 
-    val p1: Point3D = new Point3D(0.0, 0.0, 7.0)
-    val p2: Point3D = new Point3D(0.0, 4.0, 0.0)
-    val p3: Point3D = new Point3D(0.0, 0.0, 12.0)
+    val p1: Point3D = new Point3D(0.0, 0.0, 7.0, isSpherical)
+    val p2: Point3D = new Point3D(0.0, 4.0, 0.0, isSpherical)
+    val p3: Point3D = new Point3D(0.0, 0.0, 12.0, isSpherical)
 
     null_env.expandToInclude(p2)
     assert(null_env.isNull)
@@ -184,11 +186,11 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     env.outerRadius = 4.0
     assert(!valid_env.intersects(env))
 
-    val p = new Point3D(4.0, 6.0, 1.0)
+    val p = new Point3D(4.0, 6.0, 1.0, isSpherical)
     env.center = p
     assert(valid_env.intersects(valid_env))
 
-    val p1 = new Point3D(30.0, 40.0, 50.0)
+    val p1 = new Point3D(30.0, 40.0, 50.0, isSpherical)
     env.center = p1
     assert(!env.intersects(valid_env))
 
@@ -203,7 +205,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     env.outerRadius = 4.0
     assert(valid_env.contains(env))
 
-    val p = new Point3D(4.0, 6.0, 1.0)
+    val p = new Point3D(4.0, 6.0, 1.0, isSpherical)
     env.center = p
     env.innerRadius = 6.0
     env.outerRadius = 8.0
@@ -211,11 +213,11 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you check of the input Point3D lies in the shell Envelope?") {
-    val p: Point3D = new Point3D(4.0, 4.0, 4.0)
+    val p: Point3D = new Point3D(4.0, 4.0, 4.0, isSpherical)
     assert(!null_env.isPointInShell(p))
     assert(valid_env.isPointInShell(p))
 
-    val p2: Point3D = new Point3D(2.0, 7.0, 8.0)
+    val p2: Point3D = new Point3D(2.0, 7.0, 8.0, isSpherical)
     assert(!valid_env.isPointInShell(p2))
 
   }
@@ -230,15 +232,15 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you check of the input Point3D lies in the shell Envelope using the ShellEnvelope Object?") {
-    val p0: Point3D = new Point3D(4.0, 4.0, 4.0)
-    val center: Point3D = new Point3D(0.0, 0.0, 0.0)
+    val p0: Point3D = new Point3D(4.0, 4.0, 4.0, isSpherical)
+    val center: Point3D = new Point3D(0.0, 0.0, 0.0, isSpherical)
 
     // case for innerRadius > outerRadius, i.e. invalid shell
     assert(!ShellEnvelope.isPointInShell(10.0, 5.0, center, p0))
 
     assert(ShellEnvelope.isPointInShell(5.0, 10.0, center, p0))
 
-    val p1: Point3D = new Point3D(2.0, 7.0, 8.0)
+    val p1: Point3D = new Point3D(2.0, 7.0, 8.0, isSpherical)
     assert(!ShellEnvelope.isPointInShell(5.0, 10.0, center, p1))
   }
 }

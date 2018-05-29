@@ -32,7 +32,7 @@ import com.spark3d.geometryObjects.Shape3D._
 class Sphere(val x: Double, val y: Double, val z: Double, override val radius: Double) extends Shape3D with Serializable {
 
   // Center of our Sphere
-  val center = new Point3D(this.x, this.y, this.z)
+  val center = new Point3D(this.x, this.y, this.z, true)
 
   /**
     * Methods to determine whether two shapes overlap.

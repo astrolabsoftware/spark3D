@@ -43,6 +43,8 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   /** RDD containing the initial data formated as T. */
   val rawRDD : RDD[T]
 
+  val isSpherical : Boolean
+
   /**
     * Apply a spatial partitioning to the RDD[T].
     * The list of available partitioning can be found in utils/GridType.
@@ -76,7 +78,8 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         val partitioning = new OnionPartitioning
         partitioning.LinearOnionPartitioning(
           numPartitionsRaw,
-          partitioning.getMaxZ(rawRDD)
+          partitioning.getMaxZ(rawRDD),
+          isSpherical
         )
 
         // Grab the grid elements

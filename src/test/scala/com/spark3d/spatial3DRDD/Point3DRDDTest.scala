@@ -67,7 +67,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   val fn_csv = "src/test/resources/astro_obs.csv"
 
   test("FITS: Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "RA,DEC,Z_COSMO", true)
+    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
     // Partition the space using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
@@ -76,11 +76,11 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val partitions = pointRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 2 && partitions(0) == 20000)
+    assert(partitions.size == 1 && partitions(0) == 20000)
   }
 
   test("FITS: Can you repartition a RDD with the onion space with more partitions?") {
-    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "RA,DEC,Z_COSMO", true)
+    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
     // Partition my space with 10 data shells + 1 (outside) using
     // the LINEARONIONGRID
@@ -90,11 +90,11 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val partitions = pointRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 11 && partitions(5) == 2068 && partitions.sum == 20000)
+    assert(partitions.size == 10 && partitions(5) == 2026 && partitions.sum == 20000)
   }
 
   test("CSV: Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "RA,DEC,Z_COSMO", true)
+    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "Z_COSMO,RA,DEC", true)
 
     // Partition the space using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
@@ -103,15 +103,15 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val partitions = pointRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 2 && partitions(0) == 20000)
+    assert(partitions.size == 1 && partitions(0) == 20000)
   }
 
   test("RDD: Can you construct a Point3DRDD from a RDD[Point3D]?") {
-    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "RA,DEC,Z_COSMO", true)
+    val pointRDD = new Point3DRDDFromCSV(spark, fn_csv, "Z_COSMO,RA,DEC", true)
 
     val rdd = pointRDD.rawRDD
 
-    val newRDD = new Point3DRDDFromRDD(rdd)
+    val newRDD = new Point3DRDDFromRDD(rdd, pointRDD.isSpherical)
 
     assert(newRDD.isInstanceOf[Shape3DRDD[Point3D]])
   }

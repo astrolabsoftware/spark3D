@@ -19,8 +19,8 @@ import collection.JavaConverters._
 
 import scala.collection.mutable.HashSet
 
+import com.spark3d.geometry.ShellEnvelope
 import com.spark3d.spatialPartitioning
-import com.spark3d.geometryObjects.Sphere
 import com.spark3d.geometryObjects.Shape3D._
 
 /**
@@ -28,21 +28,20 @@ import com.spark3d.geometryObjects.Shape3D._
   * The idea is described here:
   * https://github.com/JulienPeloton/spark3D/issues/11
   *
-  * The difference between 2 concentric spheres will define the
+  * The difference between 2 concentric spheres (shells) will define the
   * elements of the grid (Spark partitions) such that we will have a onion space!
   *
-  * @param grids : (List[Sphere])
-  *   List of concentric spheres which partition the space. Radius of the
-  *   spheres must be increasing.
+  * @param grids : (List[ShellEnvelope])
+  *   List shells which partition the space. Radii of the
+  *   shells must be increasing.
   *
   */
-class OnionPartitioner(grids : List[Sphere]) extends SpatialPartitioner(grids) {
+class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(grids) {
 
   /**
-    * The number of partitions is the number of sphere as grid elements
-    * are difference between 2 concentric spheres. The first (n-1) partitions
-    * will contain the objects lying in our Onion space. The nth partition will
-    * host all points lying outside the space.
+    * The number of partitions is the number of shells defined as the
+    * difference between 2 concentric spheres. The n partitions
+    * will contain the objects lying in our Onion space.
     *
     * @return (Int) the number of partition
     */
@@ -72,16 +71,18 @@ class OnionPartitioner(grids : List[Sphere]) extends SpatialPartitioner(grids) {
     val notIncludedID = grids.size - 1
     val result = HashSet.empty[Tuple2[Int, T]]
 
-    for (pos <- 0 to grids.size - 2) {
-      val lower_sphere = grids(pos)
-      val upper_sphere = grids(pos + 1)
+    // Associate the object with one shell
+    // TODO: Implement break.
+    for (pos <- 0 to grids.size - 1) {
+      val shell = grids(pos)
 
-      if (isPointInShell(lower_sphere, upper_sphere, center)) {
+      if (shell.isPointInShell(center)) {
         result += new Tuple2(pos, spatialObject)
         containFlag = true
       }
     }
 
+    // Useless if Point3D
     if (!containFlag) {
       result += new Tuple2(notIncludedID, spatialObject)
     }

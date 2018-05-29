@@ -26,8 +26,9 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you label correctly a Point3D inside the onion space?") {
     // Initialise our space
+    val isSpherical = false
     val partitioning = new OnionPartitioning
-    partitioning.LinearOnionPartitioning(10, 1.0)
+    partitioning.LinearOnionPartitioning(10, 1.0, isSpherical)
 
     // Grab the grid elements
     val grids = partitioning.getGrids
@@ -36,7 +37,7 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
     val partitioner = new OnionPartitioner(grids)
 
     // Draw a point and place it on our grid
-    val p = new Point3D(0.0, 0.0, 0.45)
+    val p = new Point3D(0.0, 0.0, 0.45, isSpherical)
     val iterator = partitioner.placeObject(p)
 
     // Check that the point belongs to the 5th partition (zero based)
@@ -44,11 +45,12 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you label correctly a Point3D outside the onion space?") {
+    val isSpherical = false
     val partitioning = new OnionPartitioning
-    partitioning.LinearOnionPartitioning(10, 1.0)
+    partitioning.LinearOnionPartitioning(10, 1.0, isSpherical)
     val grids = partitioning.getGrids
     val partitioner = new OnionPartitioner(grids)
-    val p = new Point3D(0.0, 0.0, 10.0)
+    val p = new Point3D(0.0, 0.0, 10.0, isSpherical)
     val iterator = partitioner.placeObject(p)
 
     // Check that the point lies outside
@@ -58,11 +60,11 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you guess how many partitions are needed for the onion space?") {
     val partitioning = new OnionPartitioning
-    partitioning.LinearOnionPartitioning(9, 1.0)
+    partitioning.LinearOnionPartitioning(9, 1.0, false)
     val grids = partitioning.getGrids
     val partitioner = new OnionPartitioner(grids)
 
-    // 9 partitions for inside + 1 for outside points
-    assert(partitioner.numPartitions == 10)
+    // 9 partitions for inside
+    assert(partitioner.numPartitions == 9)
   }
 }

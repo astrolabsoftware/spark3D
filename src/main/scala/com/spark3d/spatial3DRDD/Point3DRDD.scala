@@ -26,9 +26,12 @@ import org.apache.spark.rdd.RDD
   *
   * @param rdd : (RDD[Point3D])
   *   RDD whose elements are Point3D instances.
+  * @param isSpherical : (Boolean)
+  *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
+  *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   */
-class Point3DRDDFromRDD(rdd : RDD[Point3D]) extends Shape3DRDD[Point3D] {
+class Point3DRDDFromRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
   override val rawRDD = rdd
 }
 
@@ -41,14 +44,15 @@ class Point3DRDDFromRDD(rdd : RDD[Point3D]) extends Shape3DRDD[Point3D] {
   *   File name where the data is stored
   * @param colnames : (String)
   * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
-  * @param spherical : (Boolean)
+  * @param isSpherical : (Boolean)
   *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
-  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+  *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   *
   */
 class Point3DRDDFromCSV(spark : SparkSession, filename : String, colnames : String,
-    spherical : Boolean = false) extends Shape3DRDD[Point3D] {
+    override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
+
   val df = spark.read
     .option("header", true)
     .csv(filename)
@@ -67,7 +71,7 @@ class Point3DRDDFromCSV(spark : SparkSession, filename : String, colnames : Stri
   .rdd
   // map to Point3D
   .map(x => new Point3D(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), spherical)
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical)
   )
 }
 
@@ -86,13 +90,13 @@ class Point3DRDDFromCSV(spark : SparkSession, filename : String, colnames : Stri
   *   HDU to load.
   * @param colnames : (String)
   * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
-  * @param spherical : (Boolean)
+  * @param isSpherical : (Boolean)
   *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
   *
   */
 class Point3DRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
-    colnames : String, spherical : Boolean = false) extends Shape3DRDD[Point3D] {
+    colnames : String, override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
 
   // Load the data as DataFrame using spark-fits
   val df = spark.read
@@ -114,6 +118,6 @@ class Point3DRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
   .rdd
   // map to Point3D
   .map(x => new Point3D(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), spherical)
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical)
   )
 }

@@ -45,7 +45,7 @@ class SphereTest extends FunSuite with BeforeAndAfterAll {
   // Are a sphere and a point overlapping?
   test("Can you detect that a point lies inside a sphere?") {
     val sphere = new Sphere(0.0, 0.0, 0.0, 1.0)
-    val point = new Point3D(0.0, 0.5, 0.0)
+    val point = new Point3D(0.0, 0.5, 0.0, false)
     assert(sphere.intersect(point) && point.intersect(sphere))
   }
 

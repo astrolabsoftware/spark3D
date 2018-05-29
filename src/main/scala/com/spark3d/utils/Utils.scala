@@ -28,7 +28,7 @@ object Utils {
     * @return (Point3D) The same point but with spherical coordinates.
     */
   def euclideantoSpherical(p : Point3D) : Point3D = {
-    if (p.spherical) {
+    if (p.isSpherical) {
       throw new AssertionError("""
         Cannot convert your point to spherical coordinates because
         it is already in spherical coordinates.""")
@@ -51,7 +51,7 @@ object Utils {
     * @return (Point3D) The same point but with euclidean coordinates.
     */
   def sphericalToEuclidean(p : Point3D) : Point3D = {
-    if (!p.spherical) {
+    if (!p.isSpherical) {
       throw new AssertionError("""
         Cannot convert your point to euclidean coordinates because
         it is already in euclidean coordinates.""")

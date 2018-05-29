@@ -17,7 +17,7 @@ package com.spark3d.spatialPartitioning
 
 import org.apache.spark.rdd.RDD
 
-import com.spark3d.geometryObjects.Sphere
+import com.spark3d.geometry.ShellEnvelope
 import com.spark3d.geometryObjects.Point3D
 import com.spark3d.geometryObjects.Shape3D._
 
@@ -33,9 +33,9 @@ import com.spark3d.geometryObjects.Shape3D._
 class OnionPartitioning extends Serializable {
 
   /**
-    * Elements of the Grid as List[Sphere]
+    * Elements of the Grid as List[ShellEnvelope]
     */
-  val grids = List.newBuilder[Sphere]
+  val grids = List.newBuilder[ShellEnvelope]
 
   /**
     * Get the highest radial coordinate value (max(Z)).
@@ -45,12 +45,12 @@ class OnionPartitioning extends Serializable {
     * @return (Double) the highest radial coordinate value (max(Z)).
     */
   def getMaxZ[T<:Shape3D](rdd : RDD[T]) : Double = {
-    rdd.map(x => x.center.distanceTo(new Point3D(0.0, 0.0, 0.0))).max
+    rdd.map(x => x.center.distanceTo(new Point3D(0.0, 0.0, 0.0, true))).max
   }
 
   /**
     * Initialise a new Onion space, by linearly slicing the radial coordinate.
-    * The space is made of concentric spheres, and each partition is the
+    * The space is made of shells, that is each partition is the
     * difference between two subsequent spheres.
     * The resolution of the space, that is the radial distance between
     * two partitions is given by the highest radial coordinate value divided by
@@ -60,33 +60,39 @@ class OnionPartitioning extends Serializable {
     *   Number RDD partitions
     * @param maxZ : (Double)
     *   Highest radial coordinate value for our space.
+    * @param isSpherical : (Boolean)
+    *   True if the coordinate system of the data is spherical (r, theta, phi).
+    *   False if the coordinate system of the data is cartesian.
     */
-  def LinearOnionPartitioning(numPartitions : Int, maxZ : Double) : Unit = {
+  def LinearOnionPartitioning(
+      numPartitions : Int, maxZ : Double, isSpherical: Boolean) : Unit = {
 
     // The resolution of the space
     val dZ : Double = maxZ / numPartitions
 
-    // Add concentric spheres. Note that there is n+1 spheres as
-    // shells are created by the difference between 2 subsequent spheres
-    // (n+1 spheres give n shells).
-    for (pos <- 0 to numPartitions) {
-      val sphere = if (pos == numPartitions) {
-        // Pad the boundary to include points at the boundaries.
-        new Sphere(0.0, 0.0, 0.0, 1.1 * dZ * pos)
+    val center = new Point3D(0.0, 0.0, 0.0, isSpherical)
+
+    // Add shells
+    for (pos <- 0 to numPartitions - 1) {
+
+      val shell = if (pos == numPartitions - 1) {
+        // Expand by 10% to get points lying on the last outer shell.
+        new ShellEnvelope(center, pos * dZ, (pos+1) * dZ * 1.1)
       } else {
-        new Sphere(0.0, 0.0, 0.0, dZ * pos)
+        new ShellEnvelope(center, pos * dZ, (pos+1) * dZ)
       }
-      grids += sphere
+
+      grids += shell
     }
   }
 
   /**
-    * Returns the n+1 Spheres required to build the n grid elements.
+    * Returns the n Shells required to build the n grid elements.
     *
-    * @return (List[Sphere]) List of n+1 Spheres.
+    * @return (List[ShellEnvelope]) List of n Shells.
     *
     */
-  def getGrids : List[Sphere] = {
+  def getGrids : List[ShellEnvelope] = {
     this.grids.result
   }
 }

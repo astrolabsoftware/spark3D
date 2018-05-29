@@ -27,7 +27,7 @@ import healpix.essentials.Scheme.RING
   * Class for describing a point in 3D space.
   * By default, the input coordinates are supposed euclidean, that is (x, y, z).
   * The user can also work with spherical input coordinates (x=r, y=theta, z=phi)
-  * by setting the argument spherical=true.
+  * by setting the argument isSpherical=true.
   *
   * @param x : (Double)
   *   Input X coordinate in Euclidean space, and R in spherical space.
@@ -35,13 +35,13 @@ import healpix.essentials.Scheme.RING
   *   Input Y coordinate in Euclidean space, and THETA in spherical space.
   * @param z : (Double)
   *   Input Z coordinate in Euclidean space, and PHI in spherical space.
-  * @param spherical : (Boolean)
+  * @param isSpherical : (Boolean)
   *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
-  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+  *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   */
 class Point3D(val x: Double, val y: Double, val z: Double,
-    val spherical: Boolean = false) extends Shape3D with Serializable {
+    val isSpherical: Boolean) extends Shape3D with Serializable {
 
   // The center of the point is the point
   val center: Point3D = this
@@ -89,7 +89,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     *
     */
   def distanceTo(p: Point3D): Double = {
-    val module = if (!this.spherical) {
+    val module = if (!this.isSpherical) {
       math.sqrt(
         (this.x - p.x) * (this.x - p.x) +
           (this.y - p.y) * (this.y - p.y) +
@@ -132,7 +132,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     *
     */
   def healpixIndex(nside: Int, thetaphi: Boolean = false): Long = {
-    assert(this.spherical)
+    assert(this.isSpherical)
 
     // Initialise the Pointing object
     var ptg = new ExtPointing

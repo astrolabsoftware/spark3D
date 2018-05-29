@@ -25,7 +25,7 @@ import com.spark3d.geometryObjects.Shape3D._
   */
 class Shape3DTest extends FunSuite with BeforeAndAfterAll {
   test("Can you catch bad intersections between a spherical and a non-spherical object?") {
-    val p = new Point3D(0.0, 0.0, 0.0)
+    val p = new Point3D(0.0, 0.0, 0.0, true)
     val wrong = new nonShape
     val exception1 = intercept[AssertionError] {
       sphereSphereIntersection(p, wrong)
@@ -39,21 +39,21 @@ class Shape3DTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you detect that a point belong to a shell?") {
-    val p = new Point3D(1.0, 1.0, 1.0)
+    val p = new Point3D(1.0, 1.0, 1.0, false)
     val lower_sphere = new Sphere(0.0, 0.0, 0.0, 1.0)
     val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
     assert(isPointInShell(lower_sphere, upper_sphere, p))
   }
 
   test("Can you detect that a point outside a shell?") {
-    val p = new Point3D(10.0, 10.0, 10.0)
+    val p = new Point3D(10.0, 10.0, 10.0, false)
     val lower_sphere = new Sphere(0.0, 0.0, 0.0, 1.0)
     val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
     assert(!isPointInShell(lower_sphere, upper_sphere, p))
   }
 
   test("Can you detect a bad shell (non-centered spheres)?") {
-    val p = new Point3D(1.0, 1.0, 1.0)
+    val p = new Point3D(1.0, 1.0, 1.0, false)
     val lower_sphere = new Sphere(1.0, 0.0, 0.0, 1.0)
     val upper_sphere = new Sphere(0.0, 0.0, 0.0, 5.0)
     val exception = intercept[AssertionError] {

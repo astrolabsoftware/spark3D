@@ -35,7 +35,7 @@ import com.spark3d.geometryObjects._
   * @param minZ minimum coordinate of cube Envelope along Z-axis
   * @param maxZ maximum coordinate of cube Envelope along Z-axis
   */
-class CubeEnvelope private(
+class BoxEnvelope private(
     var minX: Double, var maxX: Double,
     var minY: Double, var maxY: Double,
     var minZ: Double, var maxZ: Double)
@@ -91,7 +91,7 @@ class CubeEnvelope private(
     *
     * @param env original cube Envelope to be cloned
     */
-  def this(env: CubeEnvelope) {
+  def this(env: BoxEnvelope) {
     this(env.minX, env.maxX, env.minY, env.maxY, env.minZ, env.maxZ)
   }
 
@@ -184,11 +184,11 @@ class CubeEnvelope private(
   }
 
   /**
-    * Returns the area of the cube Envelope.
+    * Returns the volume of the cube Envelope.
     *
-    * @return the area od the envelope, 0.0 if the cube Envelope is null
+    * @return the volume of the envelope, 0.0 if the cube Envelope is null
     */
-  def getArea(): Double = {
+  def getVolume(): Double = {
     getXLength() * getYLength() * getZLength()
   }
 
@@ -275,7 +275,7 @@ class CubeEnvelope private(
     *
     * @param env the cube Envelope to expand to include
     */
-  def expandToInclude(env: CubeEnvelope): Unit = {
+  def expandToInclude(env: BoxEnvelope): Unit = {
 
     if (env.isNull) {
       return
@@ -352,7 +352,7 @@ class CubeEnvelope private(
     * @return a new cube Envelope representing the intersection of the envelopes (this will be
     * the null envelope if either if the envelopes is null, or they do not intersect
     */
-  def intersection(env: CubeEnvelope): CubeEnvelope = {
+  def intersection(env: BoxEnvelope): BoxEnvelope = {
     if (isNull || env.isNull) {
       return null
     }
@@ -364,7 +364,7 @@ class CubeEnvelope private(
     val intMinZ = if (minZ < env.minZ) minZ else env.minZ
     val intMaxZ = if (maxZ > env.maxZ) maxZ else env.maxZ
 
-    new CubeEnvelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
+    new BoxEnvelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
   }
 
 
@@ -374,7 +374,7 @@ class CubeEnvelope private(
     * @param env the cube Envelope with which the intersection is being checked
     * @return true if the cube Envelope intersects the other cube Envelope
     */
-  def intersects(env: CubeEnvelope): Boolean = {
+  def intersects(env: BoxEnvelope): Boolean = {
     if (env.isNull) {
       return false
     }
@@ -473,7 +473,7 @@ class CubeEnvelope private(
     * @param  env the cube Envelope to check
     * @return true if this cube Envelope covers the other cube Envelope, false if either of these cube Envelope is null
     */
-  def contains(env: CubeEnvelope): Boolean = {
+  def contains(env: BoxEnvelope): Boolean = {
     covers(env)
   }
 
@@ -534,7 +534,7 @@ class CubeEnvelope private(
     * @param  env the cube Envelope to check
     * @return true if this cube Envelope covers the other cube Envelope, false if either of these cube Envelope is null
     */
-  def covers(env: CubeEnvelope): Boolean = {
+  def covers(env: BoxEnvelope): Boolean = {
     if (isNull || env.isNull) {
       return false
     }
@@ -555,7 +555,7 @@ class CubeEnvelope private(
     * @param env the other cube Envelope from which distance is to be computed
     * @return the distance between the two cube Envelopes
     */
-  def distance(env: CubeEnvelope): Double = {
+  def distance(env: BoxEnvelope): Double = {
     if(intersects(env)) return 0.0
 
     var dx = 0.0
@@ -591,11 +591,11 @@ class CubeEnvelope private(
     * @return true if the two cube Envelopes are equal, false otherwise
     */
   def isEqual(other: AnyRef): Boolean = {
-    if (!(other.isInstanceOf[CubeEnvelope])) {
+    if (!(other.isInstanceOf[BoxEnvelope])) {
       return false
     }
 
-    val env: CubeEnvelope = other.asInstanceOf[CubeEnvelope]
+    val env: BoxEnvelope = other.asInstanceOf[BoxEnvelope]
 
     if (isNull) {
       return env.isNull

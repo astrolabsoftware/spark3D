@@ -15,6 +15,7 @@
  */
 package com.spark3d.geometry
 
+import scala.math._
 import com.spark3d.geometryObjects._
 
 /** Defines a shell of 3D coordinate space. Shell here is made by a difference of
@@ -91,33 +92,52 @@ class ShellEnvelope(
       return 0.0
     }
 
-    val pi = 3.14159
-    4 * pi * ((outerRadius * outerRadius) - (innerRadius * innerRadius))
+    4 * Pi * ((outerRadius * outerRadius) - (innerRadius * innerRadius))
   }
 
   /**
-    * Expands the shell Envelope so that it contains the given Point. This will expand both the inner and outer
-    * radius of the shell Envelope by same amount.
+    * Expands the shell Envelope so that it contains the given Point. This will expand the only the inner
+    * or outer radius based on which side of the shell the point belongs. The point is considered to be in
+    * the shell if its distance to center is greater than or equal to the innerRadius and less than the
+    * outerRadius (while doing OnionPartitioning similar convention is followed). So if we are expanding the
+    * outer radius, a small buffer of 0.1 is added to ensure that point lies inside of the sphere defined by
+    * the outerRadius and not onto it. Expansion here can be both positive and negative.
     *
     * @param p the Point to expand to include
     */
   def expandToInclude(p: Point3D): Unit = {
-    if (isNull()) {
+    if (isNull) {
       return
     }
 
     val delta = p.distanceTo(center)
 
-    if(delta <= outerRadius) {
+    if (delta < outerRadius && delta >= innerRadius) {
       return
+    } else if (delta < innerRadius) {
+      innerRadius = delta
+    } else if (delta >= outerRadius) {
+      outerRadius = delta + 0.1
     }
-    expandBy(delta - outerRadius)
   }
 
   /**
-    * Expands the shell Envelope so that it includes the other shell Envelope.
-    * This will expand this Envelope till the outer radius boundary of the other Envelope and will
-    * expand both the inner and outer radius of the shell.
+    * Expands the shell Envelope so that it includes the other shell Envelope. The Envelopes have to be concentric.
+    * Either inner or outer or both radii will be expanded based on following criteria -
+    *
+    * Expand inner radius-
+    *   - When the outer and inner radii of the input shell Envelope are strictly less than the outer and inner
+    *     radii of this shell Envelope
+    *     sphere and inner radius of the inout sphere is less
+    *
+    * Expand outer radius-
+    *   - When the outer radius of the input shell Envelope is greater than or equal to this shell Envelope. We add a
+    *     small buffer of 0.1 to the outer radius in this case to ensure that the outer radii of the two shell
+    *     Envelopes are not equal for consistency in onion Partitioning code. Expansion here can be both positive and
+    *     negative.
+    * Expand both radio -
+    *   - Condition for the epansion of the outer radius and when the inner radius of the input shell Envelope is
+    *     strictly less than than the inner radius of this shell Envelope
     *
     * @param spr the shell Envelope to be included
     */
@@ -127,12 +147,21 @@ class ShellEnvelope(
       return
     }
 
-    if(contains(spr)) {
-      return
+    if(!center.isEqual(spr.center)) {
+      throw new AssertionError(
+        """
+        The two shells must be centered on the same point!
+        """)
     }
 
-    val delta = spr.center.distanceTo(center)
-    expandBy(delta - outerRadius + spr.outerRadius)
+    if ((spr.outerRadius < outerRadius) && (spr.innerRadius < innerRadius)) {
+      innerRadius = spr.innerRadius
+    } else if (spr.outerRadius >= outerRadius) {
+      if (spr.innerRadius < innerRadius) {
+        innerRadius = spr.innerRadius
+      }
+      outerRadius = spr.outerRadius + 0.1
+    }
   }
 
 
@@ -143,13 +172,13 @@ class ShellEnvelope(
     * @param delta the distance to expand the shell Envelope
     */
   def expandBy(delta: Double): Unit = {
-    if (isNull()) {
-      return
-    }
+      if (isNull) {
+        return
+      }
 
-    outerRadius += delta
-    innerRadius += delta
-  }
+      outerRadius += delta
+      innerRadius += delta
+    }
 
   /**
     * Expand the inner radius of the shell by given distance. If inner radius becomes greater than the outer radius
@@ -211,7 +240,9 @@ class ShellEnvelope(
   }
 
   /**
-    * Check whether a point belong to a shell Envelope i.e.
+    * Check whether a point belong to a shell Envelope.
+    * If a point lies on the sphere defined by inner radius (not outer radius),
+    * it is considered to be belonging to the shell for the consistency with the onion partitioning code.
     *
     * @param p the point for which the containment is to be checked
     * @return true if the shell Envelope contains the point
@@ -223,7 +254,7 @@ class ShellEnvelope(
 
     val dist = center.distanceTo(p)
 
-    if ((dist >= innerRadius) && (dist <= outerRadius)) {
+    if ((dist >= innerRadius) && (dist < outerRadius)) {
       return true
     }
 
@@ -258,5 +289,35 @@ class ShellEnvelope(
     }
 
     center.isEqual(spr.center) && (innerRadius == spr.innerRadius) && (outerRadius == spr.outerRadius)
+  }
+}
+
+
+object ShellEnvelope {
+
+  /**
+    * Check whether a point belong to a shell created by the difference of the two radii.
+    * If a point lies on the sphere defined by inner radius (not outer radius), it is considered to be in be
+    * belonging to the shell for the consistency with the onion partitioning code.
+    *
+    * @param innerRadius inner radius of the shell
+    * @param outerRadius outer radius of the shell
+    * @param center center of the two spheres which are defined by the inner and outer radius
+    * @param p Point3D to be checked for containment
+    * @return true if the point belongs to the shell defined by two radii, false otherewise or when the
+    *         shell is invalid
+    */
+  def isPointInShell(innerRadius: Double, outerRadius: Double, center: Point3D, p: Point3D): Boolean = {
+    if (innerRadius > outerRadius) {
+      return false
+    }
+
+    val dist = center.distanceTo(p)
+
+    if ((dist >= innerRadius) && (dist < outerRadius)) {
+      return true
+    }
+
+    false
   }
 }

@@ -16,7 +16,6 @@
 
 package com.spark3d.geometry
 
-import com.spark3d.geometry._
 import com.spark3d.geometryObjects.Point3D
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -61,17 +60,18 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you get the area of the Shell Envelope?") {
-    val area_null = null_env.getArea()
+    val area_null = null_env.getArea
     assert(area_null == 0.0)
-    val area = valid_env.getArea()
-    assert(area == 942.477)
+    val area = valid_env.getArea
+    assert((math floor area * 1000) / 1000 == 942.477)
   }
 
   test("Can you expand the shell Envelope so that it includes the input Point?") {
-    val env = new ShellEnvelope(valid_env)
+    var env = new ShellEnvelope(valid_env)
 
     val p1: Point3D = new Point3D(0.0, 0.0, 7.0)
-    val p2: Point3D = new Point3D(0.0, 0.0, 12.0)
+    val p2: Point3D = new Point3D(0.0, 4.0, 0.0)
+    val p3: Point3D = new Point3D(0.0, 0.0, 12.0)
 
     null_env.expandToInclude(p2)
     assert(null_env.isNull)
@@ -82,32 +82,72 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(env.innerRadius == 5.0)
     assert(env.outerRadius == 10.0)
 
+    // case for expansion of the inner radius
     env.expandToInclude(p2)
     assert(!env.isNull)
-    assert(env.outerRadius == 12.0)
-    assert(env.innerRadius == 7.0)
+    assert(env.innerRadius == 4.0)
+    assert(env.outerRadius == 10.0)
+
+    env = new ShellEnvelope(valid_env)
+    // case for expansion of the outer radius
+    env.expandToInclude(p3)
+    assert(!env.isNull)
+    assert(env.innerRadius == 5.0)
+    assert(env.outerRadius == (12.0 + 0.1))
   }
 
   test("Can you expand the shell Envelope so that it includes the input Shell Envelope?") {
-    val env = new ShellEnvelope(valid_env)
+    var env = new ShellEnvelope(valid_env)
     val new_env = new ShellEnvelope(valid_env)
 
     null_env.expandToInclude(env)
     assert(null_env.isNull)
 
     // case when the input shell Envelope already lies inside this shell Envelope
-    new_env.innerRadius = 2.0
-    new_env.outerRadius = 4.0
+    new_env.innerRadius = 6.0
+    new_env.outerRadius = 7.0
     env.expandToInclude(new_env)
     assert(!env.isNull)
     assert(env.innerRadius == 5.0)
     assert(env.outerRadius == 10.0)
 
+    env = new ShellEnvelope(valid_env)
+    // case for expansion of the inner radius
+    new_env.innerRadius = 4.0
+    new_env.outerRadius = 9.0
+    env.expandToInclude(new_env)
+    assert(!env.isNull)
+    assert(env.innerRadius== 4.0)
+    assert(env.outerRadius == 10.0)
+
+    env = new ShellEnvelope(valid_env)
+    // case for expansion of the outer radius
+    new_env.innerRadius = 7.0
     new_env.outerRadius = 12.0
     env.expandToInclude(new_env)
     assert(!env.isNull)
-    assert(env.outerRadius == 12.0)
-    assert(env.innerRadius == 7.0)
+    assert(env.innerRadius == 5.0)
+    assert(env.outerRadius == (12.0 + 0.1))
+
+    env = new ShellEnvelope(valid_env)
+    // case for expansion of both radii
+    new_env.innerRadius = 4.0
+    new_env.outerRadius = 12.0
+    env.expandToInclude(new_env)
+    assert(!env.isNull)
+    assert(env.innerRadius == 4.0)
+    assert(env.outerRadius == (12.0 + 0.1))
+  }
+
+  test("Can you expand both inner and outer radius fo the Shell Envelope?") {
+    null_env.expandBy(2.6)
+    assert(null_env.isNull)
+
+    val env = new ShellEnvelope(valid_env)
+    env.expandBy(2.6)
+    assert(!env.isNull)
+    assert(env.innerRadius == 7.6)
+    assert(env.outerRadius == 12.6)
   }
 
   test("Can you expand the inner radius of the shell Envelope and ensure that the shell Envelope is still valid?") {
@@ -187,5 +227,18 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     env.innerRadius = 2.2
     assert(!env.isEqual(valid_env))
+  }
+
+  test("Can you check of the input Point3D lies in the shell Envelope using the ShellEnvelope Object?") {
+    val p0: Point3D = new Point3D(4.0, 4.0, 4.0)
+    val center: Point3D = new Point3D(0.0, 0.0, 0.0)
+
+    // case for innerRadius > outerRadius, i.e. invalid shell
+    assert(!ShellEnvelope.isPointInShell(10.0, 5.0, center, p0))
+
+    assert(ShellEnvelope.isPointInShell(5.0, 10.0, center, p0))
+
+    val p1: Point3D = new Point3D(2.0, 7.0, 8.0)
+    assert(!ShellEnvelope.isPointInShell(5.0, 10.0, center, p1))
   }
 }

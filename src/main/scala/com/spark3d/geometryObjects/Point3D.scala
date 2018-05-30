@@ -118,16 +118,16 @@ class Point3D(val x: Double, val y: Double, val z: Double,
 
   /**
     * Compute the healpix index of the Point.
-    * By default, the method considers that this.x = ra, this.y = dec.
-    * You can also bypass that, and force this.x = theta, this.y = phi by
-    * settinh thetaphi = true.
-    * We only consider RING scheme for the moment.
+    * By default, the method considers that this.y = ra, this.z = dec.
+    * You can also bypass that, and force this.y = theta, this.z = phi by
+    * setting thetaphi = true.
+    * We only consider the RING scheme for the moment.
     *
-    * @param nside    : (Int)
-    *                 Resolution of the healpix map.
+    * @param nside : (Int)
+    *   Resolution of the healpix map.
     * @param thetaphi : (Boolean)
-    *   this.x = ra, this.y = dec is false. this.x = theta, this.y = phi
-    *   otherwise. Default is false.
+    *   Convention for your data: this.y = ra, this.z = dec if false,
+    *   this.y = theta, this.z = phi otherwise. Default is false.
     * @return (Long) Healpix index of the point for the resolution chosen.
     *
     */
@@ -142,12 +142,12 @@ class Point3D(val x: Double, val y: Double, val z: Double,
 
     // Make coordinate conversion if needed
     ptg.theta = if (!thetaphi) {
-      dec2theta(this.y)
-    } else this.x
+      dec2theta(this.z)
+    } else this.y
 
     ptg.phi = if (!thetaphi) {
-      ra2phi(this.x)
-    } else this.y
+      ra2phi(this.y)
+    } else this.z
 
     // Compute the index
     hp.ang2pix(ptg)

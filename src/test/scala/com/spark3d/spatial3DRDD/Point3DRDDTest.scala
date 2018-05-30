@@ -20,6 +20,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.spark3d.geometryObjects.Point3D
 import com.spark3d.utils.GridType
 import com.spark3d.spatial3DRDD._
+import com.spark3d.spatialPartitioning.SpatialPartitioner
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.DataFrame
@@ -82,8 +83,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   test("FITS: Can you repartition a RDD with the onion space with more partitions?") {
     val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
-    // Partition my space with 10 data shells + 1 (outside) using
-    // the LINEARONIONGRID
+    // Partition my space with 10 data shells using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 10)
 
     // Collect the size of each partition
@@ -114,5 +114,18 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val newRDD = new Point3DRDDFromRDD(rdd, pointRDD.isSpherical)
 
     assert(newRDD.isInstanceOf[Shape3DRDD[Point3D]])
+  }
+
+  test("Can you repartition a RDD from the partitioner of another?") {
+    val pointRDD1 = new Point3DRDDFromFITS(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val pointRDD2 = new Point3DRDDFromFITS(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+
+    // Partition 1st RDD with 10 data shells using the LINEARONIONGRID
+    val pointRDD1_part = pointRDD1.spatialPartitioning(GridType.LINEARONIONGRID, 10)
+    // Partition 2nd RDD with partitioner of RDD1
+    val partitioner = pointRDD1_part.partitioner.get.asInstanceOf[SpatialPartitioner]
+    val pointRDD2_part = pointRDD2.spatialPartitioning(partitioner)
+
+    assert(pointRDD1_part.partitioner == pointRDD2_part.partitioner)
   }
 }

@@ -16,12 +16,6 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.utils.Utils._
-import com.spark3d.utils.ExtPointing
-
-import healpix.essentials.HealpixBase
-import healpix.essentials.Pointing
-import healpix.essentials.Scheme.RING
 
 /**
   * Class for describing a point in 3D space.
@@ -114,43 +108,6 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     */
   def getCoordinate: List[Double] = {
     List(this.x, this.y, this.z)
-  }
-
-  /**
-    * Compute the healpix index of the Point.
-    * By default, the method considers that this.y = ra, this.z = dec.
-    * You can also bypass that, and force this.y = theta, this.z = phi by
-    * setting thetaphi = true.
-    * We only consider the RING scheme for the moment.
-    *
-    * @param nside : (Int)
-    *   Resolution of the healpix map.
-    * @param thetaphi : (Boolean)
-    *   Convention for your data: this.y = ra, this.z = dec if false,
-    *   this.y = theta, this.z = phi otherwise. Default is false.
-    * @return (Long) Healpix index of the point for the resolution chosen.
-    *
-    */
-  def healpixIndex(nside: Int, thetaphi: Boolean = false): Long = {
-    assert(this.isSpherical)
-
-    // Initialise the Pointing object
-    var ptg = new ExtPointing
-
-    // Initialise HealpixBase functionalities
-    val hp = new HealpixBase(nside, RING)
-
-    // Make coordinate conversion if needed
-    ptg.theta = if (!thetaphi) {
-      dec2theta(this.z)
-    } else this.y
-
-    ptg.phi = if (!thetaphi) {
-      ra2phi(this.y)
-    } else this.z
-
-    // Compute the index
-    hp.ang2pix(ptg)
   }
 
   /**

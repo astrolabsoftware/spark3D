@@ -46,7 +46,20 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   val isSpherical : Boolean
 
   /**
-    * Apply a spatial partitioning to the RDD[T].
+    * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
+    * with the new partitioning.
+    *
+    * @param partitioner : (SpatialPartitioner)
+    *   Spatial partitioner as defined in utils.GridType
+    * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
+    *
+    */
+  def spatialPartitioning(partitioner: SpatialPartitioner) : RDD[T] = {
+    partition(partitioner)
+  }
+  /**
+    * Apply a spatial partitioning to this.rawRDD, and return a RDD[T]
+    * with the new partitioning.
     * The list of available partitioning can be found in utils/GridType.
     * By default, the outgoing level of parallelism is the same as the incoming
     * one (i.e. same number of partitions).

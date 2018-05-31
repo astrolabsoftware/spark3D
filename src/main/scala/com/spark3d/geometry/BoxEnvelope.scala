@@ -624,3 +624,18 @@ class BoxEnvelope private(
       "]"
   }
 }
+
+object BoxEnvelope {
+
+  def apply(
+      x1: Double, x2: Double,
+      y1: Double, y2: Double,
+      z1: Double, z2: Double): BoxEnvelope = {
+    new BoxEnvelope(
+      min(x1, x2), max(x1, x2),
+      min(y1, y2), max(y1, y2),
+      min(z1, z2), max(z1, z2)
+    )
+  }
+}
+

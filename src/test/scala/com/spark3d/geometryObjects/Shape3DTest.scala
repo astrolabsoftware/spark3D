@@ -61,4 +61,12 @@ class Shape3DTest extends FunSuite with BeforeAndAfterAll {
     }
     assert(exception.getMessage.contains("must be centered"))
   }
+
+  test("Can you detect two nearby points?") {
+    val p1 = new Point3D(1.0, 1.0, 1.0, false)
+    val p2 = new Point3D(2.0, 1.0, 1.0, false)
+    val p3 = new Point3D(20.0, 10.0, 10.0, false)
+    val epsilon = 5.0
+    assert(p1.hasCenterCloseTo(p2, epsilon) && !p1.hasCenterCloseTo(p3, epsilon))
+  }
 }

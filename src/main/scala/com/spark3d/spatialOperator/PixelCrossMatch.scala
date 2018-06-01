@@ -22,6 +22,14 @@ import com.spark3d.spatial3DRDD.Shape3DRDD
 
 import org.apache.spark.rdd.RDD
 
+/**
+  * Object containing routines to perform cross match between two sets A & B
+  * based on an underlying pixelisation. The space is first pixelised, and match
+  * is done between cells of this pixelisation.
+  * As a first example, we include the Healpix pixelisation (2D pixelisation).
+  * Each RDD partition is a shell, projected on a 2D plan, and pixelized.
+  *
+  */
 object PixelCrossMatch {
 
   /**
@@ -101,16 +109,20 @@ object PixelCrossMatch {
     val elementsA = queryObjects.result.distinct
     val sizeA = elementsA.size
 
-    // Loop over elements of partition B, and match with elements of partition A
+    // Loop over elements of partition B, and for each element search for a
+    // counterpart in A.
     while (iterB.hasNext) {
       val elementB = iterB.next()
       val hpIndexB = elementB.toHealpix(nside)
 
       var pos = 0
-      while (pos < sizeA) {
+      var found = false
+      while (pos < sizeA && !found) {
         val hpIndexA = elementsA(pos)
         if (hpIndexB == hpIndexA) {
+          // If found, update the result and exit (no need for duplicate)
           result += elementB
+          found = true
         }
         // Update the position in the partition A
         pos += 1
@@ -211,7 +223,7 @@ object PixelCrossMatch {
     *     - Healpix pixel indices matching (returnType="healpix")
     */
   def CrossMatchHealpixIndex[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
-      rddA: RDD[A], rddB: RDD[B], nside: Int, returnType: String = "healpix"): RDD[_] = {
+      rddA: RDD[A], rddB: RDD[B], nside: Int, returnType: String = "B"): RDD[_] = {
     returnType match {
       case "healpix" => rddA.zipPartitions(
         rddB, true)((iterA, iterB) => healpixMatchAndReturnPixel(iterA, iterB, nside))

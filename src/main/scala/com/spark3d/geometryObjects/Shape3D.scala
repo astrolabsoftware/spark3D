@@ -96,6 +96,16 @@ object Shape3D extends Serializable {
       // Compute the index
       hp.ang2pix(ptg)
     }
+
+    /**
+      * Return if the input Point3D is equal this Point3D
+      *
+      * @param p Point3D for which the comparison has to be done
+      * @return true if the two Point3D centers are within epsilon
+      */
+    def hasCenterCloseTo(p: Point3D, epsilon: Double): Boolean = {
+      center.distanceTo(p) <= epsilon
+    }
   }
 
   /**

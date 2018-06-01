@@ -1,25 +1,33 @@
 package com.spark3d.spatialPartitioning
 
 import com.spark3d.geometry._
-import com.spark3d.geometryObjects.Point3D
+import com.spark3d.geometryObjects.Shape3D.Shape3D
+import com.spark3d.geometryObjects.{Point3D, Shape3D}
 
 import scala.util.control.Breaks._
 import scala.collection.mutable.ListBuffer
 
 /**
+  * Octree is a 3D extension of quadtree where in at each stage cuboid (box)
+  * (instead of rectangle in quadtree case) is split into 8 sub boxes. As
+  * all the sub node cubes are contained within the parent node and
+  * each level contains increasing the level of resolution of details as
+  * we move away from the root level, a search for the data point can
+  * be done very easily by moving down the tree along the subcuboid
+  * which contains some information about a particular point
   * It is assumed that one can place an object only using its bounding box
   *
-  * @param box
-  * @param maxItemsPerBox maximum number of items in one box
+  * @param box root cuboid of this Octree
+  * @param maxItemsPerBox maximum number of items per Cuboid (box)
   */
 class Octree(
     val box: BoxEnvelope,
     val maxItemsPerBox: Int = 5)
   extends Serializable {
 
-  // elements inside one box
+  // list of elements inside the box
   private final val elements = new ListBuffer[BoxEnvelope]
-  // number of elements points in the box
+  // number of elements currently in the box
   private var elementNum = 0
   // the array of children boxes
   private var children: Array[Octree] = _
@@ -34,6 +42,9 @@ class Octree(
   val CHILD_L_SW: Int = 6
   val CHILD_L_SE: Int = 7
 
+  /**
+    * Splits this box into 8 children boxes.
+    */
   def splitBox(): Unit = {
     children = new Array[Octree](8)
 
@@ -95,6 +106,16 @@ class Octree(
 
   }
 
+  /**
+    * Finds the region in which the input objects belongs. It is assumed that
+    * the input object would atleast be contained by the root of the Octree.
+    * Box is split into, 8 children boxes when it has contained objects to maximum
+    * capacity specified by the <code>
+    *
+    * @param obj
+    * @param split
+    * @return
+    */
   private def findRegion(obj: BoxEnvelope, split: Boolean = true): Int = {
     var region = SELF
 
@@ -127,7 +148,7 @@ class Octree(
                 """)
     }
 
-    val region = findRegion(element)
+    val region = findRegion(element, true)
 
     if (region == SELF) {
       elements += element
@@ -154,7 +175,7 @@ class Octree(
                 """)
     }
 
-    val region = findRegion(element)
+    val region = findRegion(element, false)
 
     if (region == SELF) {
       elements -= element
@@ -219,5 +240,13 @@ class Octree(
     }
 
     box
+  }
+
+  def findBox(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+    null
+  }
+
+  def findBox(obj: Shape3D): ListBuffer[BoxEnvelope] = {
+    findBox(obj.getEnvelope)
   }
 }

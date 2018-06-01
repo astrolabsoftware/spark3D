@@ -15,6 +15,7 @@
  */
 package com.spark3d.geometryObjects
 
+import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects.Shape3D._
 import com.spark3d.utils.Utils._
 import com.spark3d.utils.ExtPointing
@@ -77,6 +78,15 @@ class Point3D(val x: Double, val y: Double, val z: Double,
           - point  x point
         """)
     }
+  }
+
+  /**
+    * Get bounding box of this Point3D which will also be a Point3D
+    *
+    * @return Cuboid representing the box of the Point3D
+    */
+  override def getEnvelope(): BoxEnvelope = {
+    new BoxEnvelope(this)
   }
 
   /**

@@ -15,6 +15,8 @@
  */
 package com.spark3d.geometryObjects
 
+import com.spark3d.geometry.BoxEnvelope
+
 /**
   * Generic objects describing 3D shapes.
   * Other 3D shapes must extend this.
@@ -52,6 +54,8 @@ object Shape3D extends Serializable {
       * @return (Double) the volume of the shape.
       */
     def getVolume : Double
+
+    def getEnvelope: BoxEnvelope
   }
 
   /**

@@ -124,17 +124,15 @@ object CenterCrossMatch {
   }
 
   /**
-    * Cross match 2 RDD based on the healpix index of geometry center.
+    * Cross match 2 RDD based on the object centers.
     * You have to choice to return:
     *   (1) Elements of (A, B) matching (returnType="AB")
     *   (2) Elements of A matching B (returnType="A")
     *   (3) Elements of B matching A (returnType="B")
-    *   (4) Healpix pixel indices matching (returnType="healpix")
     *
     * Which one you should choose? That depends on what you need:
     * (1) gives you all elements but is slow.
     * (2) & (3) give you all elements only in one side but is faster.
-    * (4) gives you only healpix center but is even faster.
     *
     * @param rddA : (RDD[A<:Shape3D])
     *   RDD whose elements are Shape3D or any extension (Point3D, ...)

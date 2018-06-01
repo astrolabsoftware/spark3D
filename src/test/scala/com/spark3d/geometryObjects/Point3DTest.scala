@@ -101,15 +101,15 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you compute the Healpix index from the RA/Dec of a point?") {
-    val p = new Point3D(1.0, 0.0, 0.0, true)
-    val hpIndex = p.healpixIndex(512)
+    val p = new Point3D(0.0, 1.0, 0.0, true)
+    val hpIndex = p.toHealpix(512)
 
     assert(hpIndex == 1571845)
   }
 
   test("Can you compute the Healpix index from the theta/phi of a point?") {
     val p = new Point3D(0.0, 0.0, 0.0, true)
-    val hpIndex = p.healpixIndex(512, true)
+    val hpIndex = p.toHealpix(512, true)
 
     assert(hpIndex == 0)
   }

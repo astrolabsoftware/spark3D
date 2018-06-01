@@ -62,8 +62,8 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
   // END TODO
 
   // Test files
-  val fnA = "src/test/resources/astro_obs.fits"
-  val fnB = "src/test/resources/astro_obs2.fits"
+  val fnA = "src/test/resources/astro_obs_A_light.fits"
+  val fnB = "src/test/resources/astro_obs_B_light.fits"
 
   test("Can you cross match A and B and return A?") {
 
@@ -78,7 +78,7 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
     val xMatch = PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "A")
 
-    assert(xMatch.count() == 1337)
+    assert(xMatch.count() == 15)
   }
 
   test("Can you cross match A and B and return B?") {
@@ -94,7 +94,7 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
     val xMatch = PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "B")
 
-    assert(xMatch.count() == 1278)
+    assert(xMatch.count() == 15)
   }
 
   test("Can you cross match A and B and return (A,B)?") {
@@ -110,7 +110,7 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
     val xMatch = PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "AB")
 
-    assert(xMatch.count() == 1382)
+    assert(xMatch.count() == 15)
   }
 
   test("Can you cross match A and B and return healpix indices?") {
@@ -126,7 +126,7 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
     val xMatch = PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "healpix")
 
-    assert(xMatch.count() == 1234)
+    assert(xMatch.count() == 15)
   }
 
   test("Can you catch an error in pixel cross match?") {

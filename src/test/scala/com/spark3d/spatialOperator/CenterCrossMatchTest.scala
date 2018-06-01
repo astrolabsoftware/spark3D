@@ -62,8 +62,8 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
   // END TODO
 
   // Test files
-  val fnA = "src/test/resources/astro_obs.fits"
-  val fnB = "src/test/resources/astro_obs2.fits"
+  val fnA = "src/test/resources/astro_obs_A_light.fits"
+  val fnB = "src/test/resources/astro_obs_B_light.fits"
 
   val epsilon = 0.004
 
@@ -81,7 +81,7 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
     val xMatch = CenterCrossMatch.CrossMatchCenter(
       pointRDDA_part, pointRDDB_part, epsilon, "A")
 
-    assert(xMatch.count() == 695)
+    assert(xMatch.count() == 19)
   }
 
   test("Can you cross match A and B centers and return B?") {
@@ -98,7 +98,7 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
     val xMatch = CenterCrossMatch.CrossMatchCenter(
       pointRDDA_part, pointRDDB_part, epsilon, "B")
 
-    assert(xMatch.count() == 497)
+    assert(xMatch.count() == 13)
   }
 
   test("Can you cross match A and B centers and return (A,B)?") {
@@ -115,7 +115,7 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
     val xMatch = CenterCrossMatch.CrossMatchCenter(
       pointRDDA_part, pointRDDB_part, epsilon, "AB")
 
-    assert(xMatch.count() == 6121)
+    assert(xMatch.count() == 36)
   }
 
   test("Can you catch an error in center cross match?") {

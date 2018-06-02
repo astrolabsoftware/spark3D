@@ -16,7 +16,7 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
 
     val result = HashSet.empty[Tuple2[Int, T]]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
-    matchedPartitions ++= octree.findBox(spatialObject)
+    matchedPartitions ++= octree.getElements(spatialObject)
     for(partition <- matchedPartitions) {
       //to add partition.id
       result.add(new Tuple2(1, spatialObject))

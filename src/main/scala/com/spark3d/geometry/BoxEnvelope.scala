@@ -42,6 +42,11 @@ class BoxEnvelope private(
   extends Envelope {
 
   /**
+    * Attach an id to the BoxEnvelope to be used while attaching partition ID.
+    */
+  var indexID: Int = _
+
+  /**
     * Creates a null cube Envelope
     */
   def this() {

@@ -15,8 +15,8 @@
  */
 package com.spark3d.geometryObjects
 
+import com.spark3d.geometry.BoxEnvelope
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
-
 import com.spark3d.geometryObjects._
 import com.spark3d.geometryObjects.Shape3D._
 
@@ -37,6 +37,8 @@ class nonShape extends Shape3D {
 
   // Zero volume
   override def getVolume : Double = 0.0
+
+  override def getEnvelope: BoxEnvelope = ???
 }
 
 /**

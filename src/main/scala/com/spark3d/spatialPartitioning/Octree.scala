@@ -29,9 +29,10 @@ class Octree(
   // list of elements inside this node
   private final val elements = new ListBuffer[BoxEnvelope]
   // number of elements currently in the node
-  private var elementNum = 0
+  private var numElements = 0
   // the array of children nodes
-  private var children: Array[Octree] = _
+// private var children: Array[Octree] = _
+  var children: Array[Octree] = _
 
   val SELF_NODE: Int = -1
   val CHILD_U_NW: Int = 0
@@ -47,7 +48,7 @@ class Octree(
     * Splits this node into 8 children nodes. For this the node (Cuboid) is
     * split into 8 nodes (Cuboids)
     */
-  def splitBox(): Unit = {
+  private def splitBox(): Unit = {
     children = new Array[Octree](8)
 
     children(CHILD_L_SW) = new Octree(
@@ -55,56 +56,56 @@ class Octree(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      maxItemsPerNode)
+      level + 1, maxItemsPerNode, maxLevel)
 
   }
 
@@ -117,10 +118,10 @@ class Octree(
     * @param split true if the region is to be found for placement
     * @return the region in which the object is to be placed.
     */
-  private def findRegion(obj: BoxEnvelope, split: Boolean = true): Int = {
+   private def findRegion(obj: BoxEnvelope, split: Boolean = true): Int = {
     var region = SELF_NODE
 
-    if (elementNum >= maxItemsPerNode && level < maxLevel) {
+    if (numElements >= maxItemsPerNode && level < maxLevel) {
       if (isLeaf && split) {
         splitBox
       }
@@ -139,6 +140,10 @@ class Octree(
     region
   }
 
+  def insertElement(obj: Shape3D): Unit = {
+    insertElement(obj.getEnvelope)
+  }
+
   def insertElement(element: BoxEnvelope): Unit = {
 
     // find the region of the element
@@ -148,7 +153,7 @@ class Octree(
     // (this also means this node is filled up to the capacity as of now.)
     if (region == SELF_NODE || level == maxLevel) {
       elements += element
-      elementNum += 1
+      numElements += 1
       return
     } else {
       // else insert into a child box where it belongs
@@ -156,8 +161,8 @@ class Octree(
     }
 
     // handle the case where the number of elements in this node have become more than the capacity
-    if (elementNum >= maxItemsPerNode && level < maxLevel) {
-      val tempElements = element.clone
+    if (numElements >= maxItemsPerNode && level < maxLevel) {
+      val tempElements = elements.clone
       elements.clear
       // and insert these elements into children nodes. If a elements doesn't fit in any of the child
       // nodes, it will be placed in each of the child node as it it placed in their parent now
@@ -197,7 +202,8 @@ class Octree(
     *                 -1 => get the leaf nodes
     *                 x, where x > 0 => assign x as an partitionID to this node
     */
-  private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope], actionID: Int): Unit = {
+  private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope],
+                          actionID: Int): Unit = {
     // get data in this node
     var tempActionID = actionID
     if (func(this)) {
@@ -251,7 +257,7 @@ class Octree(
       val traverseFunct: Octree => Boolean = {
         tree => tree != null
       }
-      bfsTraverse(traverseFunct, containedElements, -1)
+      bfsTraverse(traverseFunct, containedElements, -2)
     }
 
     containedElements

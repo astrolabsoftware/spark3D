@@ -22,6 +22,7 @@ import scala.collection.mutable.HashSet
 import com.spark3d.geometry.ShellEnvelope
 import com.spark3d.spatialPartitioning
 import com.spark3d.geometryObjects.Shape3D._
+import scala.util.control.Breaks._
 
 /**
   * Class extending SpatialPartitioner to deal with the onion space.
@@ -73,12 +74,15 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
     // Associate the object with one shell
     // TODO: Implement break.
-    for (pos <- 0 to grids.size - 1) {
-      val shell = grids(pos)
+    breakable {
+      for (pos <- 0 to grids.size - 1) {
+        val shell = grids(pos)
 
-      if (shell.isPointInShell(center)) {
-        result += new Tuple2(pos, spatialObject)
-        containFlag = true
+        if (shell.isPointInShell(center)) {
+          result += new Tuple2(pos, spatialObject)
+          containFlag = true
+          break
+        }
       }
     }
 

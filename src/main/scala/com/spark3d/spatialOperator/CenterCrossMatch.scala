@@ -150,6 +150,16 @@ object CenterCrossMatch {
   def CrossMatchCenter[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
       rddA: RDD[A], rddB: RDD[B], epsilon: Double, returnType: String = "B"): RDD[_] = {
 
+    // Check that the two RDD have the same partitioning.
+    if (rddA.partitioner != rddB.partitioner) {
+      throw new AssertionError("""
+        The two RDD must be partitioned by the same partitioner to perform
+        a cross-match! Use spatialPartitioning(rddA.partitioner) to apply
+        a spatial partitioning to a Shape3D RDD.
+        """
+      )
+    }
+    
     // Catch unphysical conditions
     if (epsilon < 0.0) {
       throw new AssertionError("""

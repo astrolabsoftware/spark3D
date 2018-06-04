@@ -129,7 +129,7 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
     assert(xMatch.count() == 15)
   }
 
-  test("Can you catch an error in pixel cross match?") {
+  test("Can you catch an error in pixel cross match (wrong name)?") {
 
     val pointRDDA = new Point3DRDDFromFITS(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
     val pointRDDB = new Point3DRDDFromFITS(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
@@ -144,5 +144,21 @@ class PixelCrossMatchTest extends FunSuite with BeforeAndAfterAll {
       PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "toto")
     }
     assert(exception.getMessage.contains("I do not know how to perform the cross match."))
+  }
+
+  test("Can you catch an error in pixel cross match (different partitioners)?") {
+
+    val pointRDDA = new Point3DRDDFromFITS(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
+    val pointRDDB = new Point3DRDDFromFITS(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+
+    // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
+    val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
+    // Partition 2nd RDD with 50 data shells using the LINEARONIONGRID
+    val pointRDDB_part = pointRDDB.spatialPartitioning(GridType.LINEARONIONGRID, 50)
+
+    val exception = intercept[AssertionError] {
+      PixelCrossMatch.CrossMatchHealpixIndex(pointRDDA_part, pointRDDB_part, 512, "B")
+    }
+    assert(exception.getMessage.contains("The two RDD must be partitioned by the same partitioner"))
   }
 }

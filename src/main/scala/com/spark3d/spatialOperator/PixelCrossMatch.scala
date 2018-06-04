@@ -197,6 +197,8 @@ object PixelCrossMatch {
 
   /**
     * Cross match 2 RDD based on the healpix index of geometry center.
+    * The cross-match is done partition-by-partition, which means the two
+    * RDD must have been partitioned by the same partitioner.
     * You have to choice to return:
     *   (1) Elements of (A, B) matching (returnType="AB")
     *   (2) Elements of A matching B (returnType="A")
@@ -224,6 +226,17 @@ object PixelCrossMatch {
     */
   def CrossMatchHealpixIndex[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
       rddA: RDD[A], rddB: RDD[B], nside: Int, returnType: String = "B"): RDD[_] = {
+
+    // Check that the two RDD have the same partitioning.
+    if (rddA.partitioner != rddB.partitioner) {
+      throw new AssertionError("""
+        The two RDD must be partitioned by the same partitioner to perform
+        a cross-match! Use spatialPartitioning(rddA.partitioner) to apply
+        a spatial partitioning to a Shape3D RDD.
+        """
+      )
+    }
+    
     returnType match {
       case "healpix" => rddA.zipPartitions(
         rddB, true)((iterA, iterB) => healpixMatchAndReturnPixel(iterA, iterB, nside))

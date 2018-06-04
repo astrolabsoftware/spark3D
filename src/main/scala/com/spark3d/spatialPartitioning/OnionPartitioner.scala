@@ -73,7 +73,6 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     val result = HashSet.empty[Tuple2[Int, T]]
 
     // Associate the object with one shell
-    // TODO: Implement break.
     breakable {
       for (pos <- 0 to grids.size - 1) {
         val shell = grids(pos)

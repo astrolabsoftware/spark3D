@@ -18,8 +18,7 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     var matchedPartitions = new ListBuffer[BoxEnvelope]
     matchedPartitions ++= octree.getElements(spatialObject)
     for(partition <- matchedPartitions) {
-      //to add partition.id
-      result.add(new Tuple2(1, spatialObject))
+      result.add(new Tuple2(partition.indexID, spatialObject))
     }
     result.toIterator.asJava
   }

@@ -287,6 +287,23 @@ class Octree(
     children == null
   }
 
+
+  /**
+    *
+    * @param level
+    */
+  def forceGrowTree(level: Int): Unit = {
+    val currentTree = this
+    if (level > 0) {
+      if (currentTree.isLeaf) {
+        currentTree.splitBox
+      }
+      for (child <- children) {
+        child.forceGrowTree(level-1)
+      }
+    }
+  }
+
   /**
     * Assigns an ID to each of the leaf nodes.
     */

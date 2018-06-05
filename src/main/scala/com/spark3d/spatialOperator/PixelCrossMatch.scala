@@ -16,9 +16,9 @@
 package com.spark3d.spatialOperator
 
 import scala.reflect.ClassTag
+import scala.collection.mutable.HashSet
 
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.spatial3DRDD.Shape3DRDD
 
 import org.apache.spark.rdd.RDD
 
@@ -50,7 +50,7 @@ object PixelCrossMatch {
       iterA: Iterator[A], iterB: Iterator[B], nside: Int) : Iterator[(A, B)] = {
 
     // Initialise containers
-    val result = List.newBuilder[(A, B)]
+    val result = HashSet.empty[(A, B)]
     val queryObjects = List.newBuilder[A]
 
     // Construct entire partition A
@@ -70,13 +70,13 @@ object PixelCrossMatch {
         val elementA = elementsA(pos)
         val hpIndexA = elementA.toHealpix(nside)
         if (hpIndexB == hpIndexA) {
-          result += ((elementA, elementB))
+          result += Tuple2(elementA, elementB)
         }
         // Update the position in the partition A
         pos += 1
       }
     }
-    result.result.iterator
+    result.iterator
   }
 
   /**
@@ -236,7 +236,7 @@ object PixelCrossMatch {
         """
       )
     }
-    
+
     returnType match {
       case "healpix" => rddA.zipPartitions(
         rddB, true)((iterA, iterB) => healpixMatchAndReturnPixel(iterA, iterB, nside))
@@ -244,8 +244,24 @@ object PixelCrossMatch {
         rddA, true)((iterA, iterB) => healpixMatchAndReturnB(iterA, iterB, nside))
       case "B" => rddA.zipPartitions(
         rddB, true)((iterA, iterB) => healpixMatchAndReturnB(iterA, iterB, nside))
-      case "AB" => rddA.zipPartitions(
-        rddB, true)((iterA, iterB) => healpixMatchAndReturnAB(iterA, iterB, nside))
+      case "AB" => {
+        // This is more challenging as we return objects from both sides
+        // In order to balance speed-up vs memory, I use this combination:
+        // zipPartitions -> map -> aggregateByKey
+        rddA.zipPartitions(rddB, true)(
+          (iterA, iterB) => healpixMatchAndReturnAB(iterA, iterB, nside)
+        ).map(x => (x._1, x._2))
+        .aggregateByKey(new java.util.HashSet[B])(
+          (queue, item) => {
+            queue.add(item)
+            queue
+          },
+          (queue1, queue2) => {
+            queue1.addAll(queue2)
+            queue1
+          }
+        )
+      }
       case _ => throw new AssertionError("""
         I do not know how to perform the cross match.
         Choose between: "A", "B", "AB", or "healpix".

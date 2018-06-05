@@ -47,7 +47,7 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     * difference between 2 concentric spheres. The n partitions
     * will contain the objects lying in our Onion space.
     *
-    * @return (Int) the number of partition
+    * @return (Int) the number of partitions
     */
   override def numPartitions : Int = {
     grids.size
@@ -55,6 +55,8 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
   /**
     * Hashcode returns the number of partitions.
+    *
+    * @return (Int) the number of partitions
     */
   override def hashCode: Int = numPartitions
 

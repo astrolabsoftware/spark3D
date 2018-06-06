@@ -15,6 +15,9 @@
  */
 package com.spark3d.spatial3DRDD
 
+// For implicits
+import scala.reflect.ClassTag
+
 // Re-partitioning
 import com.spark3d.spatialPartitioning.SpatialPartitioner
 import com.spark3d.spatialPartitioning.OnionPartitioning
@@ -30,9 +33,7 @@ import com.spark3d.utils.GridType._
 
 // Spark
 import org.apache.spark.rdd.RDD
-import org.apache.spark.api.java.JavaRDD
-import org.apache.spark.api.java.function.FlatMapFunction
-import org.apache.spark.api.java.function.PairFlatMapFunction
+import org.apache.spark.rdd.PairRDDFunctions
 
 /**
   * Class to handle generic 3D RDD.
@@ -54,7 +55,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
     *
     */
-  def spatialPartitioning(partitioner: SpatialPartitioner) : RDD[T] = {
+  def spatialPartitioning(partitioner: SpatialPartitioner)(implicit c: ClassTag[T]) : RDD[T] = {
     partition(partitioner)
   }
   /**
@@ -74,7 +75,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
     *
     */
-  def spatialPartitioning(gridtype : GridType, numPartitions : Int = -1) : RDD[T] = {
+  def spatialPartitioning(gridtype : GridType, numPartitions : Int = -1)(implicit c: ClassTag[T]) : RDD[T] = {
 
     val numPartitionsRaw = if (numPartitions == -1) {
       // Same number of partitions as the rawRDD
@@ -111,37 +112,19 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
   /**
     * Repartion a RDD[T] according to a custom partitioner.
-    * We follow the GeoSpark method for the moment (using the Java API).
-    * In the future, that would be good to write that using the Scala API.
     *
     * @param rdd : (RDD[T])
-    *   RDD of T (must extends Shape3D).
+    *   RDD of T (must extends Shape3D) with any partitioning.
     * @param partitioner : (SpatialPartitioner)
     *   Instance of SpatialPartitioner or any extension of it.
-    * @return (RDD[T]) Return a RDD[T] repartitioned.
+    * @return (RDD[T]) Repartitioned RDD[T].
     *
     */
-  def partition(partitioner: SpatialPartitioner) : RDD[T] = {
-    // RDD -> JavaRDD -> JavaPairRDD with custom partitioner
-    rawRDD.toJavaRDD.flatMapToPair[Int, T](
-      new PairFlatMapFunction[T, Int, T]() {
-        override def call(spatialObject: T) : java.util.Iterator[Tuple2[Int, T]] = {
-          partitioner.placeObject[T](spatialObject)
-        }
-      }
-    // Partition the space, and override FlatMapFunction methods
-    ).partitionBy(partitioner).mapPartitions(
-      new FlatMapFunction[java.util.Iterator[Tuple2[Int, T]], T]() {
-        override def call(tuple2Iterator : java.util.Iterator[Tuple2[Int, T]]) : java.util.Iterator[T] = {
-          new java.util.Iterator[T]() {
-            override def hasNext() : Boolean = tuple2Iterator.hasNext()
-
-            override def next() : T = tuple2Iterator.next()._2
-
-            override def remove() = throw new UnsupportedOperationException()
-          }
-        }
-      }, true
-    ).rdd
+  def partition(partitioner: SpatialPartitioner)(implicit c: ClassTag[T]) : RDD[T] = {
+    // Go from RDD[V] to RDD[(K, V)] where K is specified by the partitioner.
+    // Finally, return only RDD[V] with the new partitioning.
+    new PairRDDFunctions[Int, T](
+      rawRDD.map(x => partitioner.placeObject(x).next())
+    ).partitionBy(partitioner).mapPartitions(_.map(_._2), true)
   }
 }

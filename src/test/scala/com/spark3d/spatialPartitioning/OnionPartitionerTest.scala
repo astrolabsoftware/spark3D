@@ -67,4 +67,13 @@ class OnionPartitionerTest extends FunSuite with BeforeAndAfterAll {
     // 9 partitions for inside
     assert(partitioner.numPartitions == 9)
   }
+
+  test("Can you output the hashCode correctly?") {
+    val partitioning = new OnionPartitioning
+    partitioning.LinearOnionPartitioning(9, 1.0, false)
+    val grids = partitioning.getGrids
+    val partitioner = new OnionPartitioner(grids)
+
+    assert(partitioner.hashCode == 9)
+  }
 }

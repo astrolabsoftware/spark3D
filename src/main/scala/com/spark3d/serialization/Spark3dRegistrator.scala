@@ -26,6 +26,10 @@ import java.util.HashSet
 
 /**
   * Setup a Spark conf with Kryo serializer, and register spark3D classes.
+  * TODO: Implement correctly the serialisation of geometryObjects and
+  * geometry. See https://github.com/EsotericSoftware/kryo and
+  * https://github.com/JulienPeloton/spark3D/issues/28
+  *
   */
 object Spark3dConf {
 
@@ -36,7 +40,7 @@ object Spark3dConf {
     * @return (SparkConf) Spark configuration with classes registered in Kryo.
     */
   def spark3dConf : SparkConf = {
-    // Initialise our spark connector
+    // Initialise a new Spark conf
     val conf = new SparkConf()
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.kryo.registrationRequired", "true")

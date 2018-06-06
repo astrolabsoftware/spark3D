@@ -77,5 +77,11 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     }
   }
 
+  test ("Can yyou force grow the octree to given level?") {
+    valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
+    valid_tree.insertElement(new Sphere(1.0, 1.0, 1.0, 1.0))
+    valid_tree.forceGrowTree(2)
+    assert(valid_tree.getLeafNodes.size == 64)
+  }
 
 }

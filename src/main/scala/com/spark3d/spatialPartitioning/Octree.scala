@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Mayur Bhosale
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.spark3d.spatialPartitioning
 
 import com.spark3d.geometry._
@@ -5,6 +20,7 @@ import com.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.util.control.Breaks._
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Queue
 
 /**
   * Octree is a 3D extension of Quadtree where in at each stage node (Cuboid)
@@ -199,31 +215,76 @@ class Octree(
     *             node or not
     * @param data a ListBuffer in which the desired data should be placed when the funct() == true
     * @param actionID -2 => collect data in the all nodes
-    *                 -1 => get the leaf nodes
+    *                 -1 => get the bounding box of the node
     *                 x, where x > 0 => assign x as an partitionID to this node
     */
+//  private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope],
+//                          actionID: Int): Unit = {
+//    // get data in this node
+//    var tempActionID = actionID
+//    if (func(this)) {
+//      if (tempActionID == -2) {
+//        // get all the elements in the tree
+//        data ++= elements
+//      } else if (tempActionID == -1) {
+//        // add this to the leaf node
+//        data += box
+//      } else {
+//        // assign actionID as the partitionID for this node
+//        box.indexID = tempActionID
+////        tempActionID += 1
+//      }
+//    }
+//
+//    // visit the children node if they exist
+//    if (!isLeaf) {
+//      for (child <- children) {
+//        child.bfsTraverse(func, data, tempActionID)
+//        if (tempActionID >= 0 ) {
+//          tempActionID += 1
+//        }
+//      }
+//    }
+//  }
+
   private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope],
                           actionID: Int): Unit = {
-    // get data in this node
-    var tempActionID = actionID
-    if (func(this)) {
-      if (tempActionID == -2) {
-        // get all the elements in the tree
-        data ++= elements
-      } else if (tempActionID == -1) {
-        // add this to the leaf node
-        data += box
-      } else {
-        // assign actionID as the partitionID for this node
-        box.indexID = tempActionID
-        tempActionID += 1
+
+    val que = new Queue[Octree]
+    que += this
+    var partitionID = actionID
+    while (!que.isEmpty) {
+      val current = que.dequeue
+      if (func(current)) {
+        if (actionID == -2) {
+          // get all the elements in the tree
+          data ++= current.elements
+        } else if (actionID == -1) {
+          // add this to the leaf node
+          data += current.box
+        } else {
+          // assign the partitionID for this node
+          current.box.indexID = partitionID
+          partitionID += 1
+        }
+      }
+
+      if (!current.isLeaf) {
+        for (child <- current.children) {
+          que += child
+        }
       }
     }
+  }
 
-    // visit the children node if they exist
+  private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[BoxEnvelope]): Unit = {
+    if (func(this, obj)) {
+      data += box
+    }
+
     if (!isLeaf) {
       for (child <- children) {
-        child.bfsTraverse(func, data, tempActionID)
+        child.dfsTraverse(func, obj, data)
       }
     }
   }
@@ -312,5 +373,18 @@ class Octree(
       node => node.isLeaf
     }
     bfsTraverse(traverseFunct, null, 0)
+  }
+
+  def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+
+    val matchedLeaves = new ListBuffer[BoxEnvelope]
+    val traverseFunct: (Octree, BoxEnvelope) => Boolean = {
+      (node, obj) => node.isLeaf && (node.box.intersects(obj) ||
+                      node.box.contains(obj) ||
+                      obj.contains(node.box))
+    }
+
+    dfsTraverse(traverseFunct, obj, matchedLeaves)
+    matchedLeaves
   }
 }

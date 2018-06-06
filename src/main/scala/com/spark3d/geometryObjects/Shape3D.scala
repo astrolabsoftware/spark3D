@@ -15,16 +15,13 @@
  */
 package com.spark3d.geometryObjects
 
-<<<<<<< HEAD
 import com.spark3d.geometry.BoxEnvelope
-=======
 import com.spark3d.utils.Utils._
 import com.spark3d.utils.ExtPointing
 
 import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing
 import healpix.essentials.Scheme.RING
->>>>>>> master
 
 /**
   * Generic objects describing 3D shapes.

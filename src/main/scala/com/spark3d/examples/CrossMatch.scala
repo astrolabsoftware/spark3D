@@ -33,14 +33,18 @@ import org.apache.spark.SparkConf
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 
+/**
+  * Perform the Xmatch of 2 sets A and B using the LINEARONIONGRID, with
+  * a healpix grid on top.
+  */
 object CrossMatch {
   // Set to Level.WARN is you want verbosity
   Logger.getLogger("org").setLevel(Level.WARN)
   Logger.getLogger("akka").setLevel(Level.WARN)
 
-  // Initialise our spark connector
+  // Initialise our spark connector with spark3d configuration
   val conf = spark3dConf
-  
+
   val spark = SparkSession
     .builder()
     .appName("CrossMatch")
@@ -48,7 +52,23 @@ object CrossMatch {
     .getOrCreate()
 
   /**
-    * Main
+    * Perform the Xmatch of 2 sets A and B using the LINEARONIONGRID, with
+    * a healpix grid on top.
+    *
+    * @param fnA : (String)
+    *   Input FITS file for set A
+    * @param fnB : (String)
+    *   Input FITS file for set B
+    * @param hdu : (Int)
+    *   HDU index to read
+    * @param columns : (String)
+    *   Column names (comma-separated) to load
+    * @param nPart : (Int)
+    *   Number of final partitions
+    * @param nside : (Int)
+    *   Resolution for each shell
+    * @param kind : (String)
+    *   Kind of Xmatch: A, B, AB, or healpix
     */
   def main(args : Array[String]) = {
 
@@ -68,34 +88,27 @@ object CrossMatch {
     // Resolution of the underlying map
     val nside = args(5).toInt
 
+    // Kind of Xmatch to perform: A, B, AB, or healpix
+    val kind = args(6).toString
+
     // Load the data as Point3DRDD
     val pointRDDA = new Point3DRDDFromFITS(spark, fnA_fits, hdu, columns, true)
     val pointRDDB = new Point3DRDDFromFITS(spark, fnB_fits, hdu, columns, true)
-    // val pointRDDA = new Point3DRDDFromCSV(spark, fnA_fits, columns, true)
-    // val pointRDDB = new Point3DRDDFromCSV(spark, fnB_fits, columns, true)
 
-    // Re-partition the space
-    val pointRDD_partA = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, nPart).cache()
+    // Re-partition the space and cache the result
+    val pointRDD_partA = pointRDDA.spatialPartitioning(
+      GridType.LINEARONIONGRID, nPart).cache()
     val partitionerA = pointRDD_partA.partitioner.get.asInstanceOf[SpatialPartitioner]
     val pointRDD_partB = pointRDDB.spatialPartitioning(partitionerA).cache()
 
-    // val xMatchH = PixelCrossMatch.CrossMatchHealpixIndex(
-    //   pointRDD_partA, pointRDD_partB, nside, "healpix")
-    // val xMatchA = PixelCrossMatch.CrossMatchHealpixIndex(
-    //   pointRDD_partA, pointRDD_partB, nside, "A")
-    // // Keeping only elements from B with counterpart in A
-    // val xMatchB = PixelCrossMatch.CrossMatchHealpixIndex(
-    //   pointRDD_partA, pointRDD_partB, nside, "B")
-    // // Keeping all elements with counterparts in both A and B
+    // Xmatch
     val xMatchAB = PixelCrossMatch.CrossMatchHealpixIndex(
-      pointRDD_partA, pointRDD_partB, nside, "AB")
+      pointRDD_partA, pointRDD_partB, nside, kind)
 
-    for (it <- 0 to 1) {
+    // Do it several times to see the improvement
+    for (it <- 0 to 2) {
       println("iteration: ", it)
-      println(xMatchAB.count())
-      // println("Keeping only elements from A with counterpart in B: ", xMatchA.count(), " points")
-      // println("Keeping only elements from B with counterpart in A: ", xMatchB.count(), " points")
-      // println("Keeping all elements with counterparts in both A and B: ", xMatchAB.count(), " points")
+      println(kind, xMatchAB.count())
     }
   }
 }

@@ -15,7 +15,16 @@
  */
 package com.spark3d.geometryObjects
 
+<<<<<<< HEAD
 import com.spark3d.geometry.BoxEnvelope
+=======
+import com.spark3d.utils.Utils._
+import com.spark3d.utils.ExtPointing
+
+import healpix.essentials.HealpixBase
+import healpix.essentials.Pointing
+import healpix.essentials.Scheme.RING
+>>>>>>> master
 
 /**
   * Generic objects describing 3D shapes.
@@ -55,7 +64,58 @@ object Shape3D extends Serializable {
       */
     def getVolume : Double
 
+    /**
+      * Get the bounding box of the Shape3D
+      * @return bounding box (Cuboid) of the Shape3D
+      */
     def getEnvelope: BoxEnvelope
+
+    /**
+      * Compute the healpix index of the geometry center.
+      * By default, the method considers that this.y = ra, this.z = dec.
+      * You can also bypass that, and force this.y = theta, this.z = phi by
+      * setting thetaphi = true.
+      * We only consider the RING scheme for the moment.
+      *
+      * @param nside : (Int)
+      *   Resolution of the healpix map.
+      * @param thetaphi : (Boolean)
+      *   Convention for your data: this.y = ra, this.z = dec if false,
+      *   this.y = theta, this.z = phi otherwise. Default is false.
+      * @return (Long) Healpix index of the point for the resolution chosen.
+      *
+      */
+    def toHealpix(nside: Int, thetaphi: Boolean = false): Long = {
+      assert(center.isSpherical)
+
+      // Initialise the Pointing object
+      var ptg = new ExtPointing
+
+      // Initialise HealpixBase functionalities
+      val hp = new HealpixBase(nside, RING)
+
+      // Make coordinate conversion if needed
+      ptg.theta = if (!thetaphi) {
+        dec2theta(center.z)
+      } else center.y
+
+      ptg.phi = if (!thetaphi) {
+        ra2phi(center.y)
+      } else center.z
+
+      // Compute the index
+      hp.ang2pix(ptg)
+    }
+
+    /**
+      * Return if the input Point3D is equal this Point3D
+      *
+      * @param p Point3D for which the comparison has to be done
+      * @return true if the two Point3D centers are within epsilon
+      */
+    def hasCenterCloseTo(p: Point3D, epsilon: Double): Boolean = {
+      center.distanceTo(p) <= epsilon
+    }
   }
 
   /**

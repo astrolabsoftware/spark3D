@@ -15,13 +15,17 @@
  */
 package com.spark3d.spatialPartitioning
 
-import collection.JavaConverters._
+// import collection.JavaConverters._
 
+// Scala deps
+import scala.util.control.Breaks._
 import scala.collection.mutable.HashSet
 
+// spark3d deps
 import com.spark3d.geometry.ShellEnvelope
 import com.spark3d.spatialPartitioning
 import com.spark3d.geometryObjects.Shape3D._
+
 
 /**
   * Class extending SpatialPartitioner to deal with the onion space.
@@ -43,11 +47,18 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     * difference between 2 concentric spheres. The n partitions
     * will contain the objects lying in our Onion space.
     *
-    * @return (Int) the number of partition
+    * @return (Int) the number of partitions
     */
   override def numPartitions : Int = {
     grids.size
   }
+
+  /**
+    * Hashcode returns the number of partitions.
+    *
+    * @return (Int) the number of partitions
+    */
+  override def hashCode: Int = numPartitions
 
   /**
     * Associate geometrical objects (Point3D, Sphere, etc) to
@@ -59,11 +70,11 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     * @param spatialObject : (T<:Shape3D)
     *   Shape3D instance (or any extension) representing objects to put on
     *   the grid.
-    * @return (java.util.Iterator[Tuple2[Int, T]]) Java iterator over a Tuple
-    *   of (Int, T) where Int is the partition number, and T the input object.
+    * @return (Iterator[Tuple2[Int, T]]) Iterable over a Tuple
+    *   of (Int, T) where Int is the partition index, and T the input object.
     *
     */
-  override def placeObject[T<:Shape3D](spatialObject : T) : java.util.Iterator[Tuple2[Int, T]] = {
+  override def placeObject[T<:Shape3D](spatialObject : T) : Iterator[Tuple2[Int, T]] = {
 
     // Grab the center of the geometrical objects
     val center = spatialObject.center
@@ -71,14 +82,17 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     val notIncludedID = grids.size - 1
     val result = HashSet.empty[Tuple2[Int, T]]
 
-    // Associate the object with one shell
-    // TODO: Implement break.
-    for (pos <- 0 to grids.size - 1) {
-      val shell = grids(pos)
 
-      if (shell.isPointInShell(center)) {
-        result += new Tuple2(pos, spatialObject)
-        containFlag = true
+    // Associate the object with one shell
+    breakable {
+      for (pos <- 0 to grids.size - 1) {
+        val shell = grids(pos)
+
+        if (shell.isPointInShell(center)) {
+          result += new Tuple2(pos, spatialObject)
+          containFlag = true
+          break
+        }
       }
     }
 
@@ -87,8 +101,7 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
       result += new Tuple2(notIncludedID, spatialObject)
     }
 
-    // Make it Java for GeoSpark compatibility
-    result.toIterator.asJava
+    // Return an iterator
+    result.iterator
   }
-
 }

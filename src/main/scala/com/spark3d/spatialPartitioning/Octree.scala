@@ -24,16 +24,22 @@ import scala.collection.mutable.Queue
 
 /**
   * Octree is a 3D extension of Quadtree where in at each stage node (Cuboid)
-  * (instead of rectangle in Quadtree case) is split into 8 sub nodes. As
-  * all the sub nodes are contained within the parent node and
-  * each level contains increasing the level of resolution of details as
-  * we move away from the root level, a search for the data point can
-  * be done very easily by moving down the tree along the node
-  * which contains some information about a particular point
+  * (instead of rectangle in Quadtree case) is split into 8 sub nodes.
+  *  Each node can contain
   * It is assumed that one can place an object only using its bounding box, a BoxEnvelope
   *
   * @param box root node of this octree
   * @param maxItemsPerNode maximum number of items per Cuboid (box)
+  */
+
+/**
+  * Octree is a 3D extension of Quadtree where in at each stage node (Cuboid)
+  * (instead of rectangle in Quadtree case) is split into 8 sub nodes.
+  *
+  * @param box BoxEnvelope (boundary) of the tree rooted at this node
+  * @param level The depth of the node compared to the root of original tree
+  * @param maxItemsPerNode maximum number of elements per node
+  * @param maxLevel maximum level upto which tree can grow
   */
 class Octree(
     val box: BoxEnvelope,
@@ -47,7 +53,6 @@ class Octree(
   // number of elements currently in the node
   private var numElements = 0
   // the array of children nodes
-// private var children: Array[Octree] = _
   var children: Array[Octree] = _
 
   val SELF_NODE: Int = -1
@@ -62,7 +67,7 @@ class Octree(
 
   /**
     * Splits this node into 8 children nodes. For this the node (Cuboid) is
-    * split into 8 nodes (Cuboids)
+    * split into 8 sub-nodes (Cuboids)
     */
   private def splitBox(): Unit = {
     children = new Array[Octree](8)
@@ -127,7 +132,7 @@ class Octree(
 
   /**
     * Finds the region in which the input objects belongs.
-    * A node is split into 8 children boxes when it has contained objects to its maximum
+    * A node is split into 8 children boxes when it has contained the objects to its maximum
     * capacity specified by the maxItemsPerNode while placing a new object
     *
     * @param obj object for which the placement/placed region is to be found
@@ -156,17 +161,27 @@ class Octree(
     region
   }
 
+  /**
+    * Insert an input object into the Octree
+    *
+    * @param obj Shape3D object to be inserted
+    */
   def insertElement(obj: Shape3D): Unit = {
     insertElement(obj.getEnvelope)
   }
 
+  /**
+    * Insert an input object defined by its bounding box into the octree
+    *
+    * @param element
+    */
   def insertElement(element: BoxEnvelope): Unit = {
 
     // find the region of the element
     val region = findRegion(element, true)
 
-    //if the object belongs to this node insert it and return
-    // (this also means this node is filled up to the capacity as of now.)
+    // if the object belongs to this node insert it and return
+    // (this also means this node is not filled up to the capacity as of now.)
     if (region == SELF_NODE || level == maxLevel) {
       elements += element
       numElements += 1
@@ -180,33 +195,13 @@ class Octree(
     if (numElements >= maxItemsPerNode && level < maxLevel) {
       val tempElements = elements.clone
       elements.clear
-      // and insert these elements into children nodes. If a elements doesn't fit in any of the child
-      // nodes, it will be placed in each of the child node as it it placed in their parent now
+      // insert these elements into children nodes. If a elements doesn't fit in any of the child
+      // nodes, it will be placed in each of the child node as it it placed in their parent
       for (element <- tempElements) {
         insertElement(element)
       }
     }
   }
-
-  //  def removeElement(element: BoxEnvelope): Unit = {
-  //
-  //    if (!box.contains(element)) {
-  //      throw new AssertionError(
-  //        """
-  //                Element to be removed must be smaller than the the
-  //                space encompassed by this Octree.
-  //                """)
-  //    }
-  //
-  //    val region = findRegion(element, false)
-  //
-  //    if (region == SELF_NODE) {
-  //      elements -= element
-  //    } else {
-  //      children(region).removeElement(element)
-  //    }
-  //  }
-  //
 
   /**
     * Perform a Breadth First Search Traversal (BFS) of the tree.
@@ -216,41 +211,14 @@ class Octree(
     * @param data a ListBuffer in which the desired data should be placed when the funct() == true
     * @param actionID -2 => collect data in the all nodes
     *                 -1 => get the bounding box of the node
-    *                 x, where x > 0 => assign x as an partitionID to this node
+    *                 x, where x > 0 => assign partitionID to the this node
     */
-//  private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope],
-//                          actionID: Int): Unit = {
-//    // get data in this node
-//    var tempActionID = actionID
-//    if (func(this)) {
-//      if (tempActionID == -2) {
-//        // get all the elements in the tree
-//        data ++= elements
-//      } else if (tempActionID == -1) {
-//        // add this to the leaf node
-//        data += box
-//      } else {
-//        // assign actionID as the partitionID for this node
-//        box.indexID = tempActionID
-////        tempActionID += 1
-//      }
-//    }
-//
-//    // visit the children node if they exist
-//    if (!isLeaf) {
-//      for (child <- children) {
-//        child.bfsTraverse(func, data, tempActionID)
-//        if (tempActionID >= 0 ) {
-//          tempActionID += 1
-//        }
-//      }
-//    }
-//  }
-
   private def bfsTraverse(func: Octree => Boolean, data: ListBuffer[BoxEnvelope],
                           actionID: Int): Unit = {
 
+    // create a queue
     val que = new Queue[Octree]
+    // insert the root node
     que += this
     var partitionID = actionID
     while (!que.isEmpty) {
@@ -270,6 +238,7 @@ class Octree(
       }
 
       if (!current.isLeaf) {
+        // add children to the queue
         for (child <- current.children) {
           que += child
         }
@@ -277,6 +246,14 @@ class Octree(
     }
   }
 
+  /**
+    * Perform a Depth First Search Traversal (DFS) of the tree.
+    *
+    * @param func anonymous function to decide if the desired action should be performed on the this
+    *             node or not
+    * @param obj input object for which the search is to be performed
+    * @param data a ListBuffer in which the desired data should be placed when the funct() == true
+    */
   private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[BoxEnvelope]): Unit = {
     if (func(this, obj)) {
       data += box
@@ -300,6 +277,12 @@ class Octree(
     getElements(obj.getEnvelope)
   }
 
+  /**
+    * Get all the elements contained by the input Shape3D's bounding box.
+    *
+    * @param element bounding box of the Shape3D for which the elements search is to be performed
+    * @return list of elements contained by the bounding box of the Shape3D
+    */
   def getElements(element: BoxEnvelope): ListBuffer[BoxEnvelope] = {
 
     val region = findRegion(element, false)
@@ -307,8 +290,9 @@ class Octree(
     var containedElements = new ListBuffer[BoxEnvelope]
 
     if (region != SELF_NODE) {
-      // add the elements in this node. The object is placed in the parent even after
-      // it is split into children is considered to be part of the all child nodes
+      // add the elements in this node. If the object is placed in the parent even after
+      // it is split into children (when it is too big to be put in any of the child node), it
+      // is considered to be part of the all child nodes
       containedElements ++= elements
       // add the elements from the child in which the objects actually belong
       containedElements ++= children(region).getElements(element)
@@ -341,7 +325,7 @@ class Octree(
   }
 
   /**
-    * Check if its a leaf node or not based it has children or not
+    * Check if this node is a leaf node or not based its children
     * @return true if its a leaf node, false otherwise
     */
   def isLeaf(): Boolean = {
@@ -349,9 +333,9 @@ class Octree(
   }
 
 
-  /**
+  /** Forcefully make the tree grow till the level specified
     *
-    * @param level
+    * @param level depth upto which the tree is to be grown
     */
   def forceGrowTree(level: Int): Unit = {
     val currentTree = this
@@ -366,7 +350,7 @@ class Octree(
   }
 
   /**
-    * Assigns an ID to each of the leaf nodes.
+    * Assigns the partition ID to each of the leaf node.
     */
   def assignPartitionIDs(): Unit = {
     val traverseFunct: Octree => Boolean = {
@@ -375,6 +359,13 @@ class Octree(
     bfsTraverse(traverseFunct, null, 0)
   }
 
+  /**
+    * get all the leaf nodes, which intersect, contain or are contained
+    * by the input BoxEnvelope
+    *
+    * @param obj Input object to be checked for the match
+    * @return list of leafNodes which match the conditions
+    */
   def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
 
     val matchedLeaves = new ListBuffer[BoxEnvelope]

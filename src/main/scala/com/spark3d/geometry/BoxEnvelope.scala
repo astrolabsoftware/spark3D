@@ -42,7 +42,7 @@ class BoxEnvelope private(
   extends Envelope {
 
   /**
-    * Attach an id to the BoxEnvelope to be used while attaching partition ID.
+    * Attach an id to the BoxEnvelope to be used while assigning partition ID.
     */
   var indexID: Int = _
 

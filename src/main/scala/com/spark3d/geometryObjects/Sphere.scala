@@ -71,8 +71,9 @@ class Sphere(val x: Double, val y: Double, val z: Double, override val radius: D
   }
 
   /**
+    * Get the bounding box of the Sphere
     *
-    * @return
+    * @return bounding box (Cuboid) of the Sphere
     */
   override def getEnvelope: BoxEnvelope = {
     BoxEnvelope.apply(

@@ -16,23 +16,24 @@
 package com.spark3d.spatialPartitioning
 
 import com.spark3d.geometry.BoxEnvelope
-
 import scala.collection.mutable.ListBuffer
 
 class OctreePartitioning (private val octree: Octree)
   extends Serializable {
 
+  /**
+    * @return the octree used for partitioning
+    */
   def getPartitionTree(): Octree = {
     octree
   }
 
+  /**
+    * @return Leaf nodes of the partitioning tree
+    */
   def getGrids(): List[BoxEnvelope] = {
     octree.getLeafNodes.toList
   }
-
-//  def reApplyPartitioning(): Octree = {
-//
-//  }
 }
 
 object OctreePartitioning {

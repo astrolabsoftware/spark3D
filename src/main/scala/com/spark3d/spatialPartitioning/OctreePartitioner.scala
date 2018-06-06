@@ -23,12 +23,19 @@ import collection.JavaConverters._
 
 class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
 
+  /**
+    * Get the number of partitions in this partitioning
+    *
+    * @return the number of partitions
+    */
   override def numPartitions: Int = {
     grids.size
   }
 
   /**
-    * Gets the object where the
+    * Gets the iterator on tuple leaf nodes (partitions) which intersects, contains or are contained
+    * by the input object.
+    *
     * @param spatialObject : (T<:Shape3D)
     *   Object of type T = Shape3D, or any extension like Point3D, Sphere, ...
     * @tparam T

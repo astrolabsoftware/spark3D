@@ -1,11 +1,9 @@
 package com.spark3d.spatialPartitioning
 
-import com.spark3d.geometry.{BoxEnvelope, ShellEnvelope}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
-import com.spark3d.spatialPartitioning._
+import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects._
-import com.spark3d.utils.GridType
 
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.collection.mutable.ListBuffer
 
 class OctreeTest extends FunSuite with BeforeAndAfterAll {
@@ -69,7 +67,6 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     leafNodes = valid_tree.getLeafNodes
     assert(leafNodes.size == 15)
 
-
     valid_tree.assignPartitionIDs
     leafNodes = valid_tree.getLeafNodes
     for (node <- leafNodes) {
@@ -77,11 +74,10 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     }
   }
 
-  test ("Can yyou force grow the octree to given level?") {
+  test ("Can you force grow the octree to given level?") {
     valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
     valid_tree.insertElement(new Sphere(1.0, 1.0, 1.0, 1.0))
     valid_tree.forceGrowTree(2)
     assert(valid_tree.getLeafNodes.size == 64)
   }
-
 }

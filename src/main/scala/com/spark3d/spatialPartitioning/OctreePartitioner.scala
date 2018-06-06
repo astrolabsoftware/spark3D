@@ -19,7 +19,6 @@ import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.mutable.{HashSet, ListBuffer}
-import collection.JavaConverters._
 
 class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
 
@@ -37,21 +36,20 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     * by the input object.
     *
     * @param spatialObject : (T<:Shape3D)
-    *   Object of type T = Shape3D, or any extension like Point3D, Sphere, ...
-    * @tparam T
-    * @return (java.util.Iterator[Tuple2[Int, T]]) Java Iterator over
-    *   a tuple (Key, Object). Key represents the partition number to which the
-    *   spatialObject T belongs to.
+    *   Shape3D instance (or any extension) representing objects to put on
+    *   the grid.
+    * @return (Iterator[Tuple2[Int, T]) Iterable over a Tuple
+    *         *   of (Int, T) where Int is the partition index, and T the input object.
     *
     */
-  override def placeObject[T <: Shape3D](spatialObject: T): java.util.Iterator[Tuple2[Int, T]] = {
+  override def placeObject[T <: Shape3D](spatialObject: T): Iterator[Tuple2[Int, T]] = {
 
     val result = HashSet.empty[Tuple2[Int, T]]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
     matchedPartitions ++= octree.getMatchedLeaves(spatialObject.getEnvelope)
     for(partition <- matchedPartitions) {
-      result.add(new Tuple2(partition.indexID, spatialObject))
+      result += new Tuple2(partition.indexID, spatialObject)
     }
-    result.toIterator.asJava
+    result.toIterator
   }
 }

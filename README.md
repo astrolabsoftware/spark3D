@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/JulienPeloton/spark3D.svg?branch=master)](https://travis-ci.org/JulienPeloton/spark3D)
 [![codecov](https://codecov.io/gh/JulienPeloton/spark3D/branch/master/graph/badge.svg)](https://codecov.io/gh/JulienPeloton/spark3D)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3D_2.11/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3D_2.11)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3d_2.11/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3d_2.11)
 
 **The package is under an active development!**
 
@@ -81,7 +81,7 @@ another version, feel free to contact us. In addition to Spark, the library has 
 You can link spark3D to your project (either `spark-shell` or `spark-submit`) by specifying the coordinates:
 
 ```console
-toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3D_2.11:0.1.0" <...>
+toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3d_2.11:0.1.0" <...>
 ```
 
 It might not contain the latest features though (see *Building from source*).

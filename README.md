@@ -53,15 +53,15 @@ Several goals have to be undertaken in this project:
 The current spark3D package provides
 
 - Read and format data from external data sets. Coordinates can be spherical or cartesian. 
-  - Currently available: FITS and CSV data format.
+  - *Currently available: FITS and CSV data format.*
 - Instantiate 3D objects. 
-  - Currently available: Point, Sphere, Spherical shell, Box.
+  - *Currently available: Point, Sphere, Spherical shell, Box.*
 - Create RDD[T] from a raw RDD whose T is a 3D object. The new RDD has the same partitioning as the raw RDD.
-  - Currently available: RDD[Point]
+  - *Currently available: RDD[Point]*
 - Re-partition RDD[T]. 
-  - Currently available: Onion grid, Octree.
+  - *Currently available: Onion grid, Octree.*
 - Identification and join methods between two data sets. 
-  - Currently available: cross-match between two RDD.
+  - *Currently available: cross-match between two RDD.*
 
 What we are thinking at
 
@@ -164,7 +164,6 @@ Therefore we consider as part of the problem, the possibility to allow FITS file
 to be directly injected into the HDFS infrastructure, so as to develop a Spark based applications. The usual [cfitsio](https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) library, as well as the FITS I/O format are not adapted to a distributed file system as HDFS.
 Therefore we will have to develop low level Reader/Writer services,
 to support direct access to FITS data, without copy nor conversion needs.
-
 To tackle this challenge, we started a new project called
 [spark-fits](https://github.com/JulienPeloton/spark-fits), which provides a
 Spark connector for FITS data, and a Scala library for manipulating FITS file.

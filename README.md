@@ -81,7 +81,7 @@ another version, feel free to contact us. In addition to Spark, the library has 
 You can link spark3D to your project (either `spark-shell` or `spark-submit`) by specifying the coordinates:
 
 ```console
---packages "com.github.JulienPeloton:spark3D_2.11:0.1.0"
+toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3D_2.11:0.1.0" <...>
 ```
 
 It might not contain the latest features though (see *Building from source*).
@@ -142,7 +142,7 @@ scala> // etc...
 ```
 Note that if you make a fat jar (that is building with `sbt assembly` and not `sbt package`), you do not need to specify external dependencies as they are already included in the resulting jar:
 
-```shell
+```console
 toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
 toto:~$ spark-shell --jars $FATJARS --packages $PACKAGES
 ```

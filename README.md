@@ -142,7 +142,7 @@ scala> // etc...
 ```
 Note that if you make a fat jar (that is building with `sbt assembly` and not `sbt package`), you do not need to specify external dependencies as they are already included in the resulting jar:
 
-```console
+```shell
 toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
 toto:~$ spark-shell --jars $FATJARS --packages $PACKAGES
 ```

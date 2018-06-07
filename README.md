@@ -174,8 +174,9 @@ The other input format available is CSV. We plan to release more in the future, 
 
 For the moment, our visualisation is done thanks to [smile](https://github.com/haifengl/smile). You can have an overview in the `examples/jupyter` folder.
 
-| ![raw](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFigRaw.png) | ![repartitioning](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFig.png)|
+| Raw data set | Re-partitioned data set |
 |:---------:|:---------:|
+| ![raw](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFigRaw.png) | ![repartitioning](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFig.png)|
 
 If you have better tools or want to develop something specific, let us know!
 

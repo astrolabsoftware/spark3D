@@ -212,7 +212,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(!valid_env.contains(valid_env))
   }
 
-  test("Can you check of the input Point3D lies in the shell Envelope?") {
+  test("Can you check if the input Point3D lies in the shell Envelope?") {
     val p: Point3D = new Point3D(4.0, 4.0, 4.0, isSpherical)
     assert(!null_env.isPointInShell(p))
     assert(valid_env.isPointInShell(p))
@@ -231,7 +231,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(!env.isEqual(valid_env))
   }
 
-  test("Can you check of the input Point3D lies in the shell Envelope using the ShellEnvelope Object?") {
+  test("Can you check if the input Point3D lies in the shell Envelope using the ShellEnvelope Object?") {
     val p0: Point3D = new Point3D(4.0, 4.0, 4.0, isSpherical)
     val center: Point3D = new Point3D(0.0, 0.0, 0.0, isSpherical)
 

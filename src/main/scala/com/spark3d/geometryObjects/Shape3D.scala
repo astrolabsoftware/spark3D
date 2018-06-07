@@ -15,6 +15,7 @@
  */
 package com.spark3d.geometryObjects
 
+import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.utils.Utils._
 import com.spark3d.utils.ExtPointing
 
@@ -59,6 +60,12 @@ object Shape3D extends Serializable {
       * @return (Double) the volume of the shape.
       */
     def getVolume : Double
+
+    /**
+      * Get the bounding box of the Shape3D
+      * @return bounding box (Cuboid) of the Shape3D
+      */
+    def getEnvelope: BoxEnvelope
 
     /**
       * Compute the healpix index of the geometry center.

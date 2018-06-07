@@ -8,7 +8,7 @@
 
 ## Latest News
 
-- [05/2018] **GSoC 2018**: spark3D has been selected to the Google Summer of Code (GSoC) 2018. Congratulation to @mayurdb who will work on the project this year!
+- [05/2018] **GSoC 2018**: spark3D has been selected to the Google Summer of Code (GSoC) 2018. Congratulation to [@mayurdb](https://github.com/mayurdb) who will work on the project this year!
 - [06/2018] **Release**: version 0.1.0
 
 ## Why spark3D?
@@ -53,17 +53,17 @@ Several goals have to be undertaken in this project:
 The current spark3D package provides
 
 - Read and format data from external data sets. Coordinates can be spherical or cartesian. 
- - Currently available: FITS and CSV data format.
+  - Currently available: FITS and CSV data format.
 - Instantiate 3D objects. 
- - Currently available: Point, Sphere, Spherical shell, Box.
+  - Currently available: Point, Sphere, Spherical shell, Box.
 - Create RDD[T] from a raw RDD whose T is a 3D object. The new RDD has the same partitioning as the raw RDD.
- - Currently available: RDD[Point]
+  - Currently available: RDD[Point]
 - Re-partition RDD[T]. 
- - Currently available: Onion grid, Octree.
+  - Currently available: Onion grid, Octree.
 - Identification and join methods between two data sets. 
- - Currently available: cross-match between two RDD.
+  - Currently available: cross-match between two RDD.
 
-We are thinking at adding:
+What we are thinking at
 
 - RangeQuery and KNN methods?
 - KB Tree?
@@ -80,7 +80,7 @@ another version, feel free to contact us. In addition to Spark, the library has 
 
 You can link spark3D to your project (either `spark-shell` or `spark-submit`) by specifying the coordinates:
 
-```bash
+```console
 --packages "com.github.JulienPeloton:spark3D_2.11:0.1.0"
 ```
 
@@ -92,22 +92,22 @@ If you want to contribute to the project, or have access to the latest features,
 This library is easily built with SBT (see the `build.sbt` script provided). To
 build a JAR file simply run
 
-```bash
-$ sbt ++${SCALA_VERSION} package
+```console
+toto:~$ sbt ++${SCALA_VERSION} package
 ```
 
 from the project root. The build configuration includes support for
 Scala 2.10.6 and 2.11.X. In addition you can build the doc using SBT:
 
-```bash
-$ sbt ++${SCALA_VERSION} doc
-$ open target/scala_${SCALA_VERSION}/api/index.html
+```console
+toto:~$ sbt ++${SCALA_VERSION} doc
+toto:~$ open target/scala_${SCALA_VERSION}/api/index.html
 ```
 
 You can also encapsulate the external dependencies in the spark3D jar by constructing a fat jar:
 
-```bash
-$ sbt ++${SCALA_VERSION} assembly
+```console
+toto:~$ sbt ++${SCALA_VERSION} assembly
 ```
 
 By doing so, you will be able to use spark3D in your program without specifying its external dependencies. Note that since healpix has no Maven coordinates, you still have to specify the jar when running your application (see the `lib/` folder).
@@ -116,8 +116,8 @@ By doing so, you will be able to use spark3D in your program without specifying 
 
 To launch the test suite, just execute:
 
-```bash
-$ sbt ++${SCALA_VERSION} coverage test coverageReport
+```console
+toto:~$ sbt ++${SCALA_VERSION} coverage test coverageReport
 ```
 
 We also provide a script (test.sh) that you can execute. You should get the
@@ -128,10 +128,10 @@ result on the screen, plus details of the coverage at
 
 First produce a jar of the spark3D library, and then launch a spark-shell by specifying the external dependencies:
 
-```bash
-$ JARS="target/scala-2.11/spark3d_2.11-0.1.0.jar,lib/jhealpix.jar"
-$ PACKAGES="com.github.JulienPeloton:spark-fits_2.11:0.4.0"
-$ spark-shell --jars $JARS --packages $PACKAGES
+```console
+toto:~$ JARS="target/scala-2.11/spark3d_2.11-0.1.0.jar,lib/jhealpix.jar"
+toto:~$ PACKAGES="com.github.JulienPeloton:spark-fits_2.11:0.4.0"
+toto:~$ spark-shell --jars $JARS --packages $PACKAGES
 ```
 
 You will be able to import anything from spark3D
@@ -142,9 +142,9 @@ scala> // etc...
 ```
 Note that if you make a fat jar (that is building with `sbt assembly` and not `sbt package`), you do not need to specify external dependencies as they are already included in the resulting jar:
 
-```bash
-$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
-$ spark-shell --jars $FATJARS --packages $PACKAGES
+```console
+toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
+toto:~$ spark-shell --jars $FATJARS --packages $PACKAGES
 ```
 
 ## Using with jupyter notebook and examples

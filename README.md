@@ -144,7 +144,7 @@ Note that if you make a fat jar (that is building with `sbt assembly` and not `s
 
 ```console
 toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
-toto:~$ spark-shell --jars $FATJARS --packages $PACKAGES
+toto:~$ spark-shell --jars $FATJARS
 ```
 
 ## Using with jupyter notebook and examples

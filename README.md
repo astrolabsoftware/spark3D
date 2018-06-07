@@ -170,9 +170,14 @@ Spark connector for FITS data, and a Scala library for manipulating FITS file.
 
 The other input format available is CSV. We plan to release more in the future, and you are welcome to submit requests for specific data source!
 
-## Use case for astronomical data sets
+## Scala and 3D Visualisation
 
-TBD
+For the moment, our visualisation is done thanks to [smile](https://github.com/haifengl/smile). You can have an overview in the `examples/jupyter` folder.
+
+| ![raw](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFigRaw.png) | ![repartitioning](https://github.com/JulienPeloton/spark3D/tree/master/examples/jupyter/myOnionFig.png)|
+|:---------:|:---------:|
+
+If you have better tools or want to develop something specific, let us know!
 
 ## Contributors
 

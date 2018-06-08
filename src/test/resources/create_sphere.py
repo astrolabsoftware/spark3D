@@ -80,13 +80,13 @@ if __name__ == "__main__":
         a1 = np.array(state.rand(n), dtype=np.float64)
         a2 = np.array(state.rand(n) * np.pi, dtype=np.float64)
         a3 = np.array(state.rand(n) * 2 * np.pi, dtype=np.float64)
-        a4 = np.array(state.rand(n), dtype=np.float64)
+        a4 = np.array(state.rand(n) * 0.01, dtype=np.float64)
         names = ["Z_COSMO", "RA", "Dec", "radius"]
     elif args.coordinates == "cartesian":
         a1 = np.array(state.rand(n), dtype=np.float64)
         a2 = np.array(state.rand(n), dtype=np.float64)
         a3 = np.array(state.rand(n), dtype=np.float64)
-        a4 = np.array(state.rand(n), dtype=np.float64)
+        a4 = np.array(state.rand(n) * 0.01, dtype=np.float64)
         names = ["x", "y", "z", "radius"]
     else:
         print("You need to choose cartesian or spherical coordinates!")

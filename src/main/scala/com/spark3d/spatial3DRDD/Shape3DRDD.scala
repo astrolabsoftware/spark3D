@@ -16,12 +16,19 @@
 package com.spark3d.spatial3DRDD
 
 // For implicits
+import com.spark3d.geometry.BoxEnvelope
+import com.spark3d.spatialPartitioning.OctreePartitioning
+
 import scala.reflect.ClassTag
+import scala.math._
 
 // Re-partitioning
 import com.spark3d.spatialPartitioning.SpatialPartitioner
 import com.spark3d.spatialPartitioning.OnionPartitioning
 import com.spark3d.spatialPartitioning.OnionPartitioner
+import com.spark3d.spatialPartitioning.Octree
+import com.spark3d.spatialPartitioning.OctreePartitioning
+import com.spark3d.spatialPartitioning.OctreePartitioner
 
 // 3D Objects
 import com.spark3d.geometryObjects._
@@ -46,6 +53,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
   val isSpherical : Boolean
 
+  val boundary: BoxEnvelope
   /**
     * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
     * with the new partitioning.
@@ -102,6 +110,9 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         // Build our partitioner
         new OnionPartitioner(grids)
       }
+      case GridType.OCTREE => {
+        val partitioning = OctreePartitioning.apply(rawRDD.takeSample(1, true).toList, new Octree(getDataEnvelope(), 0))
+    }
       case _ => throw new AssertionError("""
         Unknown grid type! See utils.GridType for available grids.""")
     }
@@ -126,5 +137,38 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     new PairRDDFunctions[Int, T](
       rawRDD.map(x => partitioner.placeObject(x).next())
     ).partitionBy(partitioner).mapPartitions(_.map(_._2), true)
+  }
+
+  def getDataEnvelope(): BoxEnvelope = {
+
+
+//    rawRDD.reduce{(x, y) => seqOp(x.getEnvelope, y.getEnvelope)}
+    val seqOp: (BoxEnvelope, BoxEnvelope) => BoxEnvelope = {
+      (x, y) => {
+        return BoxEnvelope.apply(
+          min(x.minX, y.minX), max(x.maxX, y.maxX),
+          min(x.minY, y.minY), max(x.maxY, y.maxY),
+          min(x.minZ, y.minZ), max(x.maxZ, y.maxZ)
+        )
+      }
+    }
+
+    val combOp: (BoxEnvelope, T) => BoxEnvelope = {
+      (obj1, obj2) => {
+        var x = obj1
+        val y = obj2.getEnvelope
+        if (x.isNull) {
+          x = y
+        }
+        seqOp(x, y)
+      }
+    }
+
+    // create a dummy envelope
+    val bx = BoxEnvelope.apply(0, 0, 0, 0, 0, 0)
+    // set it to null
+    bx.setToNull
+
+    rawRDD.aggregate(bx)(combOp, seqOp)
   }
 }

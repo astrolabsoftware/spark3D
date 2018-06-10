@@ -16,6 +16,8 @@
 package com.spark3d.spatialPartitioning
 
 import com.spark3d.geometry.BoxEnvelope
+import com.spark3d.geometryObjects.Shape3D.Shape3D
+
 import scala.collection.mutable.ListBuffer
 
 class OctreePartitioning (private val octree: Octree)
@@ -38,7 +40,7 @@ class OctreePartitioning (private val octree: Octree)
 
 object OctreePartitioning {
 
-  def apply(data: ListBuffer[BoxEnvelope], tree: Octree): OctreePartitioning = {
+  def apply(data: ListBuffer[Shape3D], tree: Octree): OctreePartitioning = {
     for (element <- data) {
       tree.insertElement(element)
     }

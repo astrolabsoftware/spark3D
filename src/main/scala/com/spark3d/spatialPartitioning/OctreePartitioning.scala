@@ -40,7 +40,7 @@ class OctreePartitioning (private val octree: Octree)
 
 object OctreePartitioning {
 
-  def apply(data: ListBuffer[Shape3D], tree: Octree): OctreePartitioning = {
+  def apply(data: List[BoxEnvelope], tree: Octree): OctreePartitioning = {
     for (element <- data) {
       tree.insertElement(element)
     }

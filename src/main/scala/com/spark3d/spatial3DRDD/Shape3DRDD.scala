@@ -53,7 +53,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
   val isSpherical : Boolean
 
-  val boundary: BoxEnvelope
+  var boundary: BoxEnvelope = null
   /**
     * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
     * with the new partitioning.
@@ -111,7 +111,13 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         new OnionPartitioner(grids)
       }
       case GridType.OCTREE => {
-        val partitioning = OctreePartitioning.apply(rawRDD.takeSample(1, true).toList, new Octree(getDataEnvelope(), 0))
+        val octree = new Octree(getDataEnvelope, 0)
+        // taking 20% of the data as a sample
+        val sampleSize = (rawRDD.count * 0.2).asInstanceOf[Int]
+        val samples = rawRDD.takeSample(false, sampleSize, 12).toList.map(x => x.getEnvelope)
+        val partitioning = OctreePartitioning.apply(samples, octree)
+        val grids = partitioning.getGrids
+        new OctreePartitioner(octree, grids)
     }
       case _ => throw new AssertionError("""
         Unknown grid type! See utils.GridType for available grids.""")
@@ -140,12 +146,9 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   }
 
   def getDataEnvelope(): BoxEnvelope = {
-
-
-//    rawRDD.reduce{(x, y) => seqOp(x.getEnvelope, y.getEnvelope)}
     val seqOp: (BoxEnvelope, BoxEnvelope) => BoxEnvelope = {
       (x, y) => {
-        return BoxEnvelope.apply(
+        BoxEnvelope.apply(
           min(x.minX, y.minX), max(x.maxX, y.maxX),
           min(x.minY, y.minY), max(x.maxY, y.maxY),
           min(x.minZ, y.minZ), max(x.maxZ, y.maxZ)

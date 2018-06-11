@@ -116,6 +116,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         val samples = rawRDD.takeSample(false, sampleSize, 12).toList.map(x => x.getEnvelope)
         // TO DO
         // spark.read.format("com.sparkfits") creates only 1 partition. Re factor this code if this is expected
+        // see https://github.com/JulienPeloton/spark3D/issues/37 for the maxLevels and maxItemsPerNode calculations logic
         val maxLevels = floor(log(numPartitions)/log(8)).asInstanceOf[Int]
         val maxItemsPerBox = ceil(sampleSize/pow(8, maxLevels)).asInstanceOf[Int]
         val octree = new Octree(getDataEnvelope, 0, maxItemsPerBox, maxLevels)

@@ -54,19 +54,37 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   val fn_fits = "src/test/resources/cartesian_spheres.fits"
-  val fn_csv = "src/test/resources/cartesian_spheres.fits.csv"
+  val fn_csv = "src/test/resources/cartesian_spheres.csv"
 
   test("FITS: Can you repartition a RDD with the octree space?") {
     val sphereRDD = new SphereRDDFromFITS(spark, fn_fits, 1, "x,y,z,radius", false)
 
     // Partition the space using the OCTREE
-    val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.LINEARONIONGRID)
+    val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 100)
 
+    // number of partitions created will be less that or equal to the input number of partitions, and will always be
+    // in the powers of 8
+    assert(sphereRDD_part.getNumPartitions == 64)
     // Collect the size of each partition
-    val partitions = pointRDD_part.mapPartitions(
+    val partitions = sphereRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    assert(partitions.size == 1 && partitions(0) == 20000)
+    assert(partitions.toList.foldLeft(0)(_+_) == 20000)
   }
 
+  test("CSV: Can you repartition a RDD with the octree space?") {
+    val sphereRDD = new SphereRDDFromCSV(spark, fn_csv,"x,y,z,radius", false)
+
+    // Partition the space using the OCTREE
+    val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 100)
+
+    // number of partitions created will be less that or equal to the input number of partitions, and will always be
+    // in the powers of 8
+    assert(sphereRDD_part.getNumPartitions == 64)
+    // Collect the size of each partition
+    val partitions = sphereRDD_part.mapPartitions(
+      iter => Array(iter.size).iterator, true).collect()
+
+    assert(partitions.toList.foldLeft(0)(_+_) == 20000)
+  }
 }

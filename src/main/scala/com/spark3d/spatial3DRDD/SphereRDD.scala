@@ -97,7 +97,7 @@ class SphereRDDFromCSV(spark : SparkSession, filename : String, colnames : Strin
   *
   */
 class SphereRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
-                         colnames : String, override val isSpherical: Boolean) extends Shape3DRDD[Sphere] {
+                         colnames : String, override val isSpherical: Boolean = false) extends Shape3DRDD[Sphere] {
 
   // Load the data as DataFrame using spark-fits
   val df = spark.read

@@ -21,7 +21,7 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
     data += element3
     data += element4
 
-    val partitioning = OctreePartitioning(data, valid_tree)
+    val partitioning = OctreePartitioning(data.toList, valid_tree)
     val partitioner = new OctreePartitioner(partitioning.getPartitionTree, partitioning.getGrids)
     assert(partitioner.numPartitions == 15)
     var spr = new Sphere(0.5, 0.5, 0.5, 0.2)

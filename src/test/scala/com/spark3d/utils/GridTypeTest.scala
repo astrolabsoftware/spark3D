@@ -26,6 +26,6 @@ class GridTypeTest extends FunSuite with BeforeAndAfterAll {
 
   // Just test the Sphere class constructor.
   test("Do you know how many spatial partitionings are implemented?") {
-    assert(GridType.maxId == 1)
+    assert(GridType.maxId == 2)
   }
 }

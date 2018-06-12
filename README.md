@@ -57,7 +57,7 @@ The current spark3D package provides
 - Instantiate 3D objects. 
   - *Currently available: Point, Sphere, Spherical shell, Box.*
 - Create RDD[T] from a raw RDD whose T is a 3D object. The new RDD has the same partitioning as the raw RDD.
-  - *Currently available: RDD[Point]*
+  - *Currently available: RDD[Point], RDD[Sphere]*
 - Re-partition RDD[T]. 
   - *Currently available: Onion grid, Octree.*
 - Identification and join methods between two data sets. 

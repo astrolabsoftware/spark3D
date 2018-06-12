@@ -111,10 +111,13 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         new OnionPartitioner(grids)
       }
       case GridType.OCTREE => {
-        val octree = new Octree(getDataEnvelope, 0)
         // taking 20% of the data as a sample
         val sampleSize = (rawRDD.count * 0.2).asInstanceOf[Int]
         val samples = rawRDD.takeSample(false, sampleSize, 12).toList.map(x => x.getEnvelope)
+        // see https://github.com/JulienPeloton/spark3D/issues/37 for the maxLevels and maxItemsPerNode calculations logic
+        val maxLevels = floor(log(numPartitions)/log(8)).asInstanceOf[Int]
+        val maxItemsPerBox = ceil(sampleSize/pow(8, maxLevels)).asInstanceOf[Int]
+        val octree = new Octree(getDataEnvelope, 0, maxItemsPerBox, maxLevels)
         val partitioning = OctreePartitioning.apply(samples, octree)
         val grids = partitioning.getGrids
         new OctreePartitioner(octree, grids)

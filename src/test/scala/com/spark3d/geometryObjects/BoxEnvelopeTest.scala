@@ -391,4 +391,8 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(valid_env.toString == str)
   }
 
+  test("Can you get the envelope of the Box (which is the Box)?") {
+    assert(valid_env.getEnvelope.isEqual(valid_env))
+  }
+
 }

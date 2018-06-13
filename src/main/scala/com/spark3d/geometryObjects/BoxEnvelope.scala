@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.spark3d.geometry
+package com.spark3d.geometryObjects
 
 import scala.math._
-import com.spark3d.geometryObjects._
 
 /** Defines a cubical region of 3D coordinate space.
   * This can be used to define a bounding box of a geometryObject
@@ -643,4 +641,3 @@ object BoxEnvelope {
     )
   }
 }
-

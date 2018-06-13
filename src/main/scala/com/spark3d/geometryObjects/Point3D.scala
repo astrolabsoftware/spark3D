@@ -15,7 +15,6 @@
  */
 package com.spark3d.geometryObjects
 
-import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects.Shape3D._
 
 /**

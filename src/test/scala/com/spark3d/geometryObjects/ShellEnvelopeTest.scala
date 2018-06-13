@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.spark3d.geometry
+package com.spark3d.geometryObjects
 
-import com.spark3d.geometryObjects.Point3D
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**

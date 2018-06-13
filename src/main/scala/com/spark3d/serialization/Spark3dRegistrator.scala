@@ -17,9 +17,8 @@ package com.spark3d.serialization
 
 import org.apache.spark.SparkConf
 
-import com.spark3d.geometryObjects.{Point3D, Sphere}
+import com.spark3d.geometryObjects.{Point3D, Sphere, Envelope, ShellEnvelope, BoxEnvelope}
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.geometry.{Envelope, ShellEnvelope, BoxEnvelope}
 import com.spark3d.spatialPartitioning.{OnionPartitioner, OnionPartitioning, SpatialPartitioner}
 import com.spark3d.utils.ExtPointing
 import java.util.HashSet

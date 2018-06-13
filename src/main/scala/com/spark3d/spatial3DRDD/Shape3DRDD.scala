@@ -16,9 +16,6 @@
 package com.spark3d.spatial3DRDD
 
 // For implicits
-import com.spark3d.geometry.BoxEnvelope
-import com.spark3d.spatialPartitioning.OctreePartitioning
-
 import scala.reflect.ClassTag
 import scala.math._
 

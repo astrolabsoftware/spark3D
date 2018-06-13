@@ -19,7 +19,7 @@ package com.spark3d.spatialPartitioning
 import org.apache.spark.Partitioner
 
 // spark3d deps
-import com.spark3d.geometry.Envelope
+import com.spark3d.geometryObjects.Envelope
 import com.spark3d.geometryObjects.Shape3D._
 
 /**

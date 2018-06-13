@@ -1,4 +1,4 @@
-package com.spark3d.geometry
+package com.spark3d.geometryObjects
 
 class Envelope extends Serializable {
 

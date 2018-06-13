@@ -15,6 +15,8 @@
  */
 package com.spark3d.geometryObjects
 
+import com.spark3d.geometryObjects.Shape3D._
+
 import scala.math._
 
 /** Defines a shell of 3D coordinate space. Shell here is made by a difference of
@@ -27,10 +29,10 @@ import scala.math._
   * @param outerRadius outer radius of the shell Envelope
   */
 class ShellEnvelope(
-    var center: Point3D,
+    override val center: Point3D,
     var innerRadius: Double,
     var outerRadius: Double)
-  extends Envelope {
+  extends Shape3D with Serializable {
 
   /**
     * Creates a null shell Envelope.
@@ -51,6 +53,32 @@ class ShellEnvelope(
     */
   def this(x: Double, y: Double, z: Double, innerRadius: Double, outerRadius: Double) {
     this(new Point3D(x, y, z, true), innerRadius, outerRadius)
+  }
+
+  /**
+    * Creates a shell Envelope defined with a center coordinates, and a radius.
+    * This would correspond to a Sphere basically.
+    *
+    * @param x x-coordinate of the center of the sphere Envelope
+    * @param y y-coordinate of the center of the sphere Envelope
+    * @param z z-coordinate of the center of the sphere Envelope
+    * @param radius inner radius of the Envelope
+    */
+  def this(x: Double, y: Double, z: Double, radius: Double) {
+    this(new Point3D(x, y, z, true), 0.0, radius)
+  }
+
+  /**
+    * Creates a shell Envelope defined with a center coordinates, and a radius.
+    * This would correspond to a Sphere basically.
+    *
+    * @param x x-coordinate of the center of the sphere Envelope
+    * @param y y-coordinate of the center of the sphere Envelope
+    * @param z z-coordinate of the center of the sphere Envelope
+    * @param radius inner radius of the Envelope
+    */
+  def this(p: Point3D, radius: Double) {
+    this(p, 0.0, radius)
   }
 
   /**
@@ -288,6 +316,18 @@ class ShellEnvelope(
     }
 
     center.isEqual(spr.center) && (innerRadius == spr.innerRadius) && (outerRadius == spr.outerRadius)
+  }
+
+  /**
+    * Get the bounding box of the Sphere
+    *
+    * @return bounding box (Cuboid) of the Sphere
+    */
+  override def getEnvelope: BoxEnvelope = {
+    BoxEnvelope.apply(
+        center.x - outerRadius, center.x + outerRadius,
+        center.y - outerRadius, center.y + outerRadius,
+        center.z - outerRadius, center.z + outerRadius)
   }
 }
 

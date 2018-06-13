@@ -19,7 +19,6 @@ package com.spark3d.spatialPartitioning
 import org.apache.spark.Partitioner
 
 // spark3d deps
-import com.spark3d.geometryObjects.Envelope
 import com.spark3d.geometryObjects.Shape3D._
 
 /**
@@ -31,7 +30,7 @@ import com.spark3d.geometryObjects.Shape3D._
   *   List of Shape3D objects which partition the space.
   *
   */
-abstract class SpatialPartitioner(grids : List[Envelope]) extends Partitioner with Serializable {
+abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner with Serializable {
 
   /**
     * Method to place a spatialObject (could a Point3D, a Sphere, and so on) on

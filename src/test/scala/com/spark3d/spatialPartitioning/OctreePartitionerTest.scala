@@ -38,12 +38,12 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
     val partitioning = OctreePartitioning(data.toList, valid_tree)
     val partitioner = new OctreePartitioner(partitioning.getPartitionTree, partitioning.getGrids)
     assert(partitioner.numPartitions == 15)
-    var spr = new Sphere(0.5, 0.5, 0.5, 0.2)
+    var spr = new ShellEnvelope(0.5, 0.5, 0.5, 0.2)
     var result = partitioner.placeObject(spr)
     assert(result.next._1 == 13)
 
     // case when object belongs to all partitions
-    spr = new Sphere(2, 2, 2, 1)
+    spr = new ShellEnvelope(2, 2, 2, 1)
     result = partitioner.placeObject(spr)
     var resultCount = 0
     while (result.hasNext) {

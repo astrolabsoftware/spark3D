@@ -88,6 +88,12 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     assert(p1.intersect(box))
   }
 
+  test("Can you return the envelope around the point (which is the point itself)?") {
+    val p = new Point3D(0.0, 1.0, 0.0, false)
+    val box = new BoxEnvelope(p)
+    assert(p.getEnvelope.isEqual(box))
+  }
+
   // Volume of a point
   test("Can you compute the volume of a point?") {
     val p = new Point3D(0.0, 0.0, 0.0, true)

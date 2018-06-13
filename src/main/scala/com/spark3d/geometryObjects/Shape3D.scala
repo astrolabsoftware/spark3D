@@ -39,28 +39,6 @@ object Shape3D extends Serializable {
     val center : Point3D
 
     /**
-      * Radius of the Shape.
-      * Only meaningful for Sphere.
-      */
-    val radius : Double
-
-    /**
-      * Whether two shapes intersect each other.
-      *
-      * @param otherShape : (Geometry3D)
-      *   Other instance of Geometry3D
-      * @return (Boolean) True if they overlap. False otherwise.
-      */
-    def intersect(otherShape: Shape3D) : Boolean
-
-    /**
-      * Compute the volume of the 3D shape.
-      *
-      * @return (Double) the volume of the shape.
-      */
-    def getVolume : Double
-
-    /**
       * Get the bounding box of the Shape3D
       * @return bounding box (Cuboid) of the Shape3D
       */
@@ -112,72 +90,5 @@ object Shape3D extends Serializable {
     def hasCenterCloseTo(p: Point3D, epsilon: Double): Boolean = {
       center.distanceTo(p) <= epsilon
     }
-  }
-
-  /**
-    * Intersection between two spheres. We compare the distance between
-    * the two centers with the sum of the two radii.
-    * Work also with points (sphere with zero radius).
-    *
-    * @param sphere1 : (Shape3D)
-    *   Instance of Shape3D, and more specifically Sphere.
-    * @param sphere2 : (Shape3D)
-    *   Instance of Shape3D, and more specifically Sphere.
-    */
-  def sphereSphereIntersection(sphere1: Shape3D, sphere2: Shape3D) : Boolean = {
-
-    // Quick check on the types of objects
-    if (!sphere1.isInstanceOf[Sphere] && !sphere1.isInstanceOf[Point3D]) {
-      throw new AssertionError("""
-        You are using sphereSphereIntersection with a non-spherical object
-        """)
-    }
-
-    if (!sphere2.isInstanceOf[Sphere] && !sphere2.isInstanceOf[Point3D]) {
-      throw new AssertionError("""
-        You are using sphereSphereIntersection with a non-spherical object
-        """)
-    }
-
-    // Compute the distance between the two centers
-    val distance = sphere1.center.distanceTo(sphere2.center)
-
-    // Compute the sum of the two sphere radii
-    val sumRadii = sphere1.radius + sphere2.radius
-
-    // Compare the distance between centers, and the radius sum.
-    if (sumRadii >= distance) {
-      true
-    } else false
-  }
-
-  /**
-    * Check whether a point belong to a spherical shell made by the difference
-    * of two spheres.
-    *
-    * @param lower_sphere : (Sphere)
-    *   Lower sphere defining the lower bound of the shell (included).
-    * @param upper_sphere : (Sphere)
-    *   Upper sphere defining the upper bound of the shell (excluded).
-    * @param p : (Point3D)
-    *   Point of the space
-    * @return (Boolean) True if the point is between the two sphere.
-    *
-    */
-  def isPointInShell(lower_sphere : Sphere, upper_sphere : Sphere, p : Point3D): Boolean = {
-
-    if (lower_sphere.center.getCoordinate != upper_sphere.center.getCoordinate) {
-      throw new AssertionError("""
-        The two spheres must be centered on the same point!
-        """)
-    }
-
-    // Distance to the center
-    val distance = p.distanceTo(lower_sphere.center)
-
-    // Whether the point is in between the two spheres.
-    if (distance >= lower_sphere.radius && distance < upper_sphere.radius) {
-      true
-    } else false
   }
 }

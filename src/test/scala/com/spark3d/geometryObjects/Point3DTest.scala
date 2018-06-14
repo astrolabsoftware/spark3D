@@ -17,6 +17,7 @@ package com.spark3d.geometryObjects
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 /**
   * Dummy class with no specific implementation to test errors
@@ -75,7 +76,7 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you intersect a point and a Shell?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
-    val shell = new ShellEnvelope(0.0, 1.0, 0.0, 0.0, 10.0)
+    val shell = new ShellEnvelope(0.0, 1.0, 0.0, true, 0.0, 10.0)
     assert(p1.intersect(shell))
   }
 
@@ -88,10 +89,41 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     assert(p1.intersect(box))
   }
 
+  test("Can you catch an error trying to intersect a point with spherical coordinate and a Box?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0, true)
+    val p2 = new Point3D(10.0, 0.0, 0.0, false)
+    val p3 = new Point3D(0.0, 10.0, 0.0, false)
+    val p4 = new Point3D(0.0, 0.0, 10.0, false)
+    val box = new BoxEnvelope(p2, p3, p4)
+
+    val exception = intercept[AssertionError] {
+      p1.intersect(box)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
+
+    val exception2 = intercept[AssertionError] {
+      box.covers(p1)
+    }
+    assert(exception2.getMessage.contains("must have cartesian coordinate system"))
+  }
+
   test("Can you return the envelope around the point (which is the point itself)?") {
     val p = new Point3D(0.0, 1.0, 0.0, false)
     val box = new BoxEnvelope(p)
     assert(p.getEnvelope.isEqual(box))
+
+    val pSph = new Point3D(0.0, 1.0, 0.0, true)
+    val boxSph = new BoxEnvelope(sphericalToCartesian(pSph))
+    assert(pSph.getEnvelope.isEqual(boxSph))
+
+    // Perform a conversion spherical to cartesian
+    // as BoxEnvelope needs cartesian
+    val p2 = new Point3D(1.0, 0.0, 0.0, true)
+
+    val exception = intercept[AssertionError] {
+      val box2 = new BoxEnvelope(p2)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
   }
 
   // Volume of a point

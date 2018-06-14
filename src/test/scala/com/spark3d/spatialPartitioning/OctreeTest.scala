@@ -49,7 +49,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     valid_tree.insertElement(element1)
     valid_tree.insertElement(element2)
 
-    val spr = new ShellEnvelope(1.0, 1.0, 1.0, 1.0)
+    val spr = new ShellEnvelope(1.0, 1.0, 1.0, false, 1.0)
     var result = valid_tree.getElements(spr)
     assert(valid_tree.isLeaf)
     assert(result.size == 2)
@@ -90,7 +90,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
 
   test ("Can you force grow the octree to given level?") {
     valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
-    valid_tree.insertElement(new ShellEnvelope(1.0, 1.0, 1.0, 1.0))
+    valid_tree.insertElement(new ShellEnvelope(1.0, 1.0, 1.0, false, 1.0))
     valid_tree.forceGrowTree(2)
     assert(valid_tree.getLeafNodes.size == 64)
   }

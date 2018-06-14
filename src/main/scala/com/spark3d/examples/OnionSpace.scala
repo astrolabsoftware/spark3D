@@ -17,7 +17,7 @@ package com.spark3d.examples
 
 // spark3d lib
 import com.spark3d.utils.GridType
-import com.spark3d.utils.Utils.sphericalToEuclidean
+import com.spark3d.utils.Utils.sphericalToCartesian
 import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
 
 // Spark lib
@@ -90,7 +90,7 @@ object OnionSpace {
     //   Color.MAGENTA, Color.CYAN)
     //
     // val data = pointRDD_part.map(
-    //   x=> sphericalToEuclidean(x).center.getCoordinate.toArray).glom.collect().toArray
+    //   x=> sphericalToCartesian(x).center.getCoordinate.toArray).glom.collect().toArray
     //
     // val window = ScatterPlot.plot(data(0), '.', colors(0))
     //

@@ -47,7 +47,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you initialize a sphere Envelope defined by center, inner and outer radius?") {
 
-    val env_v1 = new ShellEnvelope(0.0, 0.0, 0.0, 2.0, 2.0)
+    val env_v1 = new ShellEnvelope(0.0, 0.0, 0.0, isSpherical, 2.0, 2.0)
     assert(!env_v1.isNull)
     val p2 = new Point3D(0.0, 0.0, 0.0, isSpherical)
     val env = new ShellEnvelope(p2, 2.0, 3.0)
@@ -63,7 +63,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you initialize a sphere Envelope defined by center coordinates, and single radius (a sphere)?") {
 
-    val env = new ShellEnvelope(0.0, 0.0, 0.0, 3.0)
+    val env = new ShellEnvelope(0.0, 0.0, 0.0, isSpherical, 3.0)
     assert(!env.isNull)
   }
 
@@ -71,6 +71,18 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val env = new ShellEnvelope(valid_env)
     env.setToNull
     assert(env.isNull)
+  }
+
+  test ("Can you get the bounding box around the Shell?") {
+    val pSph = new Point3D(0.0, 0.0, 0.0, false)
+    val shell = new ShellEnvelope(pSph, 1.0)
+    val bb = BoxEnvelope(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+    assert(shell.getEnvelope.isEqual(bb))
+
+    val pCart = new Point3D(0.0, 0.0, 0.0, true)
+    val shell2 = new ShellEnvelope(pCart, 1.0)
+    val bb2 = BoxEnvelope(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+    assert(shell2.getEnvelope.isEqual(bb2))
   }
 
   test("Can you get the area of the Shell Envelope?") {

@@ -17,7 +17,7 @@ package com.spark3d.spatial3DRDD
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import com.spark3d.geometryObjects.Point3D
+import com.spark3d.geometryObjects.ShellEnvelope
 import com.spark3d.utils.GridType
 import com.spark3d.spatial3DRDD._
 import com.spark3d.spatialPartitioning.SpatialPartitioner
@@ -86,5 +86,15 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
       iter => Array(iter.size).iterator, true).collect()
 
     assert(partitions.toList.foldLeft(0)(_+_) == 20000)
+  }
+
+  test("RDD: Can you construct a SphereRDD from a RDD[Shell]?") {
+    val pointRDD = new SphereRDDFromCSV(spark, fn_csv, "x,y,z,radius", false)
+
+    val rdd = pointRDD.rawRDD
+
+    val newRDD = new SphereRDDFromRDD(rdd)
+
+    assert(newRDD.isInstanceOf[Shape3DRDD[ShellEnvelope]])
   }
 }

@@ -20,14 +20,14 @@ import com.spark3d.geometryObjects._
 object Utils {
 
   /**
-    * Convert a Point3D with euclidean coordinates in a
+    * Convert a Point3D with cartesian coordinates in a
     * Point3D with spherical coordinates.
     *
     * @param p : (Point3D)
-    *   Input Point3D with euclidean coordinates.
+    *   Input Point3D with cartesian coordinates.
     * @return (Point3D) The same point but with spherical coordinates.
     */
-  def euclideantoSpherical(p : Point3D) : Point3D = {
+  def cartesiantoSpherical(p : Point3D) : Point3D = {
     if (p.isSpherical) {
       throw new AssertionError("""
         Cannot convert your point to spherical coordinates because
@@ -44,17 +44,17 @@ object Utils {
 
   /**
     * Convert a Point3D with spherical coordinates in a
-    * Point3D with euclidean coordinates.
+    * Point3D with cartesian coordinates.
     *
     * @param p : (Point3D)
     *   Input Point3D with spherical coordinates.
-    * @return (Point3D) The same point but with euclidean coordinates.
+    * @return (Point3D) The same point but with cartesian coordinates.
     */
-  def sphericalToEuclidean(p : Point3D) : Point3D = {
+  def sphericalToCartesian(p : Point3D) : Point3D = {
     if (!p.isSpherical) {
       throw new AssertionError("""
-        Cannot convert your point to euclidean coordinates because
-        it is already in euclidean coordinates.""")
+        Cannot convert your point to cartesian coordinates because
+        it is already in cartesian coordinates.""")
     }
 
     val x = p.x * math.sin(p.y) * math.cos(p.z)

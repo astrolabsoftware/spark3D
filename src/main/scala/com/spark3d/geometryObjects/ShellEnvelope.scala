@@ -16,6 +16,7 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 import scala.math._
 
@@ -48,11 +49,12 @@ class ShellEnvelope(
     * @param x x-coordinate of the center of the sphere Envelope
     * @param y y-coordinate of the center of the sphere Envelope
     * @param z z-coordinate of the center of the sphere Envelope
+    * @param isSpherical Whether (x, y, z) describes a spherical or cartesian coordinate system
     * @param innerRadius inner radius of the Envelope
     * @param outerRadius outer radius of the Envelope
     */
-  def this(x: Double, y: Double, z: Double, innerRadius: Double, outerRadius: Double) {
-    this(new Point3D(x, y, z, true), innerRadius, outerRadius)
+  def this(x: Double, y: Double, z: Double, isSpherical: Boolean, innerRadius: Double, outerRadius: Double) {
+    this(new Point3D(x, y, z, isSpherical), innerRadius, outerRadius)
   }
 
   /**
@@ -62,10 +64,11 @@ class ShellEnvelope(
     * @param x x-coordinate of the center of the sphere Envelope
     * @param y y-coordinate of the center of the sphere Envelope
     * @param z z-coordinate of the center of the sphere Envelope
+    * @param isSpherical Whether (x, y, z) describes a spherical or cartesian coordinate system
     * @param radius inner radius of the Envelope
     */
-  def this(x: Double, y: Double, z: Double, radius: Double) {
-    this(new Point3D(x, y, z, true), 0.0, radius)
+  def this(x: Double, y: Double, z: Double, isSpherical: Boolean, radius: Double) {
+    this(new Point3D(x, y, z, isSpherical), 0.0, radius)
   }
 
   /**
@@ -324,10 +327,18 @@ class ShellEnvelope(
     * @return bounding box (Cuboid) of the Sphere
     */
   override def getEnvelope: BoxEnvelope = {
+    // Must first make sure that coordinates are cartesian otherwise makes
+    // no sense.
+    val center_ = if (!center.isSpherical) {
+      center
+    } else {
+      sphericalToCartesian(center)
+    }
+
     BoxEnvelope.apply(
-        center.x - outerRadius, center.x + outerRadius,
-        center.y - outerRadius, center.y + outerRadius,
-        center.z - outerRadius, center.z + outerRadius)
+        center_.x - outerRadius, center_.x + outerRadius,
+        center_.y - outerRadius, center_.y + outerRadius,
+        center_.z - outerRadius, center_.z + outerRadius)
   }
 }
 

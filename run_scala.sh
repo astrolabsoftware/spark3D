@@ -18,7 +18,7 @@ SBT_VERSION=2.11.8
 SBT_VERSION_SPARK=2.11
 
 ## Package version
-VERSION=0.1.0
+VERSION=0.1.1
 
 # Package it
 sbt ++${SBT_VERSION} package

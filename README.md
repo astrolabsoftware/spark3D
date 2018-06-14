@@ -9,7 +9,7 @@
 ## Latest News
 
 - [05/2018] **GSoC 2018**: spark3D has been selected to the Google Summer of Code (GSoC) 2018. Congratulation to [@mayurdb](https://github.com/mayurdb) who will work on the project this year!
-- [06/2018] **Release**: version 0.1.0
+- [06/2018] **Release**: version 0.1.0, 0.1.1
 
 ## Why spark3D?
 
@@ -52,15 +52,15 @@ Several goals have to be undertaken in this project:
 
 The current spark3D package provides
 
-- Read and format data from external data sets. Coordinates can be spherical or cartesian. 
+- Read and format data from external data sets. Coordinates can be spherical or cartesian.
   - *Currently available: FITS and CSV data format.*
-- Instantiate 3D objects. 
+- Instantiate 3D objects.
   - *Currently available: Point, Sphere, Spherical shell, Box.*
 - Create RDD[T] from a raw RDD whose T is a 3D object. The new RDD has the same partitioning as the raw RDD.
   - *Currently available: RDD[Point], RDD[Sphere]*
-- Re-partition RDD[T]. 
+- Re-partition RDD[T].
   - *Currently available: Onion grid, Octree.*
-- Identification and join methods between two data sets. 
+- Identification and join methods between two data sets.
   - *Currently available: cross-match between two RDD.*
 
 What we are thinking at
@@ -81,7 +81,7 @@ another version, feel free to contact us. In addition to Spark, the library has 
 You can link spark3D to your project (either `spark-shell` or `spark-submit`) by specifying the coordinates:
 
 ```console
-toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3d_2.11:0.1.0" <...>
+toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3d_2.11:0.1.1" <...>
 ```
 
 It might not contain the latest features though (see *Building from source*).
@@ -121,7 +121,7 @@ toto:~$ sbt ++${SCALA_VERSION} coverage test coverageReport
 ```
 
 We also provide a script (test.sh) that you can execute. You should get the
-result on the screen, plus details of the coverage at 
+result on the screen, plus details of the coverage at
 `target/scala_${SCALA_VERSION}/scoverage-report/index.html`.
 
 ## Using with spark-shell
@@ -129,7 +129,7 @@ result on the screen, plus details of the coverage at
 First produce a jar of the spark3D library, and then launch a spark-shell by specifying the external dependencies:
 
 ```console
-toto:~$ JARS="target/scala-2.11/spark3d_2.11-0.1.0.jar,lib/jhealpix.jar"
+toto:~$ JARS="target/scala-2.11/spark3d_2.11-0.1.1.jar,lib/jhealpix.jar"
 toto:~$ PACKAGES="com.github.JulienPeloton:spark-fits_2.11:0.4.0"
 toto:~$ spark-shell --jars $JARS --packages $PACKAGES
 ```
@@ -143,7 +143,7 @@ scala> // etc...
 Note that if you make a fat jar (that is building with `sbt assembly` and not `sbt package`), you do not need to specify external dependencies as they are already included in the resulting jar:
 
 ```console
-toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.0.jar"
+toto:~$ FATJARS="target/scala-2.11/spark3D-assembly-0.1.1.jar"
 toto:~$ spark-shell --jars $FATJARS
 ```
 
@@ -186,4 +186,4 @@ If you have better tools or want to develop something specific, let us know!
 * Christian Arnault (arnault at lal.in2p3.fr)
 * Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.
 
-Contributing to spark3D: see [CONTRIBUTING](https://github.com/JulienPeloton/spark3D/blob/master/CONTRIBUTING.rst).
+Contributing to spark3D: see [CONTRIBUTING](https://github.com/JulienPeloton/spark3D/blob/master/CONTRIBUTING.md).

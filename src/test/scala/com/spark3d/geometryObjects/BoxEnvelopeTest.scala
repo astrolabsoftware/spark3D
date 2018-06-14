@@ -65,6 +65,18 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(env.maxZ == 1.0)
   }
 
+  test("Can you catch an error when initialising the cube Envelope with three spherical Point3D?") {
+
+    val p1 = new Point3D(0.0, 1.0, 0.0, true)
+    val p2 = new Point3D(1.0, -1.0, 1.0, true)
+    val p3 = new Point3D(0.0, -1.0, 1.0, true)
+
+    val exception = intercept[AssertionError] {
+      val env = new BoxEnvelope(p1, p2, p3)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
+  }
+
   test("Can you initialize the cube Envelope with two Point3D?") {
 
     val p1 = new Point3D(0.0, 1.0, 0.0, isSpherical)
@@ -77,6 +89,17 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(env.maxY == 1.0)
     assert(env.minZ == 0.0)
     assert(env.maxZ == 1.0)
+  }
+
+  test("Can you catch an error when initialising the cube Envelope with two spherical Point3D?") {
+
+    val p1 = new Point3D(0.0, 1.0, 0.0, true)
+    val p2 = new Point3D(1.0, -1.0, 1.0, true)
+
+    val exception = intercept[AssertionError] {
+      val env = new BoxEnvelope(p1, p2)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
   }
 
   test("Can you initialize the cube Envelope with one Point3D?") {
@@ -189,6 +212,12 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(clone_env_rev.maxY == 12.3)
     assert(clone_env_rev.minZ == 1.2)
     assert(clone_env_rev.maxZ == 18.5)
+
+    // Point3D must have cartesian coordinates
+    val exception = intercept[AssertionError] {
+      clone_env_rev.expandToInclude(new Point3D(-7.8, 12.3, 18.5, true))
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
   }
 
   test("Can you expand the cube Envelope to include the given cube Envelope?") {
@@ -290,6 +319,16 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     assert(valid_env.intersects(env))
     assert(valid_env.intersects(p1, p2, p3))
+
+    val p1Sph = new Point3D(0.0, 1.0, 0.0, true)
+    val p2Cart = new Point3D(0.1, 4.0, 0.0, isSpherical)
+    val p3Cart = new Point3D(1.0, -1.0, 1.3, isSpherical)
+
+    val exception = intercept[AssertionError] {
+      valid_env.intersects(p1Sph, p2Cart, p3Cart)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
+
   }
 
   test("Can you test if the point intersects the cube Envelope?") {

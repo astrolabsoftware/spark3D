@@ -16,6 +16,7 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 import scala.math._
 
@@ -55,10 +56,11 @@ class BoxEnvelope private(
 
   /**
     * Creates an cube Envelope for a region defined by three coordinates.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p1 first coordinate
-    * @param p2 second coordinate
-    * @param p3 third coordinate
+    * @param p1 first coordinate (cartesian coordinate)
+    * @param p2 second coordinate (cartesian coordinate)
+    * @param p3 third coordinate (cartesian coordinate)
     */
   def this(p1: Point3D, p2: Point3D, p3: Point3D) {
     this(
@@ -66,13 +68,26 @@ class BoxEnvelope private(
       min(p1.y, min(p2.y, p3.y)), max(p1.y, max(p2.y, p3.y)),
       min(p1.z, min(p2.z, p3.z)), max(p1.z, max(p2.z, p3.z))
     )
+
+    // Trigger an AssertionError if Point3D is spherical.
+    // Unfortunately, one cannot put the logic first in an
+    // overloaded constructor in scala. Another option would
+    // be to use apply(...) in the object.
+    if (p1.isSpherical | p2.isSpherical | p3.isSpherical) {
+      throw new AssertionError("""
+        All input Point3D for creating a BoxEnvelope must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert them
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
   }
 
   /**
     * Creates an cube Envelope for a region defined by two coordinates.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p1 first coordinate
-    * @param p2 second coordinate
+    * @param p1 first coordinate (cartesian coordinate)
+    * @param p2 second coordinate (cartesian coordinate)
     */
   def this(p1: Point3D, p2: Point3D) {
     this(
@@ -80,15 +95,41 @@ class BoxEnvelope private(
       min(p1.y, p2.y), max(p1.y, p2.y),
       min(p1.z, p2.z), max(p1.z, p2.z)
     )
+
+    // Trigger an AssertionError if Point3D is spherical.
+    // Unfortunately, one cannot put the logic first in an
+    // overloaded constructor in scala. Another option would
+    // be to use apply(...) in the object.
+    if (p1.isSpherical | p2.isSpherical) {
+      throw new AssertionError("""
+        All input Point3D for creating a BoxEnvelope must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert them
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
   }
 
   /**
-    * Creates an cube Envelope for a region defined one coordinate. The cube Envelope in this case will be a point.
+    * Creates an cube Envelope for a region defined one coordinate.
+    * The cube Envelope in this case will be a point.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p1 the coordinate
+    * @param p1 the coordinate (cartesian coordinate)
     */
   def this(p1: Point3D) {
     this(p1.x, p1.x, p1.y, p1.y, p1.z, p1.z)
+
+    // Trigger an AssertionError if Point3D is spherical.
+    // Unfortunately, one cannot put the logic first in an
+    // overloaded constructor in scala. Another option would
+    // be to use apply(...) in the object.
+    if (p1.isSpherical) {
+      throw new AssertionError("""
+        Input Point3D for creating a BoxEnvelope must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert them
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
   }
 
   /**
@@ -108,7 +149,6 @@ class BoxEnvelope private(
   def isNull(): Boolean = {
     ((minX > maxX) || (minY > maxY) || (minZ > maxZ))
   }
-
 
   /**
     * Sets this cube Envelope to null
@@ -200,10 +240,18 @@ class BoxEnvelope private(
 
   /**
     * Expand the cube Envelope so that it contains the given Point
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p the Point to expand to include
+    * @param p the Point to expand to include (cartesian coordinate).
     */
   def expandToInclude(p: Point3D): Unit = {
+    if (p.isSpherical) {
+      throw new AssertionError("""
+        Input Point3D for expanding a BoxEnvelope must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert it
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
     expandToInclude(p.x, p.y, p.z)
   }
 
@@ -384,14 +432,23 @@ class BoxEnvelope private(
   }
 
   /**
-    * Checks if the region the three external points intersects the region of this cube Envelope.
+    * Checks if the region the three external points
+    * intersects the region of this cube Envelope.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p1 the first external point
-    * @param p2 the second external point
-    * @param p3 the third external point
+    * @param p1 the first external point (cartesian coordinate)
+    * @param p2 the second external point (cartesian coordinate)
+    * @param p3 the third external point (cartesian coordinate)
     * @return true if the region intersects the other cube Envelope
     */
   def intersects(p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
+    if (p1.isSpherical | p2.isSpherical | p3.isSpherical) {
+      throw new AssertionError("""
+        All input Point3D for creating a region must have cartesian coordinate system!
+        Check it using p.isSpherical, or convert them
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
     if (isNull) {
       return false
     }
@@ -453,12 +510,20 @@ class BoxEnvelope private(
 
   /**
     * Tests if the given point lies in or on the envelope.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p Point3D to be checked for the containment
+    * @param p Point3D to be checked for the containment (cartesian coordinate)
     * @return true if the p lies in the interior or on the
     *         boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def contains(p: Point3D): Boolean = {
+    if (p.isSpherical) {
+      throw new AssertionError("""
+        Input Point3D must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert it
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
     covers(p)
   }
 
@@ -488,12 +553,20 @@ class BoxEnvelope private(
 
   /**
     * Tests if the given point lies in or on the envelope.
+    * For the moment, coordinates must be cartesian. Error is thrown otherwise.
     *
-    * @param p Point3D to be checked for the containment
+    * @param p Point3D to be checked for the containment (cartesian coordinate)
     * @return true if the p lies in the interior or on the
     *         boundary of this cube Envelope, false if the cube Envelope is null.
     */
   def covers(p: Point3D): Boolean = {
+    if (p.isSpherical) {
+      throw new AssertionError("""
+        Input Point3D must have cartesian coordinate system!
+        Check it using p.isSpherical, and convert it
+        using Utils.euclideantoSpherical(p).
+        """)
+    }
     covers(p.x, p.y, p.z)
   }
 

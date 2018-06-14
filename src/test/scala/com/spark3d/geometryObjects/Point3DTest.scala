@@ -89,6 +89,24 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     assert(p1.intersect(box))
   }
 
+  test("Can you catch an error trying to intersect a point with spherical coordinate and a Box?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0, true)
+    val p2 = new Point3D(10.0, 0.0, 0.0, false)
+    val p3 = new Point3D(0.0, 10.0, 0.0, false)
+    val p4 = new Point3D(0.0, 0.0, 10.0, false)
+    val box = new BoxEnvelope(p2, p3, p4)
+
+    val exception = intercept[AssertionError] {
+      p1.intersect(box)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
+
+    val exception2 = intercept[AssertionError] {
+      box.covers(p1)
+    }
+    assert(exception2.getMessage.contains("must have cartesian coordinate system"))
+  }
+
   test("Can you return the envelope around the point (which is the point itself)?") {
     val p = new Point3D(0.0, 1.0, 0.0, false)
     val box = new BoxEnvelope(p)

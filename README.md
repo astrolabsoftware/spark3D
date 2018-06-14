@@ -186,4 +186,4 @@ If you have better tools or want to develop something specific, let us know!
 * Christian Arnault (arnault at lal.in2p3.fr)
 * Mayur Bhosale (mayurdb31 at gmail.com) -- GSoC 2018.
 
-Contributing to spark3D: see [CONTRIBUTING](https://github.com/JulienPeloton/spark3D/blob/master/CONTRIBUTING.rst).
+Contributing to spark3D: see [CONTRIBUTING](https://github.com/JulienPeloton/spark3D/blob/master/CONTRIBUTING.md).

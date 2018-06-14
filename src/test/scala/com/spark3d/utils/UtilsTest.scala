@@ -25,11 +25,11 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
   */
 class UtilsTest extends FunSuite with BeforeAndAfterAll {
 
-  // Euclidean -> Spherical -> Euclidean
-  test("Can you convert a Point3D with euclidean coordinate into spherical coordinate, and vice versa?") {
+  // Cartesian -> Spherical -> Cartesian
+  test("Can you convert a Point3D with cartesian coordinate into spherical coordinate, and vice versa?") {
     val p_euc = new Point3D(1.0, 1.0, 0.0, false)
-    val p_sph = euclideantoSpherical(p_euc)
-    val p_sph_euc = sphericalToEuclidean(p_sph)
+    val p_sph = cartesiantoSpherical(p_euc)
+    val p_sph_euc = sphericalToCartesian(p_sph)
     assert(
       math.rint(p_euc.x) == math.rint(p_sph_euc.x) &&
       math.rint(p_euc.y) == math.rint(p_sph_euc.y) &&
@@ -37,18 +37,18 @@ class UtilsTest extends FunSuite with BeforeAndAfterAll {
   }
 
   // Detect problems with unknown shape when doing intersection
-  test("Can you catch a bad conversion euclidean <-> spherical?") {
-    // Euclidean
+  test("Can you catch a bad conversion cartesian <-> spherical?") {
+    // Cartesian
     val p_euc = new Point3D(0.0, 0.0, 0.0, false)
     val exception1 = intercept[AssertionError] {
-      sphericalToEuclidean(p_euc)
+      sphericalToCartesian(p_euc)
     }
-    assert(exception1.getMessage.contains("already in euclidean coordinates"))
+    assert(exception1.getMessage.contains("already in cartesian coordinates"))
 
     // Spherical
     val p_sph = new Point3D(0.0, 0.0, 0.0, true)
     val exception2 = intercept[AssertionError] {
-      euclideantoSpherical(p_sph)
+      cartesiantoSpherical(p_sph)
     }
     assert(exception2.getMessage.contains("already in spherical coordinates"))
   }

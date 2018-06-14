@@ -75,7 +75,7 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you intersect a point and a Shell?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
-    val shell = new ShellEnvelope(0.0, 1.0, 0.0, 0.0, 10.0)
+    val shell = new ShellEnvelope(0.0, 1.0, 0.0, true, 0.0, 10.0)
     assert(p1.intersect(shell))
   }
 

@@ -75,7 +75,7 @@ class SphereRDDFromCSV(
     .rdd
     // map to ShellEnvelope
     .map(x => new ShellEnvelope(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), x.getDouble(3))
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
   )
 }
 
@@ -125,6 +125,6 @@ class SphereRDDFromFITS(
     .rdd
     // map to ShellEnvelope
     .map(x => new ShellEnvelope(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), x.getDouble(3))
+    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
   )
 }

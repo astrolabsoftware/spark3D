@@ -48,11 +48,12 @@ class ShellEnvelope(
     * @param x x-coordinate of the center of the sphere Envelope
     * @param y y-coordinate of the center of the sphere Envelope
     * @param z z-coordinate of the center of the sphere Envelope
+    * @param isSpherical Whether (x, y, z) describes a spherical or cartesian coordinate system
     * @param innerRadius inner radius of the Envelope
     * @param outerRadius outer radius of the Envelope
     */
-  def this(x: Double, y: Double, z: Double, innerRadius: Double, outerRadius: Double) {
-    this(new Point3D(x, y, z, true), innerRadius, outerRadius)
+  def this(x: Double, y: Double, z: Double, isSpherical: Boolean, innerRadius: Double, outerRadius: Double) {
+    this(new Point3D(x, y, z, isSpherical), innerRadius, outerRadius)
   }
 
   /**
@@ -62,10 +63,11 @@ class ShellEnvelope(
     * @param x x-coordinate of the center of the sphere Envelope
     * @param y y-coordinate of the center of the sphere Envelope
     * @param z z-coordinate of the center of the sphere Envelope
+    * @param isSpherical Whether (x, y, z) describes a spherical or cartesian coordinate system
     * @param radius inner radius of the Envelope
     */
-  def this(x: Double, y: Double, z: Double, radius: Double) {
-    this(new Point3D(x, y, z, true), 0.0, radius)
+  def this(x: Double, y: Double, z: Double, isSpherical: Boolean, radius: Double) {
+    this(new Point3D(x, y, z, isSpherical), 0.0, radius)
   }
 
   /**

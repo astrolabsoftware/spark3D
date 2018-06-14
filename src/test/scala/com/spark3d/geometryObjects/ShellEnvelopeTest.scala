@@ -47,7 +47,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you initialize a sphere Envelope defined by center, inner and outer radius?") {
 
-    val env_v1 = new ShellEnvelope(0.0, 0.0, 0.0, 2.0, 2.0)
+    val env_v1 = new ShellEnvelope(0.0, 0.0, 0.0, isSpherical, 2.0, 2.0)
     assert(!env_v1.isNull)
     val p2 = new Point3D(0.0, 0.0, 0.0, isSpherical)
     val env = new ShellEnvelope(p2, 2.0, 3.0)
@@ -63,7 +63,7 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you initialize a sphere Envelope defined by center coordinates, and single radius (a sphere)?") {
 
-    val env = new ShellEnvelope(0.0, 0.0, 0.0, 3.0)
+    val env = new ShellEnvelope(0.0, 0.0, 0.0, isSpherical, 3.0)
     assert(!env.isNull)
   }
 

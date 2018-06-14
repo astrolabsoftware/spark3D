@@ -15,7 +15,7 @@
  */
 package com.spark3d.spatialPartitioning
 
-import com.spark3d.geometry._
+import com.spark3d.geometryObjects._
 import com.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.util.control.Breaks._

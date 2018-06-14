@@ -22,36 +22,39 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
 
 /**
-  * Construct a SphereRDD from a RDD[Sphere]
+  * Construct a ShellEnvelopeRDD from a RDD[ShellEnvelope]
   *
-  * @param rdd : (RDD[Sphere])
-  *   RDD whose elements are Sphere instances.
+  * @param rdd : (RDD[ShellEnvelope])
+  *   RDD whose elements are ShellEnvelope instances.
   * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the Sphere center are (r, theta, phi).
+  *   If true, it assumes that the coordinates of the ShellEnvelope center are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   */
-class SphereRDDFromRDD(rdd : RDD[Sphere], override val isSpherical: Boolean = false) extends Shape3DRDD[Sphere] {
+class SphereRDDFromRDD(
+    rdd : RDD[ShellEnvelope],
+    override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
   override val rawRDD = rdd
 }
 
 /**
-  * Construct a SphereRDD from CSV data.
+  * Construct a ShellEnvelopeRDD from CSV data.
   *
   * @param spark : (SparkSession)
   *   The spark session
   * @param filename : (String)
   *   File name where the data is stored
   * @param colnames : (String)
-  * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO,Radius".
+  * Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec,Radius".
   * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the center of the Sphere are (r, theta, phi).
+  *   If true, it assumes that the coordinates of the center of the ShellEnvelope are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   *
   */
-class SphereRDDFromCSV(spark : SparkSession, filename : String, colnames : String,
-                        override val isSpherical: Boolean = false) extends Shape3DRDD[Sphere] {
+class SphereRDDFromCSV(
+    spark : SparkSession, filename : String, colnames : String,
+    override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
 
   val df = spark.read
     .option("header", true)
@@ -70,17 +73,17 @@ class SphereRDDFromCSV(spark : SparkSession, filename : String, colnames : Strin
   )
     // DF to RDD
     .rdd
-    // map to Sphere
-    .map(x => new Sphere(
+    // map to ShellEnvelope
+    .map(x => new ShellEnvelope(
     x.getDouble(0), x.getDouble(1), x.getDouble(2), x.getDouble(3))
   )
 }
 
 /**
-  * Class to make a Sphere RDD from FITS data.
+  * Class to make a ShellEnvelope RDD from FITS data.
   * {{{
   *   val fn = "src/test/resources/cartesian_spheres.fits"
-  *   val sphereRDD = new SphereRDD(spark, fn, 1, "RA,Dec,Z_COSMO,Radius")
+  *   val sphereRDD = new ShellEnvelopeRDD(spark, fn, 1, "Z_COSMO,RA,Dec,Radius")
   * }}}
   *
   * @param spark : (SparkSession)
@@ -90,14 +93,16 @@ class SphereRDDFromCSV(spark : SparkSession, filename : String, colnames : Strin
   * @param hdu : (Int)
   *   HDU to load.
   * @param colnames : (String)
-  * Comma-separated names of (x, y, z, r) columns. Example: "RA,Dec,Z_COSMO,Radius".
+  * Comma-separated names of (x, y, z, r) columns. Example: "Z_COSMO,RA,Dec,Radius".
   * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the center of the Sphere are (r, theta, phi).
+  *   If true, it assumes that the coordinates of the center of
+  *   the ShellEnvelope are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
   *
   */
-class SphereRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
-                         colnames : String, override val isSpherical: Boolean = false) extends Shape3DRDD[Sphere] {
+class SphereRDDFromFITS(
+  spark : SparkSession, filename : String, hdu : Int,
+  colnames : String, override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
 
   // Load the data as DataFrame using spark-fits
   val df = spark.read
@@ -118,8 +123,8 @@ class SphereRDDFromFITS(spark : SparkSession, filename : String, hdu : Int,
   )
     // DF to RDD
     .rdd
-    // map to Sphere
-    .map(x => new Sphere(
+    // map to ShellEnvelope
+    .map(x => new ShellEnvelope(
     x.getDouble(0), x.getDouble(1), x.getDouble(2), x.getDouble(3))
   )
 }

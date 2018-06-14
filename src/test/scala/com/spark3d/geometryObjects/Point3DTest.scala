@@ -15,9 +15,7 @@
  */
 package com.spark3d.geometryObjects
 
-import com.spark3d.geometry.BoxEnvelope
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
-import com.spark3d.geometryObjects._
 import com.spark3d.geometryObjects.Shape3D._
 
 /**
@@ -27,18 +25,7 @@ class nonShape extends Shape3D {
   // Centered in 0
   val center : Point3D = new Point3D(0.0, 0.0, 0.0, true)
 
-  // Zero radius
-  val radius : Double = 0.0
-
-  // No intersection
-  override def intersect(otherShape : Shape3D) : Boolean = {
-    false
-  }
-
-  // Zero volume
-  override def getVolume : Double = 0.0
-
-  override def getEnvelope: BoxEnvelope = ???
+  def getEnvelope: BoxEnvelope = ???
 }
 
 /**
@@ -84,6 +71,27 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
     val p2 = new Point3D(0.0, 1.0, 0.0, false)
     assert(p1.intersect(p2))
+  }
+
+  test("Can you intersect a point and a Shell?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0, false)
+    val shell = new ShellEnvelope(0.0, 1.0, 0.0, 0.0, 10.0)
+    assert(p1.intersect(shell))
+  }
+
+  test("Can you intersect a point and a Box?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0, false)
+    val p2 = new Point3D(10.0, 0.0, 0.0, false)
+    val p3 = new Point3D(0.0, 10.0, 0.0, false)
+    val p4 = new Point3D(0.0, 0.0, 10.0, false)
+    val box = new BoxEnvelope(p2, p3, p4)
+    assert(p1.intersect(box))
+  }
+
+  test("Can you return the envelope around the point (which is the point itself)?") {
+    val p = new Point3D(0.0, 1.0, 0.0, false)
+    val box = new BoxEnvelope(p)
+    assert(p.getEnvelope.isEqual(box))
   }
 
   // Volume of a point

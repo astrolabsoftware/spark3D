@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.spark3d.geometryObjects
 
-package com.spark3d.geometry
+import com.spark3d.geometryObjects.Shape3D._
 
 import scala.math._
-import com.spark3d.geometryObjects._
 
 /** Defines a cubical region of 3D coordinate space.
   * This can be used to define a bounding box of a geometryObject
@@ -39,7 +39,7 @@ class BoxEnvelope private(
     var minX: Double, var maxX: Double,
     var minY: Double, var maxY: Double,
     var minZ: Double, var maxZ: Double)
-  extends Envelope {
+  extends Shape3D with Serializable {
 
   /**
     * Attach an id to the BoxEnvelope to be used while assigning partition ID.
@@ -335,21 +335,11 @@ class BoxEnvelope private(
     maxZ += transZ
   }
 
-  /**
-    * Computes the coordinate of the centre of this cube Envelope (as long as it is non-null)
-    *
-    * @return he centre coordinate of this cube Envelope, null if the cube Envelope is null
-    */
-  def center(): Point3D = {
-    if (isNull) {
-      return null
-    }
-
-    new Point3D((minX + maxX) / 2.0,
-      (minY + maxY) / 2.0,
-      (minZ + maxZ) / 2.0,
-      false)
-  }
+  override val center = new Point3D(
+    (minX + maxX) / 2.0,
+    (minY + maxY) / 2.0,
+    (minZ + maxZ) / 2.0,
+    false)
 
   /**
     * Comptutes the intersection of the two cube Envelopes
@@ -628,6 +618,12 @@ class BoxEnvelope private(
       minZ + " : " + maxZ + ", " +
       "]"
   }
+
+  /**
+    * The box envelope is already an envelope!
+    * @return (BoxEnvelope) the BoxEnvelope instance.
+    */
+  override def getEnvelope: BoxEnvelope = this
 }
 
 object BoxEnvelope {
@@ -643,4 +639,3 @@ object BoxEnvelope {
     )
   }
 }
-

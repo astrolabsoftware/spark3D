@@ -1,6 +1,20 @@
+/*
+ * Copyright 2018 Mayur Bhosale
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.spark3d.spatialPartitioning
 
-import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects._
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
@@ -35,7 +49,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     valid_tree.insertElement(element1)
     valid_tree.insertElement(element2)
 
-    val spr = new Sphere(1.0, 1.0, 1.0, 1.0)
+    val spr = new ShellEnvelope(1.0, 1.0, 1.0, 1.0)
     var result = valid_tree.getElements(spr)
     assert(valid_tree.isLeaf)
     assert(result.size == 2)
@@ -76,7 +90,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
 
   test ("Can you force grow the octree to given level?") {
     valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
-    valid_tree.insertElement(new Sphere(1.0, 1.0, 1.0, 1.0))
+    valid_tree.insertElement(new ShellEnvelope(1.0, 1.0, 1.0, 1.0))
     valid_tree.forceGrowTree(2)
     assert(valid_tree.getLeafNodes.size == 64)
   }

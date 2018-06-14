@@ -17,7 +17,7 @@ package com.spark3d.spatialPartitioning
 
 import org.apache.spark.rdd.RDD
 
-import com.spark3d.geometry.ShellEnvelope
+import com.spark3d.geometryObjects.ShellEnvelope
 import com.spark3d.geometryObjects.Point3D
 import com.spark3d.geometryObjects.Shape3D._
 

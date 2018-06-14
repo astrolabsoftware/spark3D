@@ -15,14 +15,12 @@
  */
 package com.spark3d.spatialPartitioning
 
-// import collection.JavaConverters._
-
 // Scala deps
 import scala.util.control.Breaks._
 import scala.collection.mutable.HashSet
 
 // spark3d deps
-import com.spark3d.geometry.ShellEnvelope
+import com.spark3d.geometryObjects.ShellEnvelope
 import com.spark3d.spatialPartitioning
 import com.spark3d.geometryObjects.Shape3D._
 

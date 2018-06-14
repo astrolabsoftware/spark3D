@@ -1,8 +1,22 @@
+/*
+ * Copyright 2018 Mayur Bhosale
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.spark3d.spatialPartitioning
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.spark3d.geometryObjects._
-import com.spark3d.geometry.BoxEnvelope
 
 import scala.collection.mutable.ListBuffer
 
@@ -24,12 +38,12 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
     val partitioning = OctreePartitioning(data.toList, valid_tree)
     val partitioner = new OctreePartitioner(partitioning.getPartitionTree, partitioning.getGrids)
     assert(partitioner.numPartitions == 15)
-    var spr = new Sphere(0.5, 0.5, 0.5, 0.2)
+    var spr = new ShellEnvelope(0.5, 0.5, 0.5, 0.2)
     var result = partitioner.placeObject(spr)
     assert(result.next._1 == 13)
 
     // case when object belongs to all partitions
-    spr = new Sphere(2, 2, 2, 1)
+    spr = new ShellEnvelope(2, 2, 2, 1)
     result = partitioner.placeObject(spr)
     var resultCount = 0
     while (result.hasNext) {

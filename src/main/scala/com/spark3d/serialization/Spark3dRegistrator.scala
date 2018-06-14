@@ -17,9 +17,8 @@ package com.spark3d.serialization
 
 import org.apache.spark.SparkConf
 
-import com.spark3d.geometryObjects.{Point3D, Sphere}
+import com.spark3d.geometryObjects.{Point3D, ShellEnvelope, BoxEnvelope}
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.geometry.{Envelope, ShellEnvelope, BoxEnvelope}
 import com.spark3d.spatialPartitioning.{OnionPartitioner, OnionPartitioning, SpatialPartitioner}
 import com.spark3d.utils.ExtPointing
 import java.util.HashSet
@@ -51,8 +50,6 @@ object Spark3dConf {
       Array(
         classOf[Shape3D],
         classOf[Point3D],
-        classOf[Sphere],
-        classOf[Envelope],
         classOf[ShellEnvelope],
         classOf[BoxEnvelope],
         classOf[SpatialPartitioner],

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.spark3d.geometry
+package com.spark3d.geometryObjects
 
-import com.spark3d.geometryObjects.Point3D
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**
@@ -52,6 +51,19 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(!env_v1.isNull)
     val p2 = new Point3D(0.0, 0.0, 0.0, isSpherical)
     val env = new ShellEnvelope(p2, 2.0, 3.0)
+    assert(!env.isNull)
+  }
+
+  test("Can you initialize a sphere Envelope defined by a center, and single radius (a sphere)?") {
+
+    val p = new Point3D(0.0, 0.0, 0.0, isSpherical)
+    val env = new ShellEnvelope(p, 3.0)
+    assert(!env.isNull)
+  }
+
+  test("Can you initialize a sphere Envelope defined by center coordinates, and single radius (a sphere)?") {
+
+    val env = new ShellEnvelope(0.0, 0.0, 0.0, 3.0)
     assert(!env.isNull)
   }
 
@@ -179,20 +191,19 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you check if the two shell Envelopes intersect each other?") {
     val env = new ShellEnvelope(valid_env)
-
     assert(!null_env.intersects(env))
 
     env.innerRadius = 2.0
     env.outerRadius = 4.0
     assert(!valid_env.intersects(env))
 
-    val p = new Point3D(4.0, 6.0, 1.0, isSpherical)
-    env.center = p
-    assert(valid_env.intersects(valid_env))
+    val p2 = new Point3D(4.0, 6.0, 1.0, isSpherical)
+    val env2 = new ShellEnvelope(p2, 5.0, 10.0)
+    assert(env2.intersects(valid_env))
 
-    val p1 = new Point3D(30.0, 40.0, 50.0, isSpherical)
-    env.center = p1
-    assert(!env.intersects(valid_env))
+    val p3 = new Point3D(30.0, 40.0, 50.0, isSpherical)
+    val env3 = new ShellEnvelope(p3, 5.0, 10.0)
+    assert(!env3.intersects(valid_env))
 
   }
 
@@ -205,11 +216,11 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     env.outerRadius = 4.0
     assert(valid_env.contains(env))
 
-    val p = new Point3D(4.0, 6.0, 1.0, isSpherical)
-    env.center = p
+    val p2 = new Point3D(4.0, 6.0, 1.0, isSpherical)
+    val env2 = new ShellEnvelope(p2, 5.0, 10.0)
     env.innerRadius = 6.0
     env.outerRadius = 8.0
-    assert(!valid_env.contains(valid_env))
+    assert(!valid_env.contains(env2))
   }
 
   test("Can you check if the input Point3D lies in the shell Envelope?") {

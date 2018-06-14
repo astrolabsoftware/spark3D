@@ -15,7 +15,7 @@
  */
 package com.spark3d.spatialPartitioning
 
-import com.spark3d.geometry.BoxEnvelope
+import com.spark3d.geometryObjects.BoxEnvelope
 import com.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.mutable.{HashSet, ListBuffer}

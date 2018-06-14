@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.spark3d.geometry
+package com.spark3d.geometryObjects
 
-import com.spark3d.geometryObjects.Point3D
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**
@@ -242,12 +241,14 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you get the center of the cube Envelope?") {
-    assert(null_env.center == null)
-
+    // A null Box has a non-null center by construction
+    // as you need valid points to construct a Box, and only afterwards
+    // you will null it (but center is a val, boundaries are var).
     val cen = valid_env.center
-    assert(cen.x == 0.75)
-    assert(cen.y == 5.1)
-    assert(cen.z == 5.25)
+    val cen_null = null_env.center
+    assert(cen.x == 0.75 && cen_null.x == 0.75)
+    assert(cen.y == 5.1 && cen_null.y == 5.1)
+    assert(cen.z == 5.25 && cen_null.z == 5.25)
   }
 
   test("Can you find the intersection of the two cube Envelopes?") {
@@ -388,6 +389,10 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
       "]"
 
     assert(valid_env.toString == str)
+  }
+
+  test("Can you get the envelope of the Box (which is the Box)?") {
+    assert(valid_env.getEnvelope.isEqual(valid_env))
   }
 
 }

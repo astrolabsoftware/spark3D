@@ -15,7 +15,6 @@
  */
 package com.spark3d.geometryObjects
 
-import com.spark3d.geometry.BoxEnvelope
 import com.spark3d.geometryObjects.Shape3D._
 
 /**
@@ -41,35 +40,35 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   // The center of the point is the point
   val center: Point3D = this
 
-  // Zero radius
-  val radius: Double = 0.0
-
   // Zero volume
-  override def getVolume: Double = 0.0
+  def getVolume: Double = 0.0
 
   /**
     * Methods to determine whether two shapes overlap.
-    * Implement different ways for different shapes.
+    * Implement different ways for different shapes (Point, Shell, Box available).
     *
     * @param otherShape : (Shape3D)
-    *                   An instance of Shape3D (or extension)
+    *   An instance of Shape3D (or extension)
     * @return (Boolean) true if the two objects intersect.
     *
     */
-  override def intersect(otherShape: Shape3D): Boolean = {
+  def intersect(otherShape: Shape3D): Boolean = {
 
     // Different methods to handle different shapes
-    // Keep in mind a point is a sphere with radius 0.
-    if (otherShape.isInstanceOf[Sphere] | otherShape.isInstanceOf[Point3D]) {
-      sphereSphereIntersection(this, otherShape)
+    if (otherShape.isInstanceOf[Point3D]) {
+      otherShape.asInstanceOf[Point3D].isEqual(this)
+    } else if (otherShape.isInstanceOf[ShellEnvelope]) {
+      otherShape.asInstanceOf[ShellEnvelope].isPointInShell(this)
+    } else if (otherShape.isInstanceOf[BoxEnvelope]) {
+      otherShape.asInstanceOf[BoxEnvelope].contains(this)
     } else {
       throw new AssertionError(
         """
         Cannot perform intersection because the type of shape is unknown!
         Currently implemented:
-          - sphere x sphere
-          - sphere x point
-          - point  x point
+          - point x point
+          - poont x sphere
+          - point x box
         """)
     }
   }
@@ -77,7 +76,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   /**
     * Get bounding box of this Point3D which will also be a Point3D
     *
-    * @return Cuboid representing the box of the Point3D
+    * @return (BoxEnvelope) Cuboid representing the box of the Point3D
     */
   override def getEnvelope(): BoxEnvelope = {
     new BoxEnvelope(this)
@@ -88,7 +87,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     * Space is supposed flat (euclidean).
     *
     * @param p : (Point3D)
-    *          Another instance of Point3D
+    *   Another instance of Point3D
     * @return (Double) Distance between the two points.
     *
     */
@@ -123,8 +122,9 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   /**
     * Return if the input Point3D is equal this Point3D
     *
-    * @param p Point3D for which the equality is to be checked
-    * @return true if the two Point3Ds are equal
+    * @param p (Point3D)
+    *   Point3D for which the equality is to be checked
+    * @return (Boolean) true if the two Point3Ds are equal
     */
   def isEqual(p: Point3D): Boolean = {
     x == p.x &&

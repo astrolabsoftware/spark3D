@@ -33,7 +33,7 @@ class Spark3dRegistratorTest extends FunSuite with BeforeAndAfterAll {
       .size
 
     // Update this test as soon as you register new classes
-    assert(numberOfClassesRegistered == 11)
+    assert(numberOfClassesRegistered == 9)
   }
 
   test("Do you require registration via Kryo?") {

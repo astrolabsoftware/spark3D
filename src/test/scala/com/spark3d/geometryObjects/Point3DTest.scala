@@ -17,6 +17,7 @@ package com.spark3d.geometryObjects
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 /**
   * Dummy class with no specific implementation to test errors
@@ -92,6 +93,19 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p = new Point3D(0.0, 1.0, 0.0, false)
     val box = new BoxEnvelope(p)
     assert(p.getEnvelope.isEqual(box))
+
+    val pSph = new Point3D(0.0, 1.0, 0.0, true)
+    val boxSph = new BoxEnvelope(sphericalToCartesian(pSph))
+    assert(pSph.getEnvelope.isEqual(boxSph))
+
+    // Perform a conversion spherical to cartesian
+    // as BoxEnvelope needs cartesian
+    val p2 = new Point3D(1.0, 0.0, 0.0, true)
+
+    val exception = intercept[AssertionError] {
+      val box2 = new BoxEnvelope(p2)
+    }
+    assert(exception.getMessage.contains("must have cartesian coordinate system"))
   }
 
   // Volume of a point

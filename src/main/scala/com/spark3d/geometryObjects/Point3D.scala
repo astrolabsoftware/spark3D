@@ -16,6 +16,7 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 /**
   * Class for describing a point in 3D space.
@@ -74,12 +75,18 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   }
 
   /**
-    * Get bounding box of this Point3D which will also be a Point3D
+    * Get bounding box of this Point3D which will also be a Point3D.
+    * Perform a conversion spherical to euclidean if needed.
     *
     * @return (BoxEnvelope) Cuboid representing the box of the Point3D
     */
   override def getEnvelope(): BoxEnvelope = {
-    new BoxEnvelope(this)
+    if (this.isSpherical) {
+      new BoxEnvelope(sphericalToCartesian(this))
+    } else {
+      new BoxEnvelope(this)
+    }
+
   }
 
   /**

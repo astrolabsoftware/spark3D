@@ -1,15 +1,15 @@
 ## 0.1.1
 
-- Add scripts to generate test data (#34)
-- Added Octree Partitioned RDD support (#36)
-- RDD[Sphere] added (`SphereRDD`) (#38)
-- Code refactoring: Replace Sphere by ShellEnvelope, Shape3D heritage, and move everything under geometryObjects (#40)
-- Add very simple Kryo registration for spark3D classes. Probably need more (#31, #28).
+- Add scripts to generate test data ([PR](https://github.com/JulienPeloton/spark3D/pull/34))
+- Added Octree Partitioned RDD support ([PR](https://github.com/JulienPeloton/spark3D/pull/36))
+- RDD[Sphere] added (`SphereRDD`) ([PR](https://github.com/JulienPeloton/spark3D/pull/38))
+- Code refactoring: Replace Sphere by ShellEnvelope, Shape3D heritage, and move everything under geometryObjects ([PR](https://github.com/JulienPeloton/spark3D/pull/40))
+- Add very simple Kryo registration for spark3D classes. Probably need more ([PR](https://github.com/JulienPeloton/spark3D/pull/31), [PR](https://github.com/JulienPeloton/spark3D/pull/28)).
 - Few fixes here and there...
 
-## $\leq$ 0.1.0
+## <= 0.1.0
 
-Repo on fire! See from this #33 and earlier commits. In short, what was available at that time (including bugs!):
+Repo on fire! See from this [PR](https://github.com/JulienPeloton/spark3D/pull/33) and earlier commits. In short, what was available at that time (including bugs!):
 
 - Read and format data from external data sets. Coordinates can be spherical or cartesian.
   - *Currently available: FITS and CSV data format.*

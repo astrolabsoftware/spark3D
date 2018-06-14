@@ -147,8 +147,26 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
     val pointRDDB_part = pointRDDB.spatialPartitioning(GridType.LINEARONIONGRID, 50)
 
     val exception = intercept[AssertionError] {
-      CenterCrossMatch.CrossMatchCenter(pointRDDA_part, pointRDDB_part, 512, "B")
+      CenterCrossMatch.CrossMatchCenter(pointRDDA_part, pointRDDB_part, epsilon, "B")
     }
     assert(exception.getMessage.contains("The two RDD must be partitioned by the same partitioner"))
+  }
+
+  test("Can you catch an error if epsilon is negative?") {
+
+    val pointRDDA = new Point3DRDDFromFITS(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
+    val pointRDDB = new Point3DRDDFromFITS(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+
+    // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
+    val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
+    // Partition 2nd RDD with partitioner of RDDA
+    val partitioner = pointRDDA_part.partitioner.get.asInstanceOf[SpatialPartitioner]
+    val pointRDDB_part = pointRDDB.spatialPartitioning(partitioner)
+
+    val exception = intercept[AssertionError] {
+      CenterCrossMatch.CrossMatchCenter(
+        pointRDDA_part, pointRDDB_part, -0.1, "B")
+    }
+    assert(exception.getMessage.contains("Distance between objects cannot be negative."))
   }
 }

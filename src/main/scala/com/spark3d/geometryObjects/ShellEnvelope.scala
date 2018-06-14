@@ -16,6 +16,7 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
+import com.spark3d.utils.Utils.sphericalToEuclidean
 
 import scala.math._
 
@@ -326,10 +327,18 @@ class ShellEnvelope(
     * @return bounding box (Cuboid) of the Sphere
     */
   override def getEnvelope: BoxEnvelope = {
+    // Must first make sure that coordinates are cartesian otherwise makes
+    // no sense.
+    val center_ = if (!center.isSpherical) {
+      center
+    } else {
+      sphericalToEuclidean(center)
+    }
+
     BoxEnvelope.apply(
-        center.x - outerRadius, center.x + outerRadius,
-        center.y - outerRadius, center.y + outerRadius,
-        center.z - outerRadius, center.z + outerRadius)
+        center_.x - outerRadius, center_.x + outerRadius,
+        center_.y - outerRadius, center_.y + outerRadius,
+        center_.z - outerRadius, center_.z + outerRadius)
   }
 }
 

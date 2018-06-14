@@ -16,7 +16,7 @@
 package com.spark3d.geometryObjects
 
 import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.utils.Utils.sphericalToEuclidean
+import com.spark3d.utils.Utils.sphericalToCartesian
 
 import scala.math._
 
@@ -332,7 +332,7 @@ class ShellEnvelope(
     val center_ = if (!center.isSpherical) {
       center
     } else {
-      sphericalToEuclidean(center)
+      sphericalToCartesian(center)
     }
 
     BoxEnvelope.apply(

@@ -73,6 +73,18 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(env.isNull)
   }
 
+  test ("Can you get the bounding box around the Shell?") {
+    val pSph = new Point3D(0.0, 0.0, 0.0, false)
+    val shell = new ShellEnvelope(pSph, 1.0)
+    val bb = BoxEnvelope(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+    assert(shell.getEnvelope.isEqual(bb))
+
+    val pCart = new Point3D(0.0, 0.0, 0.0, true)
+    val shell2 = new ShellEnvelope(pCart, 1.0)
+    val bb2 = BoxEnvelope(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+    assert(shell2.getEnvelope.isEqual(bb2))
+  }
+
   test("Can you get the area of the Shell Envelope?") {
     val area_null = null_env.getArea
     assert(area_null == 0.0)

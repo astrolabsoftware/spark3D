@@ -1,0 +1,7 @@
+theme: jekyll-theme-minimal
+title: spark3D
+description:  Spark extension for processing large-scale 3D data sets, such as astrophysical or high energy physics data. 
+logo: /spark3d_logo.jpg
+show_downloads: true
+google_analytics:
+github_username: JulienPeloton

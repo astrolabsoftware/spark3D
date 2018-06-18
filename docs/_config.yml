@@ -22,7 +22,7 @@ description              : "Apache Spark extension for processing large-scale 3D
 url                      : https://julienpeloton.github.io
 baseurl                  : /spark3D
 repository               : "JulienPeloton/spark3D"
-teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+teaser                   : 
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
 comments:

@@ -12,7 +12,7 @@ redirect_from:
 ## Requirements
 
 This library requires Spark 2.0+ (not tested for earlier version). The
-library has been tested with Scala 2.10.6 and 2.11.X. If you want to use
+library has been tested with Scala 2.11. If you want to use
 another version, feel free to contact us. In addition to Spark, the library has currently two external dependencies: [healpix](http://healpix.sourceforge.net/) and [spark-fits](https://github.com/JulienPeloton/spark-fits). Unfortunately, there are no Maven coordinates for healpix, so we release a jar of the latest version within spark3D under the `lib/` folder.
 
 ## Including spark3D in your project
@@ -37,7 +37,7 @@ toto:~$ sbt ++${SCALA_VERSION} package
 ```
 
 from the project root. The build configuration includes support for
-Scala 2.10.6 and 2.11.X. In addition you can build the doc using SBT:
+Scala 2.11. In addition you can build the doc using SBT:
 
 ```bash
 toto:~$ sbt ++${SCALA_VERSION} doc

@@ -20,8 +20,8 @@ title_separator          : "-"
 name                     : "spark3D"
 description              : "Apache Spark extension for processing large-scale 3D data sets, such as astrophysical or high energy physics data."
 url                      : https://julienpeloton.github.io
-baseurl                  : /totocaca
-repository               : "JulienPeloton/totocaca"
+baseurl                  : /spark3D
+repository               : "JulienPeloton/spark3D"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
@@ -101,7 +101,7 @@ analytics:
 author:
   name             : "Julien Peloton"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an amazing person."
+  bio              : "I am nobody."
   location         : "Somewhere"
   email            :
   uri              :
@@ -113,7 +113,7 @@ author:
   facebook         :
   foursquare       :
   github           : JulienPeloton
-  gitlab           : 
+  gitlab           :
   google_plus      :
   keybase          :
   instagram        :

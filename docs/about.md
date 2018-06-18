@@ -2,6 +2,7 @@
 layout: posts
 title: About
 permalink: /about/
+author_profile: true
 ---
 
 ## Why spark3D?

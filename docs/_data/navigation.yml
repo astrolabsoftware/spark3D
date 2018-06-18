@@ -1,0 +1,14 @@
+# main links
+main:
+  - title: "Quick-Start Installation"
+    url: /docs/installation/
+  - title: "About"
+    url: /about/
+  - title: "Fork me!"
+    url: https://github.com/JulienPeloton/spark3D
+  # - title: "Sample Posts"
+  #   url: /year-archive/
+  # - title: "Sample Collections"
+  #   url: /collection-archive/
+  # - title: "Sitemap"
+  #   url: /sitemap/

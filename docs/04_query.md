@@ -40,7 +40,7 @@ By default, the pointRDD are partitioned randomly (in the sense points spatially
 import com.spark3d.utils.GridType
 import com.spark3d.spatialPartitioning.SpatialPartitioner
 
-// As we are in local mode, and the file is very small, 
+// As we are in local mode, and the file is very small,
 // the RDD pointRDD has only 1 partition.
 // For the sake of this example, let's increase the number of partition to 100.
 val pointRDD_partA = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100).cache()
@@ -128,12 +128,10 @@ Here is a plot for Partition #5
 
 Cross match based on angular separation (A, B, AxB)    |Cross match based on angular separation (AxB, BxA)   
 :-------------------------:|:-------------------------:
-![title](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/crossmatchAxB.png)|![title](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/crossmatchAxBOnly.png)
-
+![raw]({{ "/assets/images/crossmatchAxB.png" | absolute_url }})| ![raw]({{ "/assets/images/crossmatchAxBOnly.png" | absolute_url }})
 Cross match based on center distance (A, B, BxA)    |Cross match based on center distance (AxB, BxA)   
 :-------------------------:|:-------------------------:
-![title](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/CcrossmatchAxB.png)|![title](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/CcrossmatchAxBOnly.png)
-
+![raw]({{ "/assets/images/CcrossmatchAxB.png" | absolute_url }}) | ![raw]({{ "/assets/images/CcrossmatchAxBOnly.png" | absolute_url }})
 
 ## Neighbour search
 

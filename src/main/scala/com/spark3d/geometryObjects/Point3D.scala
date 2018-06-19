@@ -45,7 +45,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   def getVolume: Double = 0.0
 
   /**
-    * Methods to determine whether two shapes overlap.
+    * Methods to determine whether the Point3D is contained in another shape.
     * Implement different ways for different shapes (Point, Shell, Box available).
     *
     * @param otherShape : (Shape3D)
@@ -68,7 +68,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
         Cannot perform intersection because the type of shape is unknown!
         Currently implemented:
           - point x point
-          - poont x sphere
+          - point x sphere
           - point x box
         """)
     }

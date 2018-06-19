@@ -27,7 +27,7 @@ object Utils {
     *   Input Point3D with cartesian coordinates.
     * @return (Point3D) The same point but with spherical coordinates.
     */
-  def cartesiantoSpherical(p : Point3D) : Point3D = {
+  def cartesianToSpherical(p : Point3D) : Point3D = {
     if (p.isSpherical) {
       throw new AssertionError("""
         Cannot convert your point to spherical coordinates because

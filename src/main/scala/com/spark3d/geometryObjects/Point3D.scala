@@ -53,7 +53,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     * @return (Boolean) true if the two objects intersect.
     *
     */
-  def intersects(otherShape: Shape3D): Boolean = {
+  override def intersects(otherShape: Shape3D): Boolean = {
 
     // Different methods to handle different shapes
     if (otherShape.isInstanceOf[Point3D]) {

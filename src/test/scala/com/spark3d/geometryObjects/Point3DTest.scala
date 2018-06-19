@@ -27,6 +27,8 @@ class nonShape extends Shape3D {
   val center : Point3D = new Point3D(0.0, 0.0, 0.0, true)
 
   def getEnvelope: BoxEnvelope = ???
+
+  def intersects(otherShape: Shape3D): Boolean = ???
 }
 
 /**

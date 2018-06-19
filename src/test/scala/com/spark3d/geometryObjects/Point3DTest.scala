@@ -77,9 +77,15 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you intersect a point and a Shell?") {
-    val p1 = new Point3D(0.0, 1.0, 0.0, false)
-    val shell = new ShellEnvelope(0.0, 1.0, 0.0, true, 0.0, 10.0)
+    val p1 = new Point3D(0.5, 0.0, 0.0, true)
+    val shell = new ShellEnvelope(0.0, 0.0, 0.0, true, 0.0, 10.0)
     assert(p1.intersects(shell))
+
+    val p2 = new Point3D(0.5, 0.0, 0.0, false)
+    val exception = intercept[AssertionError] {
+      p2.intersects(shell)
+    }
+    assert(exception.getMessage.contains("The 2 points must have the same coordinate system"))
   }
 
   test("Can you intersect a point and a Box?") {

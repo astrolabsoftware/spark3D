@@ -22,7 +22,7 @@ description              : "Apache Spark extension for processing large-scale 3D
 url                      : https://julienpeloton.github.io
 baseurl                  : /spark3D
 repository               : "JulienPeloton/spark3D"
-teaser                   : 
+teaser                   :
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
 comments:
@@ -101,9 +101,9 @@ analytics:
 author:
   name             : "Julien Peloton"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am nobody."
+  bio              : "CNRS"
   location         : "Somewhere"
-  email            :
+  email            : "peloton@lal.in2p3.fr"
   uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :

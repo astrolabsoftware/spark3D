@@ -40,16 +40,16 @@ val spherical = true
 // Load the data
 val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 
-// As this example is done in local mode, and the file is very small, 
-// the RDD pointRDD has only 1 partition. For the sake of this example, 
-// let's increase the number of partition to 5. If no number of partitions is 
-// given, the new partitioning has the same number of partitions as the old ones.
+// As this example is done in local mode, and the file is very small,
+// the RDD pointRDD has only 1 partition. For the sake of this example,
+// let's increase the number of partition to 5. If no number of partition is
+// given, the new partitioning has the same number of partition as the old ones.
 val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 5)
 ```
 
 | Raw data set | Re-partitioned data set |
 |:---------:|:---------:|
-| ![raw](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/myOnionFigRaw.png) | ![repartitioning](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/images/myOnionFig.png)|
+| ![raw]({{ "/assets/images/myOnionFigRaw.jpg" | absolute_url }}) | ![repartitioning]({{ "/assets/images/myOnionFig.jpg" | absolute_url }})|
 
 ## Current benchmark
 

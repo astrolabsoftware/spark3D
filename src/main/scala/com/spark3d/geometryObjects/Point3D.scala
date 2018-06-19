@@ -91,6 +91,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
 
   /**
     * Returns the distance between the point and another.
+    * The two points must have the same coordinate system.
     * Space is supposed flat (euclidean).
     *
     * @param p : (Point3D)
@@ -99,6 +100,14 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     *
     */
   def distanceTo(p: Point3D): Double = {
+    if (p.isSpherical != this.isSpherical) {
+      throw new AssertionError("""
+        The 2 points must have the same coordinate system to compute
+        the distance! Convert one using sphericalToCartesian or
+        cartesianToSpherical methods.
+        """)
+    }
+
     val module = if (!this.isSpherical) {
       math.sqrt(
         (this.x - p.x) * (this.x - p.x) +

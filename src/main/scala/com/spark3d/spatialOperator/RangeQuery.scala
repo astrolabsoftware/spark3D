@@ -23,22 +23,28 @@ import com.spark3d.spatial3DRDD.Shape3DRDD
 
 import org.apache.spark.rdd.RDD
 
+/**
+  * Handle range query, including window query.
+  * Note that window query is just a sub-case of CrossMatch, just one of the
+  * two data sets has only one (extended) element... ;-)
+  */
 object RangeQuery {
 
   /**
+    * Perform window query, that is match between RDD elements and
+    * a user-defined window (point, shell, box).
+    *
+    * @param rdd: (RDD[A<:Shape3D])
+    *   RDD of 3D objects
+    * @param envelopeWindow : (B<:Shape3D)
+    *   3D envelope inside which the query is performed
+    * @return (RDD[A<:Shape3D]) RDD with only elements of rdd inside the
+    *   envelopeWindow
     *
     */
   def windowQuery[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
-    rdd: RDD[A], enveloppeWindow: B): RDD[A] = {
+    rdd: RDD[A], envelopeWindow: B): RDD[A] = {
       // Just intersection -- need to implement full coverage
-      rdd.filter(element => element.intersects(enveloppeWindow))
-    }
-  // /**
-  //   *
-  //   */
-  // def windowQuery[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
-  //   element: A, enveloppeWindow: B): Boolean = {
-  //     // Just intersection -- need to implement full coverage
-  //     element.intersects(enveloppeWindow)
-  //   }
+      rdd.filter(element => element.intersects(envelopeWindow))
+  }
 }

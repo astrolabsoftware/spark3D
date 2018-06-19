@@ -28,7 +28,7 @@ class UtilsTest extends FunSuite with BeforeAndAfterAll {
   // Cartesian -> Spherical -> Cartesian
   test("Can you convert a Point3D with cartesian coordinate into spherical coordinate, and vice versa?") {
     val p_euc = new Point3D(1.0, 1.0, 0.0, false)
-    val p_sph = cartesiantoSpherical(p_euc)
+    val p_sph = cartesianToSpherical(p_euc)
     val p_sph_euc = sphericalToCartesian(p_sph)
     assert(
       math.rint(p_euc.x) == math.rint(p_sph_euc.x) &&
@@ -48,7 +48,7 @@ class UtilsTest extends FunSuite with BeforeAndAfterAll {
     // Spherical
     val p_sph = new Point3D(0.0, 0.0, 0.0, true)
     val exception2 = intercept[AssertionError] {
-      cartesiantoSpherical(p_sph)
+      cartesianToSpherical(p_sph)
     }
     assert(exception2.getMessage.contains("already in spherical coordinates"))
   }

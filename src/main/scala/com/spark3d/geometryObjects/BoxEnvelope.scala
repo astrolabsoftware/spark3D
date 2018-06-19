@@ -411,6 +411,43 @@ class BoxEnvelope private(
     new BoxEnvelope(intMinX, intMaxX, intMinY, intMaxY, intMinZ, intMaxZ)
   }
 
+  /**
+    * Methods to determine whether the Box intersects another shape.
+    * Implement different ways for different shapes (Point, Shell, Box available).
+    *
+    * @param otherShape : (Shape3D)
+    *   An instance of Shape3D (or extension)
+    * @return (Boolean) true if the two objects intersect.
+    *
+    */
+  override def intersects(otherShape: Shape3D): Boolean = {
+
+    // Different methods to handle different shapes
+    if (otherShape.isInstanceOf[Point3D]) {
+      this.covers(otherShape.asInstanceOf[Point3D])
+    } else if (otherShape.isInstanceOf[ShellEnvelope]) {
+      // This is not perfect. We take the bounding box around the shell
+      // and perform the intersection between boxes.
+      // Potential bugs:
+      //  - if the box is within the inner shell
+      //  - if the box is just outside the outer shell
+      // TODO: Implement real shell - box intersection.
+      val env = otherShape.asInstanceOf[ShellEnvelope].getEnvelope
+      this.intersectsBox(env)
+    } else if (otherShape.isInstanceOf[BoxEnvelope]) {
+      this.intersectsBox(otherShape.asInstanceOf[BoxEnvelope])
+    } else {
+      throw new AssertionError(
+        """
+        Cannot perform intersection because the type of shape is unknown!
+        Currently implemented:
+          - box x point
+          - box x sphere
+          - box x box
+        """)
+    }
+  }
+
 
   /**
     * Checks if the region of the input cube Envelope intersects the region of this cube Envelope.
@@ -418,7 +455,7 @@ class BoxEnvelope private(
     * @param env the cube Envelope with which the intersection is being checked
     * @return true if the cube Envelope intersects the other cube Envelope
     */
-  def intersects(env: BoxEnvelope): Boolean = {
+  def intersectsBox(env: BoxEnvelope): Boolean = {
     if (env.isNull) {
       return false
     }
@@ -441,7 +478,7 @@ class BoxEnvelope private(
     * @param p3 the third external point (cartesian coordinate)
     * @return true if the region intersects the other cube Envelope
     */
-  def intersects(p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
+  def intersectsRegion(p1: Point3D, p2: Point3D, p3: Point3D): Boolean = {
     if (p1.isSpherical | p2.isSpherical | p3.isSpherical) {
       throw new AssertionError("""
         All input Point3D for creating a region must have cartesian coordinate system!

@@ -27,6 +27,8 @@ class nonShape extends Shape3D {
   val center : Point3D = new Point3D(0.0, 0.0, 0.0, true)
 
   def getEnvelope: BoxEnvelope = ???
+
+  def intersects(otherShape: Shape3D): Boolean = ???
 }
 
 /**
@@ -64,20 +66,20 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
   test("Can you identify two different points?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
     val p2 = new Point3D(0.1, 1.0, 0.0, false)
-    assert(!p1.intersect(p2))
+    assert(!p1.intersects(p2))
   }
 
   // Test method to test whether two points intersect
   test("Can you identify two identical points?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
     val p2 = new Point3D(0.0, 1.0, 0.0, false)
-    assert(p1.intersect(p2))
+    assert(p1.intersects(p2))
   }
 
   test("Can you intersect a point and a Shell?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, false)
     val shell = new ShellEnvelope(0.0, 1.0, 0.0, true, 0.0, 10.0)
-    assert(p1.intersect(shell))
+    assert(p1.intersects(shell))
   }
 
   test("Can you intersect a point and a Box?") {
@@ -86,7 +88,7 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p3 = new Point3D(0.0, 10.0, 0.0, false)
     val p4 = new Point3D(0.0, 0.0, 10.0, false)
     val box = new BoxEnvelope(p2, p3, p4)
-    assert(p1.intersect(box))
+    assert(p1.intersects(box))
   }
 
   test("Can you catch an error trying to intersect a point with spherical coordinate and a Box?") {
@@ -97,7 +99,7 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val box = new BoxEnvelope(p2, p3, p4)
 
     val exception = intercept[AssertionError] {
-      p1.intersect(box)
+      p1.intersects(box)
     }
     assert(exception.getMessage.contains("must have cartesian coordinate system"))
 
@@ -137,7 +139,7 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     val p = new Point3D(0.0, 0.0, 0.0, true)
     val wrong = new nonShape
     val exception = intercept[AssertionError] {
-      p.intersect(wrong)
+      p.intersects(wrong)
     }
     assert(exception.getMessage.contains("Cannot perform intersection"))
   }

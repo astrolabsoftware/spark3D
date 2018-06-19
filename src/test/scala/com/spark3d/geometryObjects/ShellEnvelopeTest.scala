@@ -219,6 +219,32 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
+  test("Can you check if a shell and a point intersect each other?") {
+    val env = new ShellEnvelope(valid_env)
+    assert(!null_env.intersects(env))
+
+    env.innerRadius = 0.0
+    env.outerRadius = 4.0
+
+    val p = new Point3D(1.0, 1.0, 1.0, isSpherical)
+    assert(env.intersects(p))
+
+    val p2 = new Point3D(10.0, 10.0, 10.0, isSpherical)
+    assert(!env.intersects(p2))
+
+  }
+
+  test("Can you check if a shell and a box Envelope intersect each other?") {
+
+    val p1 = new Point3D(0.0, 1.0, 0.0, isSpherical)
+    val p2 = new Point3D(0.1, 4.0, 0.0, isSpherical)
+    val p3 = new Point3D(1.0, -1.0, 1.3, isSpherical)
+    val envCube = new BoxEnvelope(p1, p2, p3)
+    val envSphere = new ShellEnvelope(p1, 1.0)
+
+    assert(envSphere.intersects(envCube))
+  }
+
   test("Can you check if the input shell Envelope is completely contained by the another shell Envelope?") {
     val env = new ShellEnvelope(valid_env)
 

@@ -45,6 +45,17 @@ object Shape3D extends Serializable {
     def getEnvelope: BoxEnvelope
 
     /**
+      * Methods to determine whether the Shape3D is contained in another Shape3D.
+      * Implement different ways for different shapes (Point, Shell, Box available).
+      *
+      * @param otherShape : (Shape3D)
+      *   An instance of Shape3D (or extension)
+      * @return (Boolean) true if the two objects intersect.
+      *
+      */
+    def intersects(otherShape: Shape3D): Boolean
+
+    /**
       * Compute the healpix index of the geometry center.
       * By default, the method considers that this.y = ra, this.z = dec.
       * You can also bypass that, and force this.y = theta, this.z = phi by

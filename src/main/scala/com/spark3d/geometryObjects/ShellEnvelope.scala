@@ -242,6 +242,43 @@ class ShellEnvelope(
   }
 
   /**
+    * Methods to determine whether the Shell intersects another shape.
+    * Implement different ways for different shapes (Point, Shell, Box available).
+    *
+    * @param otherShape : (Shape3D)
+    *   An instance of Shape3D (or extension)
+    * @return (Boolean) true if the two objects intersect.
+    *
+    */
+  override def intersects(otherShape: Shape3D): Boolean = {
+
+    // Different methods to handle different shapes
+    if (otherShape.isInstanceOf[Point3D]) {
+      this.isPointInShell(otherShape.asInstanceOf[Point3D])
+    } else if (otherShape.isInstanceOf[ShellEnvelope]) {
+      this.intersectsShell(otherShape.asInstanceOf[ShellEnvelope])
+    } else if (otherShape.isInstanceOf[BoxEnvelope]) {
+      // This is not perfect. We take the bounding box around the shell
+      // and perform the intersection between boxes.
+      // Potential bugs:
+      //  - if the box is within the inner shell
+      //  - if the box is just outside the outer shell
+      // TODO: Implement real shell - box intersection.
+      val env = this.getEnvelope
+      otherShape.asInstanceOf[BoxEnvelope].intersectsBox(env)
+    } else {
+      throw new AssertionError(
+        """
+        Cannot perform intersection because the type of shape is unknown!
+        Currently implemented:
+          - sphere x point
+          - sphere x sphere
+          - sphere x box
+        """)
+    }
+  }
+
+  /**
     * Checks if the region of the input shell Envelope intersects the region of this shell Envelope.
     * The case where one shell Envelope lies completely within the another shell Envelope is considered as
     * non-intersecting.
@@ -249,7 +286,7 @@ class ShellEnvelope(
     * @param spr the shell Envelope with which the intersection is being checked
     * @return true if the one shell Envelope intersects the other
     */
-  def intersects(spr: ShellEnvelope): Boolean = {
+  def intersectsShell(spr: ShellEnvelope): Boolean = {
     if (isNull || spr.isNull) {
       return false
     }

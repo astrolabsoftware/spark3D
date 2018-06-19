@@ -318,17 +318,42 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     val env = new BoxEnvelope(p1, p2, p3)
 
     assert(valid_env.intersects(env))
-    assert(valid_env.intersects(p1, p2, p3))
+    assert(valid_env.intersectsRegion(p1, p2, p3))
 
     val p1Sph = new Point3D(0.0, 1.0, 0.0, true)
     val p2Cart = new Point3D(0.1, 4.0, 0.0, isSpherical)
     val p3Cart = new Point3D(1.0, -1.0, 1.3, isSpherical)
 
     val exception = intercept[AssertionError] {
-      valid_env.intersects(p1Sph, p2Cart, p3Cart)
+      valid_env.intersectsRegion(p1Sph, p2Cart, p3Cart)
     }
     assert(exception.getMessage.contains("must have cartesian coordinate system"))
 
+  }
+
+  test("Can you test if cube and shell envelopes intersect?") {
+
+    assert(!valid_env.intersects(null_env))
+
+    val p1 = new Point3D(0.0, 1.0, 0.0, isSpherical)
+    val p2 = new Point3D(0.1, 4.0, 0.0, isSpherical)
+    val p3 = new Point3D(1.0, -1.0, 1.3, isSpherical)
+    val envCube = new BoxEnvelope(p1, p2, p3)
+    val envSphere = new ShellEnvelope(p1, 1.0)
+
+    assert(envCube.intersects(envSphere))
+  }
+
+  test("Can you test if cube and point intersect?") {
+
+    assert(!valid_env.intersects(null_env))
+
+    val p1 = new Point3D(0.0, 1.0, 0.0, isSpherical)
+    val p2 = new Point3D(0.1, 4.0, 0.0, isSpherical)
+    val p3 = new Point3D(1.0, -1.0, 1.3, isSpherical)
+    val envCube = new BoxEnvelope(p1, p2, p3)
+
+    assert(envCube.intersects(p1))
   }
 
   test("Can you test if the point intersects the cube Envelope?") {
@@ -341,23 +366,23 @@ class BoxEnvelopeTest extends FunSuite with BeforeAndAfterAll {
 
     //test for intersection in x-plane
     val p0: Point3D = new Point3D(12.2, 4.2, 12.2, isSpherical)
-    assert(!valid_env.intersects(p0, p0, p0))
+    assert(!valid_env.intersectsRegion(p0, p0, p0))
     val p1: Point3D = new Point3D(-12.2, 4.2, 12.2, isSpherical)
-    assert(!valid_env.intersects(p1, p1, p1))
+    assert(!valid_env.intersectsRegion(p1, p1, p1))
 
     //test for intersection in y-plane
     val p2: Point3D = new Point3D(5.4, -12.2, 12.2, isSpherical)
-    assert(!valid_env.intersects(p2, p2, p2))
+    assert(!valid_env.intersectsRegion(p2, p2, p2))
     val p3: Point3D = new Point3D(5.4, 12.2, 12.2, isSpherical)
-    assert(!valid_env.intersects(p3, p3, p3))
+    assert(!valid_env.intersectsRegion(p3, p3, p3))
 
     //test for intersection in z-plane
     val p4: Point3D = new Point3D(5.4, 5.4, -12.2, isSpherical)
-    assert(!valid_env.intersects(p4, p4, p4))
+    assert(!valid_env.intersectsRegion(p4, p4, p4))
     val p5: Point3D = new Point3D(5.4, 5.4, 12.2, isSpherical)
-    assert(!valid_env.intersects(p5, p5, p5))
+    assert(!valid_env.intersectsRegion(p5, p5, p5))
 
-    assert(!null_env.intersects(p5, p5, p5))
+    assert(!null_env.intersectsRegion(p5, p5, p5))
   }
 
   test("Can you test if the point lies inside of the cube Envelope?") {

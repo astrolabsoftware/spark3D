@@ -47,9 +47,9 @@ val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 5)
 ```
 
-| Raw data set | Re-partitioned data set |
-|:---------:|:---------:|
-| ![raw]({{ "/assets/images/myOnionFigRaw.jpg" | absolute_url }}) | ![repartitioning]({{ "/assets/images/myOnionFig.jpg" | absolute_url }})|
+| Raw data set | Re-partitioned data set
+|:---------:|:---------:
+| ![raw]({{ "/assets/images/myOnionFigRaw.png" | absolute_url }}) | ![repartitioning]({{ "/assets/images/myOnionFig.png" | absolute_url }})
 
 ## Current benchmark
 

@@ -426,6 +426,12 @@ class BoxEnvelope private(
     if (otherShape.isInstanceOf[Point3D]) {
       this.covers(otherShape.asInstanceOf[Point3D])
     } else if (otherShape.isInstanceOf[ShellEnvelope]) {
+      // This is not perfect. We take the bounding box around the shell
+      // and perform the intersection between boxes.
+      // Potential bugs:
+      //  - if the box is within the inner shell
+      //  - if the box is just outside the outer shell
+      // TODO: Implement real shell - box intersection.
       val env = otherShape.asInstanceOf[ShellEnvelope].getEnvelope
       this.intersectsBox(env)
     } else if (otherShape.isInstanceOf[BoxEnvelope]) {

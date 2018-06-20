@@ -119,6 +119,12 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         // for the maxLevels and maxItemsPerNode calculations logic
         val maxLevels = floor(log(numPartitionsRaw)/log(8)).asInstanceOf[Int]
         val maxItemsPerBox = ceil(dataSize  /pow(8, maxLevels)).asInstanceOf[Int]
+        if (maxItemsPerBox > Int.MaxValue) {
+          throw new AssertionError(
+            """
+              Number of elements have become greater than Int limit.
+            """)
+        }
         val octree = new Octree(getDataEnvelope, 0, maxItemsPerBox, maxLevels)
         val partitioning = OctreePartitioning.apply(samples, octree)
         val grids = partitioning.getGrids

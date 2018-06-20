@@ -17,14 +17,15 @@ Unfortunately, re-partitioning the space involves potentially large shuffle betw
 
 There are currently 2 partitioning implemented in the library:
 
-- **Onion Partitioning:** See [here](https://github.com/JulienPeloton/spark3D/issues/11) for a description.
+- **Onion Partitioning:** See [here](https://github.com/JulienPeloton/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
 - **Octree:** An octree extends a quadtree by using three orthogonal splitting planes to subdivide a tile into eight children. Like quadtrees, 3D Tiles allows variations to octrees such as non-uniform subdivision, tight bounding volumes, and overlapping children.
 
 In the following example, we load `Point3D` data, and we re-partition it with the onion partitioning
 
 ```scala
-import com.spark3d.spatial3DRDD._
+import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
 import com.spark3d.utils.GridType
+
 import org.apache.spark.sql.SparkSession
 
 val spark = SparkSession.builder()
@@ -37,15 +38,16 @@ val hdu = 1
 val columns = "Z_COSMO,RA,DEC"
 val spherical = true
 
-// Load the data
+// Load the data 
 val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 
-// As this example is done in local mode, and the file is very small,
-// the RDD pointRDD has only 1 partition. For the sake of this example,
-// let's increase the number of partition to 5. If no number of partition is
-// given, the new partitioning has the same number of partition as the old ones.
-val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 5)
+// nPart is the wanted number of partitions. Default is pointRDD partition number.
+val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, nPart)
 ```
+
+We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
+However keep in mind that if a large `nPart` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `nPart` which applies in general, and you'll need to set it according to the needs of your problem. My only advice would be: re-partitioning is typically done once, queries can be multiple...
+
 
 | Raw data set | Re-partitioned data set
 |:---------:|:---------:

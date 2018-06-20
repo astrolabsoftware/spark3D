@@ -21,11 +21,18 @@ A point is an object with 3 spatial coordinates. In spark3D, you can choose the 
 
 ```scala
 import com.spark3d.spatial3DRDD.Point3DRDDFromCSV
-
 val pointRDD = new Point3DRDDFromCSV(spark, "myfile.csv", "x,y,z", isSpherical=false)
 ```
 
-The resulting RDD is a `RDD[Point3D]`.
+With FITS data, with data in the HDU #1, you would just do
+
+```scala
+import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+val hdu = 1
+val pointRDD = new Point3DRDDFromFITS(spark, "myfile.csv", hdu, "x,y,z", isSpherical=false)
+```
+
+The resulting RDD is a `RDD[Point3D]`. Note that there is no space between columns labels.
 
 ### Sphere
 
@@ -34,7 +41,6 @@ In spark3D, you can choose the coordinate system of the center between cartesian
 
 ```scala
 import com.spark3d.spatial3DRDD.SphereRDDFromCSV
-
 val pointRDD = new SphereRDDFromCSV(spark, "myfile.csv", "r,theta,phi,radius", isSpherical=false)
 ```
 
@@ -42,8 +48,11 @@ The resulting RDD is a `RDD[Sphere]`.
 
 ### Shell
 
-A shell is the difference an object with a center (3 spatial coordinates) plus an inner radius and an outer radius. TBD.
+A shell is an object with a center (3 spatial coordinates) plus an inner radius and an outer radius. TBD.
 
+### Box
+
+TBD.
 
 ### Loading data from a different data source
 
@@ -57,7 +66,7 @@ To tackle this challenge, we started a new project called
 [spark-fits](https://github.com/JulienPeloton/spark-fits), which provides a
 Spark connector for FITS data, and a Scala library for manipulating FITS file.
 
-The other input format available is CSV. We plan to release more in the future, and you are welcome to submit requests for specific data source!
+The other input format available is CSV. We plan to release more in the future, and you are welcome to submit requests for specific data sources!
 Alternatively you can define your own routine to read it, taking inspiration from existing scripts:
 
 ```scala

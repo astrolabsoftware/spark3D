@@ -40,7 +40,3 @@ Several goals have to be undertaken in this project:
   + selection capability of objects or objects within a region
 - work with as many input file format as possible (CSV, JSON, FITS, and so on)
 - package the developments into an open-source library.
-
-## Main author
-
-[Julien](https://github.com/JulienPeloton)

@@ -16,8 +16,10 @@
 package com.spark3d.spatial3DRDD
 
 // For implicits
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.math._
+import scala.util.Random
 
 // Re-partitioning
 import com.spark3d.spatialPartitioning.SpatialPartitioner
@@ -109,12 +111,14 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
       }
       case GridType.OCTREE => {
         // taking 20% of the data as a sample
-        val sampleSize = (rawRDD.count * 0.2).asInstanceOf[Int]
-        val samples = rawRDD.takeSample(false, sampleSize, 12).toList.map(x => x.getEnvelope)
+        val dataSize = rawRDD.count
+        val sampleSize = (dataSize * 0.2).asInstanceOf[Int]
+        val samples = rawRDD.takeSample(false, sampleSize,
+          new Random(100).nextInt(100)).toList.map(x => x.getEnvelope)
         // see https://github.com/JulienPeloton/spark3D/issues/37
         // for the maxLevels and maxItemsPerNode calculations logic
-        val maxLevels = floor(log(numPartitions)/log(8)).asInstanceOf[Int]
-        val maxItemsPerBox = ceil(sampleSize/pow(8, maxLevels)).asInstanceOf[Int]
+        val maxLevels = floor(log(numPartitionsRaw)/log(8)).asInstanceOf[Int]
+        val maxItemsPerBox = ceil(dataSize  /pow(8, maxLevels)).asInstanceOf[Int]
         val octree = new Octree(getDataEnvelope, 0, maxItemsPerBox, maxLevels)
         val partitioning = OctreePartitioning.apply(samples, octree)
         val grids = partitioning.getGrids
@@ -141,9 +145,17 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   def partition(partitioner: SpatialPartitioner)(implicit c: ClassTag[T]) : RDD[T] = {
     // Go from RDD[V] to RDD[(K, V)] where K is specified by the partitioner.
     // Finally, return only RDD[V] with the new partitioning.
-    new PairRDDFunctions[Int, T](
-      rawRDD.map(x => partitioner.placeObject(x).next())
-    ).partitionBy(partitioner).mapPartitions(_.map(_._2), true)
+
+    def mapElements(iter: Iterator[T]) : Iterator[(Int, T)] = {
+      var res = ListBuffer[(Int, T)]()
+      while (iter.hasNext) {
+        res ++= partitioner.placeObject(iter.next).toList
+      }
+      res.iterator
+    }
+
+    rawRDD.mapPartitions(mapElements).partitionBy(partitioner).mapPartitions(_.map(_._2), true)
+
   }
 
   def getDataEnvelope(): BoxEnvelope = {

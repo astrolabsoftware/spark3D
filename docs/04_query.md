@@ -108,7 +108,7 @@ Which one you should choose? That depends on what you need:
 
 Currently, we implemented two methods to perform a cross-match:
 
-* Based on center distance (a and b match if ||a -b|| < epsilon).
+* Based on center distance (a and b match if norm(a - b) < epsilon).
 * Based on the center angular separation (Healpix index) inside a shell (a and b match if their healpix index is the same). Note that this strategy can be used only in combination with the `LINEARONIONGRID` partitioning which produces 3D shells along the radial axis, and project the data in 2D shells (where Healpix can be used!).
 
 Here is an example which returns only elements from B with counterpart in A using distance center:

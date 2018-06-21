@@ -116,7 +116,7 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     val partitions = sphereRDD_part.mapPartitions(
       iter => Array(iter.size).iterator, true).collect()
 
-    //data consists of 16 spheres. 15 spheres (their BoxEnvelopes) belong to only leaf node and 1
+    // data consists of 16 spheres. 15 spheres (their BoxEnvelopes) belong to only leaf node and 1
     // sphere belongs to all of the leaf nodes (viz 8)
     assert(partitions.toList.foldLeft(0)(_+_) == 23)
   }

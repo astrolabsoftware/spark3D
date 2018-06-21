@@ -114,7 +114,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         val dataSize = rawRDD.count
         val sampleSize = (dataSize * 0.2).asInstanceOf[Int]
         val samples = rawRDD.takeSample(false, sampleSize,
-          new Random(100).nextInt(100)).toList.map(x => x.getEnvelope)
+          new Random(dataSize).nextInt(dataSize.asInstanceOf[Int])).toList.map(x => x.getEnvelope)
         // see https://github.com/JulienPeloton/spark3D/issues/37
         // for the maxLevels and maxItemsPerNode calculations logic
         val maxLevels = floor(log(numPartitionsRaw)/log(8)).asInstanceOf[Int]

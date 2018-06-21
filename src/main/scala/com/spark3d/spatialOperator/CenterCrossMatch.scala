@@ -93,8 +93,9 @@ object CenterCrossMatch {
 
       val matched = elementsA.filter(x => elementB.hasCenterCloseTo(x.center, epsilon)).toList
       if (matched.size > 0) {
-        for (el <- matched)
-        result += ((el, elementB))
+        for (el <- matched) {
+          result += ((el, elementB))
+        }
       }
 
     }

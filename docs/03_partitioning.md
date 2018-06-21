@@ -20,6 +20,8 @@ There are currently 2 partitioning implemented in the library:
 - **Onion Partitioning:** See [here](https://github.com/JulienPeloton/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
 - **Octree:** An octree extends a quadtree by using three orthogonal splitting planes to subdivide a tile into eight children. Like quadtrees, 3D Tiles allows variations to octrees such as non-uniform subdivision, tight bounding volumes, and overlapping children.
 
+### Onion Partitioning
+
 In the following example, we load `Point3D` data, and we re-partition it with the onion partitioning
 
 ```scala
@@ -45,13 +47,45 @@ val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, nPart)
 ```
 
-We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
-However keep in mind that if a large `nPart` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `nPart` which applies in general, and you'll need to set it according to the needs of your problem. My only advice would be: re-partitioning is typically done once, queries can be multiple...
-
-
 | Raw data set | Re-partitioned data set
 |:---------:|:---------:
 | ![raw]({{ "/assets/images/myOnionFigRaw.png" | absolute_url }}) | ![repartitioning]({{ "/assets/images/myOnionFig.png" | absolute_url }})
+
+### Octree Partitioning
+
+In the following example, we load `Point3D` data, and we re-partition it with the octree partitioning
+
+```scala
+import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.utils.GridType
+
+import org.apache.spark.sql.SparkSession
+
+val spark = SparkSession.builder()
+	.appName("OctreeSpace")
+	.getOrCreate()
+
+// Data is in src/test/resources
+val fn = "cartesian_spheres.fits"
+val hdu = 1
+val columns = "x,y,z,radius"
+val spherical = false
+
+// Load the data 
+val sphereRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
+
+// nPart is the wanted number of partitions (floored to a power of 8). 
+// Default is sphereRDD partition number.
+val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.OCTREE, nPart)
+```
+
+
+We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
+However keep in mind that if a large `nPart` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `nPart` which applies in general, and you'll need to set it according to the needs of your problem. My only advice would be: re-partitioning is typically done once, queries can be multiple...
+
+| Raw data set | Re-partitioned data set
+|:---------:|:---------:
+| ![raw]({{ "/assets/images/rawData_noOctree.png" | absolute_url }}) | ![repartitioning]({{ "/assets/images/rawData_withOctree.png" | absolute_url }})
 
 ## Current benchmark
 

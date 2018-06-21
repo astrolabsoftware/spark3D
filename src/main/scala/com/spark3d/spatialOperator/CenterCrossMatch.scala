@@ -48,30 +48,17 @@ object CenterCrossMatch {
 
     // Initialise containers
     val result = List.newBuilder[B]
-    val queryObjects = List.newBuilder[A]
 
-    // Construct entire partition A
-    while (iterA.hasNext) {
-        queryObjects += iterA.next()
-    }
-
-    val elementsA = queryObjects.result
+    val elementsA = iterA.toList
     val sizeA = elementsA.size
 
     // Loop over elements of partition B, and match with elements of partition A
     while (iterB.hasNext) {
       val elementB = iterB.next()
 
-      var pos = 0
-      var found = false
-      while (pos < sizeA && !found) {
-        val elementA = elementsA(pos)
-        if (elementB.hasCenterCloseTo(elementA.center, epsilon)) {
-          result += elementB
-          found = true
-        }
-        // Update the position in the partition A
-        pos += 1
+      val matched = elementsA.filter(x => elementB.hasCenterCloseTo(x.center, epsilon)).toList
+      if (matched.size > 0) {
+        result += elementB
       }
     }
     result.result.iterator
@@ -96,29 +83,21 @@ object CenterCrossMatch {
 
     // Initialise containers
     val result = List.newBuilder[(A, B)]
-    val queryObjects = List.newBuilder[A]
 
-    // Construct entire partition A
-    while (iterA.hasNext) {
-        queryObjects += iterA.next()
-    }
-
-    val elementsA = queryObjects.result
+    val elementsA = iterA.toList
     val sizeA = elementsA.size
 
     // Loop over elements of partition B, and match with elements of partition A
     while (iterB.hasNext) {
       val elementB = iterB.next()
 
-      var pos = 0
-      while (pos < sizeA) {
-        val elementA = elementsA(pos)
-        if (elementB.center.hasCenterCloseTo(elementA.center, epsilon)) {
-          result += ((elementA, elementB))
+      val matched = elementsA.filter(x => elementB.hasCenterCloseTo(x.center, epsilon)).toList
+      if (matched.size > 0) {
+        for (el <- matched) {
+          result += ((el, elementB))
         }
-        // Update the position in the partition A
-        pos += 1
       }
+
     }
     result.result.iterator
   }
@@ -159,7 +138,7 @@ object CenterCrossMatch {
         """
       )
     }
-    
+
     // Catch unphysical conditions
     if (epsilon < 0.0) {
       throw new AssertionError("""

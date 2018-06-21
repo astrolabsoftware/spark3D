@@ -54,7 +54,6 @@ object PixelCrossMatch {
 
     val elementsA = iterA.toList
     val hpIndexAAndElements = elementsA.map(x => (x.toHealpix(nside), x ))
-    val sizeA = elementsA.size
 
     // Loop over elements of partition B, and match with elements of partition A
     while (iterB.hasNext) {
@@ -98,7 +97,6 @@ object PixelCrossMatch {
 
     // Keep only distinct Healpix indices
     val elementsA = iterA.toList.map(x => x.toHealpix(nside)).distinct
-    val sizeA = elementsA.size
 
     // Loop over elements of partition B, and for each element search for a
     // counterpart in A.
@@ -139,27 +137,15 @@ object PixelCrossMatch {
     val elementsB = iterB.toList.map(x => x.toHealpix(nside)).distinct
 
     // Sizes of each partition
-    val sizeA = elementsA.size
     val sizeB = elementsB.size
 
     // Loop over elements of partition B, and match with elements of partition A
     for (posB <- 0 to sizeB - 1) {
       val hpIndexB = elementsB(posB)
 
-      var posA = 0
-      var found = false
-      while (posA < sizeA && !found) {
-        val hpIndexA = elementsA(posA)
-        if (hpIndexB == hpIndexA) {
-          result += hpIndexB
-
-          // No duplicates, once a pixel has a match
-          // we exit the search.
-          found = true
-        }
-
-        // Update the position in the partition A
-        posA += 1
+      val matched = elementsA.filter(x => x == hpIndexB).toList
+      if (matched.size > 0) {
+        result += hpIndexB
       }
     }
     result.result.iterator

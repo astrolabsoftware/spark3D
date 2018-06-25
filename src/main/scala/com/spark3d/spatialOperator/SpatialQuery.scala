@@ -40,7 +40,7 @@ object SpatialQuery {
         // TODO make use of pq.max
         val maxElement = pq.dequeue
         val maxEleDist = maxElement.center.distanceTo(queryObject.center)
-        if (currentEleDist  < maxEleDist) {
+        if (currentEleDist < maxEleDist) {
           pq.enqueue(currentElement)
         } else {
           pq.enqueue(maxElement)

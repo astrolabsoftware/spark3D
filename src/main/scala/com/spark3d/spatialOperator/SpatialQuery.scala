@@ -19,15 +19,57 @@ package com.spark3d.spatialOperator
 import com.spark3d.geometryObjects.Shape3D.Shape3D
 import com.spark3d.utils.GeometryObjectComparator
 import org.apache.spark.rdd.RDD
+import com.spark3d.spatialPartitioning._
 
 import scala.collection.mutable.PriorityQueue
+import scala.reflect.ClassTag
 
 
 object SpatialQuery {
 
-  def KNN[A <: Shape3D, B <:Shape3D](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+  def KNN[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
 
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
+
+    knnHelper[B](rdd, k,queryObject, pq)
+    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
+  }
+
+  def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+    val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
+
+    val partitioner = rdd.partitioner.get.asInstanceOf[SpatialPartitioner]
+
+    val containingPartitions = partitioner.getPartitionNodes(queryObject)
+    val containingPartitionsIndex = containingPartitions.map(x => x._1)
+
+    val matchedContainingSubRDD = rdd.mapPartitionsWithIndex(
+      (index, iter) => {
+        if (containingPartitionsIndex.contains(index)) iter else Iterator.empty
+      }
+    )
+
+    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq)
+
+    if (pq.size >= k) {
+      return pq.toList
+    }
+
+    val neighborPartitions = partitioner.getNeighborNodes(queryObject)
+    val neighborPartitionsIndex = neighborPartitions.map(x => x._1)
+
+    val matchedNeighborSubRDD = rdd.mapPartitionsWithIndex(
+      (index, iter) => {
+        if (neighborPartitionsIndex.contains(index)) iter else Iterator.empty
+      }
+    )
+
+    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq)
+    pq.toList
+  }
+
+  private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,
+      queryObject: Shape3D, pq: PriorityQueue[A]): Unit = {
 
     val itr = rdd.toLocalIterator
 
@@ -47,12 +89,5 @@ object SpatialQuery {
         }
       }
     }
-    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
-  }
-
-  def KNNEfficient[A <: Shape3D, B <:Shape3D](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
-    val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
-
-    null
   }
 }

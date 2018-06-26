@@ -44,6 +44,7 @@ import scala.collection.mutable.Queue
 class Octree(
     val box: BoxEnvelope,
     val level: Int,
+    val parentNode: Octree = null,
     val maxItemsPerNode: Int = 5,
     val maxLevel: Int = 10)
   extends Serializable {
@@ -77,56 +78,56 @@ class Octree(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
   }
 
@@ -377,5 +378,21 @@ class Octree(
 
     dfsTraverse(traverseFunct, obj, matchedLeaves)
     matchedLeaves
+  }
+
+  def getLeafNeighbors(queryNode: Octree): List[BoxEnvelope] = {
+    val leafNeighbors = new ListBuffer[BoxEnvelope]
+    if (parentNode != null){
+      for (neighbor <- parentNode.children) {
+        if (!neighbor.equals(queryNode)) {
+          if (neighbor.isLeaf) {
+            leafNeighbors += neighbor.box
+          } else {
+            leafNeighbors ++= neighbor.children(0).getLeafNeighbors(queryNode)
+          }
+        }
+      }
+    }
+    leafNeighbors.toList
   }
 }

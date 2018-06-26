@@ -17,7 +17,7 @@ package com.spark3d.spatialPartitioning
 
 // Scala deps
 import scala.util.control.Breaks._
-import scala.collection.mutable.HashSet
+import scala.collection.mutable.{HashSet, ListBuffer}
 
 // spark3d deps
 import com.spark3d.geometryObjects.ShellEnvelope
@@ -101,5 +101,50 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
     // Return an iterator
     result.iterator
+  }
+
+  private def getPartitionNodesIDs[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+    val center = spatialObject.center
+    val partitionNodesIDs = new ListBuffer[Tuple2[Int, Shape3D]]
+
+    breakable {
+
+      for (pos <- 0 to grids.size - 1) {
+        val shell = grids(pos)
+
+        if (shell.isPointInShell(center)) {
+          partitionNodesIDs += new Tuple2(pos, shell)
+          break
+        }
+      }
+    }
+
+    partitionNodesIDs.toList
+  }
+
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
+    val partitionNodes = getPartitionNodesIDs(spatialObject)
+    partitionNodes.map(_._2)
+  }
+
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
+    val partitionNodes = getPartitionNodesIDs(spatialObject)
+    val neighborNodes = new ListBuffer[Shape3D]
+
+    if (!partitionNodes.isEmpty) {
+      val nodePosition = partitionNodes(0)_1
+
+      if (nodePosition == 0) {
+        neighborNodes += grids(nodePosition + 1)
+      } else if (nodePosition == (grids.size - 1)) {
+        neighborNodes += grids(nodePosition - 1)
+      } else {
+        neighborNodes += grids(nodePosition - 1)
+        neighborNodes += grids(nodePosition + 1)
+      }
+    }
+
+    neighborNodes.toList
+
   }
 }

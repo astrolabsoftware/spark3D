@@ -58,4 +58,8 @@ abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner wit
   override def getPartition(key : Any) : Int = {
     key.asInstanceOf[Int]
   }
+
+  def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = ???
+
+  def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = ???
 }

@@ -52,4 +52,20 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     }
     result.toIterator
   }
+
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
+
+    var partitionNodes = new ListBuffer[Shape3D]
+    partitionNodes ++= octree.getMatchedLeaves(spatialObject.getEnvelope)
+    partitionNodes.toList
+  }
+
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
+    val neighborNodes  = new ListBuffer[Shape3D]
+    val partitionNodes = getPartitionNodes(spatialObject)
+    for (partitionNode <- partitionNodes) {
+      neighborNodes ++= octree.getLeafNeighbors(partitionNode.getEnvelope)
+    }
+    neighborNodes.toList
+  }
 }

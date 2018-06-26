@@ -4,7 +4,7 @@ main:
     url: /docs/installation/
   - title: "About"
     url: /about/
-  - title: "Fork me!"
+  - title: "<i class='fas fa-code-fork'></i> Fork me!"
     url: https://github.com/JulienPeloton/spark3D
   # - title: "Sample Posts"
   #   url: /year-archive/

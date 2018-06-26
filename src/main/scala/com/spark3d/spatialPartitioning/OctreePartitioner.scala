@@ -53,18 +53,19 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     result.toIterator
   }
 
-  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
 
     var partitionNodes = new ListBuffer[Shape3D]
     partitionNodes ++= octree.getMatchedLeaves(spatialObject.getEnvelope)
-    partitionNodes.toList
+    var partitionNodesIDs = partitionNodes.map(x => new Tuple2(x.getEnvelope.indexID, x))
+    partitionNodesIDs.toList
   }
 
-  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Shape3D] = {
-    val neighborNodes  = new ListBuffer[Shape3D]
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+    val neighborNodes  = new ListBuffer[Tuple2[Int, Shape3D]]
     val partitionNodes = getPartitionNodes(spatialObject)
     for (partitionNode <- partitionNodes) {
-      neighborNodes ++= octree.getLeafNeighbors(partitionNode.getEnvelope)
+      neighborNodes ++= octree.getLeafNeighbors(partitionNode._2.getEnvelope)
     }
     neighborNodes.toList
   }

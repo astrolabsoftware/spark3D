@@ -380,13 +380,13 @@ class Octree(
     matchedLeaves
   }
 
-  def getLeafNeighbors(queryNode: BoxEnvelope): List[BoxEnvelope] = {
-    val leafNeighbors = new ListBuffer[BoxEnvelope]
+  def getLeafNeighbors(queryNode: BoxEnvelope): List[Tuple2[Int, BoxEnvelope]] = {
+    val leafNeighbors = new ListBuffer[Tuple2[Int, BoxEnvelope]]
     if (parentNode != null){
       for (neighbor <- parentNode.children) {
         if (!neighbor.box.isEqual(queryNode)) {
           if (neighbor.isLeaf) {
-            leafNeighbors += neighbor.box
+            leafNeighbors += new Tuple2(neighbor.box.indexID, neighbor.box)
           } else {
             leafNeighbors ++= neighbor.children(0).getLeafNeighbors(queryNode)
           }

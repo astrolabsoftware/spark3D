@@ -102,10 +102,9 @@ object SpatialQuery {
     * objects to the input object.
     *
     * @param rdd RDD of a Shape3D (Shape3DRDD)
-    * @param k
-    * @param queryObject
-    * @param pq
-    * @tparam A
+    * @param k number of nearest neighbors are to be found
+    * @param queryObject object to which the knn are to be found
+    * @param pq Priority Queue for containing KNN
     */
   private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,
 

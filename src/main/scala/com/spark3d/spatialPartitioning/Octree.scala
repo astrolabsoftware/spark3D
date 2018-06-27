@@ -255,9 +255,9 @@ class Octree(
     * @param obj input object for which the search is to be performed
     * @param data a ListBuffer in which the desired data should be placed when the funct() == true
     */
-  private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[BoxEnvelope]): Unit = {
+  private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[Octree]): Unit = {
     if (func(this, obj)) {
-      data += box
+      data += this
     }
 
     if (!isLeaf) {
@@ -367,13 +367,18 @@ class Octree(
     * @param obj Input object to be checked for the match
     * @return list of leafNodes which match the conditions
     */
-  def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+  def getMatchedLeafBoxes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
 
-    val matchedLeaves = new ListBuffer[BoxEnvelope]
+    val matchedLeaves = getMatchedLeaves(obj)
+    matchedLeaves.map(x => x.box)
+  }
+
+  def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[Octree] = {
+    val matchedLeaves = new ListBuffer[Octree]
     val traverseFunct: (Octree, BoxEnvelope) => Boolean = {
       (node, obj) => node.isLeaf && (node.box.intersects(obj) ||
-                      node.box.contains(obj) ||
-                      obj.contains(node.box))
+        node.box.contains(obj) ||
+        obj.contains(node.box))
     }
 
     dfsTraverse(traverseFunct, obj, matchedLeaves)

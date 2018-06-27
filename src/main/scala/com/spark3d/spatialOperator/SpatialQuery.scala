@@ -65,7 +65,7 @@ object SpatialQuery {
     )
 
     knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq)
-    pq.toList
+    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
 
   private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,

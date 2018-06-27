@@ -60,7 +60,7 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
 
     val knn = SpatialQuery.KNN(queryObject, sphereRDD_part, 3)
-
+    val knn2 = SpatialQuery.KNNEfficient(queryObject, sphereRDD_part, 3)
     assert(knn.size == 3)
 
     assert(knn(0).center.isEqual(new ShellEnvelope(2.0,2.0,2.0,false,2.0).center))

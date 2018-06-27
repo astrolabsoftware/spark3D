@@ -361,11 +361,11 @@ class Octree(
   }
 
   /**
-    * get all the leaf nodes, which intersect, contain or are contained
+    * get all the containing Envelopes of the leaf nodes, which intersect, contain or are contained
     * by the input BoxEnvelope
     *
     * @param obj Input object to be checked for the match
-    * @return list of leafNodes which match the conditions
+    * @return list of Envelopes of the leafNodes which match the conditions
     */
   def getMatchedLeafBoxes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
 
@@ -373,6 +373,13 @@ class Octree(
     matchedLeaves.map(x => x.box)
   }
 
+  /**
+    * get all the containing Envelopes of the leaf nodes, which intersect, contain or are contained
+    * by the input BoxEnvelope
+    *
+    * @param obj Input object to be checked for the match
+    * @return list of leafNodes which match the conditions
+    */
   def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[Octree] = {
     val matchedLeaves = new ListBuffer[Octree]
     val traverseFunct: (Octree, BoxEnvelope) => Boolean = {
@@ -385,6 +392,13 @@ class Octree(
     matchedLeaves
   }
 
+  /**
+    * Get the neighbors of this node. Neighbors here are leaf sibling or leaf descendants of the
+    * siblings.
+    *
+    * @param queryNode the box of the the input node to avoid passing same node as neighbor
+    * @return list of lead neghbors and their index/partition ID's
+    */
   def getLeafNeighbors(queryNode: BoxEnvelope): List[Tuple2[Int, BoxEnvelope]] = {
     val leafNeighbors = new ListBuffer[Tuple2[Int, BoxEnvelope]]
     if (parentNode != null){
@@ -398,6 +412,6 @@ class Octree(
         }
       }
     }
-    leafNeighbors.toList
+    leafNeighbors.toList.distinct
   }
 }

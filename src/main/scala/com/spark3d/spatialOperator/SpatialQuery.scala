@@ -27,22 +27,47 @@ import scala.reflect.ClassTag
 
 object SpatialQuery {
 
+  /**
+    * Finds the K nearest neighbors of the query object. The naive implementation here searches
+    * through all the the objects in the RDD to get the KNN. The nearness of the objects here
+    * is decided on the basis of the distance between their centers.
+    *
+    * @param queryObject object to which the knn are to be found
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k number of nearest neighbors are to be found
+    * @return knn
+    */
   def KNN[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
 
+    // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
-
     knnHelper[B](rdd, k,queryObject, pq)
+    // sort the list based on the closeness to the queryObject
     pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
 
+  /**
+    * Much more efficient implementation of the KNN query above. First we seek the partitions in
+    * which the query object belongs and we will look for the knn only in those partitions. After
+    * this if the limit k is not satisfied, we keep looking similarly in the neighbors of the
+    * containing partitions.
+    *
+    * @param queryObject object to which the knn are to be found
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k number of nearest neighbors are to be found
+    * @return knn
+    */
   def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+
+    // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
-
+    // get the partitioner used for partitioning the input RDD
     val partitioner = rdd.partitioner.get.asInstanceOf[SpatialPartitioner]
-
+    // get the partitions which contain the input object
     val containingPartitions = partitioner.getPartitionNodes(queryObject)
+    // get the index of those partitions
     val containingPartitionsIndex = containingPartitions.map(x => x._1)
-
+    // create a rdd of those partitions
     val matchedContainingSubRDD = rdd.mapPartitionsWithIndex(
       (index, iter) => {
         if (containingPartitionsIndex.contains(index)) iter else Iterator.empty
@@ -51,13 +76,16 @@ object SpatialQuery {
 
     knnHelper[B](matchedContainingSubRDD, k, queryObject, pq)
 
+    // return if we found all k elements in the containing partitions
     if (pq.size >= k) {
       return pq.toList
     }
 
+    // get the neighbor partitions to the partitions containing the input object.
     val neighborPartitions = partitioner.getNeighborNodes(queryObject)
     val neighborPartitionsIndex = neighborPartitions.map(x => x._1)
 
+    // create a rdd of those partitions
     val matchedNeighborSubRDD = rdd.mapPartitionsWithIndex(
       (index, iter) => {
         if (neighborPartitionsIndex.contains(index)) iter else Iterator.empty
@@ -65,12 +93,23 @@ object SpatialQuery {
     )
 
     knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq)
+    // sort the list based on the closeness to the queryObject
     pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
 
+  /**
+    * Helper function to iterate through all the objects of the input RDD and find k nearest
+    * objects to the input object.
+    *
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k
+    * @param queryObject
+    * @param pq
+    * @tparam A
+    */
   private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,
-      queryObject: Shape3D, pq: PriorityQueue[A]): Unit = {
 
+    queryObject: Shape3D, pq: PriorityQueue[A]): Unit = {
     val itr = rdd.toLocalIterator
 
     while (itr.hasNext) {

@@ -103,6 +103,12 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     result.iterator
   }
 
+  /**
+    * Gets the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the containment is to be found
+    * @return list of Tuple of containing partitions and their index/partition ID's
+    */
   override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
     val center = spatialObject.center
     val partitionNodesIDs = new ListBuffer[Tuple2[Int, Shape3D]]
@@ -122,15 +128,22 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     partitionNodesIDs.toList
   }
 
+  /**
+    * Gets the partitions which are the neighbors of the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the neighbors are to be found
+    * @return list of Tuple of neighbor partitions and their index/partition ID's
+    */
   override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
     val partitionNodes = getPartitionNodes(spatialObject)
     val neighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
 
     if (!partitionNodes.isEmpty) {
-      // this implementation assumes in OnionPartitioning the object will belong to only one
+      // this implementation assumes that in OnionPartitioning, the object will belong to only one
       // node/partition
       val nodePosition = partitionNodes(0)_1
 
+      // check for corner cases
       if (nodePosition == 0) {
         neighborNodes += new Tuple2(nodePosition + 1, grids(nodePosition + 1))
       } else if (nodePosition == (grids.size - 1)) {

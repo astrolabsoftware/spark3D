@@ -7,7 +7,7 @@ header:
   cta_label: "<i class='fas fa-download'></i> Install Now"
   cta_url: "/docs/installation/"
   caption:
-excerpt: 'Spark extension for processing large-scale 3D data sets: Astrophysics, High Energy Physics, Meteorology, ...<br /> <small><a href="https://github.com/theastrolab/spark3D/releases/tag/0.1.1">Latest release v0.1.1</a></small><br /><br /> {::nomarkdown}<iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=theastrolab&repo=spark3D&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe> <iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=theastrolab&repo=spark3D&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>{:/nomarkdown}'
+excerpt: 'Spark extension for processing large-scale 3D data sets: Astrophysics, High Energy Physics, Meteorology, ...<br /> <small><a href="https://github.com/theastrolab/spark3D/releases/tag/0.1.1">Latest release v0.1.1</a></small><br /><br /> {::nomarkdown}<iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=JulienPeloton&repo=theastrolab/spark3D&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe> <iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=theastrolab&repo=spark3D&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>{:/nomarkdown}'
 feature_row:
   - image_path:
     alt:

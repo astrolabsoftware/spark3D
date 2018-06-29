@@ -21,6 +21,7 @@ import com.spark3d.utils.GeometryObjectComparator
 import org.apache.spark.rdd.RDD
 import com.spark3d.spatialPartitioning._
 
+import scala.collection.mutable.HashSet
 import scala.collection.mutable.PriorityQueue
 import scala.reflect.ClassTag
 
@@ -41,7 +42,8 @@ object SpatialQuery {
 
     // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
-    knnHelper[B](rdd, k,queryObject, pq)
+    val visited = new HashSet[Int]
+    knnHelper[B](rdd, k,queryObject, pq, visited)
     // sort the list based on the closeness to the queryObject
     pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
@@ -74,7 +76,9 @@ object SpatialQuery {
       }
     )
 
-    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq)
+    val visited = new HashSet[Int]
+
+    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq, visited)
 
     // return if we found all k elements in the containing partitions
     if (pq.size >= k) {
@@ -92,7 +96,7 @@ object SpatialQuery {
       }
     )
 
-    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq)
+    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq, visited)
     // sort the list based on the closeness to the queryObject
     pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
@@ -107,23 +111,28 @@ object SpatialQuery {
     * @param pq Priority Queue for containing KNN
     */
   private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,
+    queryObject: Shape3D, pq: PriorityQueue[A], visited: HashSet[Int]): Unit = {
 
-    queryObject: Shape3D, pq: PriorityQueue[A]): Unit = {
     val itr = rdd.toLocalIterator
 
     while (itr.hasNext) {
       val currentElement = itr.next
-      if (pq.size < k) {
-        pq.enqueue(currentElement)
-      } else {
-        val currentEleDist = currentElement.center.distanceTo(queryObject.center)
-        // TODO make use of pq.max
-        val maxElement = pq.dequeue
-        val maxEleDist = maxElement.center.distanceTo(queryObject.center)
-        if (currentEleDist < maxEleDist) {
+      if (!visited.contains(currentElement.center.getHash)) {
+        if (pq.size < k) {
           pq.enqueue(currentElement)
+          visited += currentElement.center.getHash
         } else {
-          pq.enqueue(maxElement)
+          val currentEleDist = currentElement.center.distanceTo(queryObject.center)
+          // TODO make use of pq.max
+          val maxElement = pq.dequeue
+          val maxEleDist = maxElement.center.distanceTo(queryObject.center)
+          if (currentEleDist < maxEleDist) {
+            pq.enqueue(currentElement)
+            visited += currentElement.center.getHash
+            visited -= maxElement.center.getHash
+          } else {
+            pq.enqueue(maxElement)
+          }
         }
       }
     }

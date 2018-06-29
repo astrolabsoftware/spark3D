@@ -45,7 +45,7 @@ class OnionPartitioning extends Serializable {
     * @return (Double) the highest radial coordinate value (max(Z)).
     */
   def getMaxZ[T<:Shape3D](rdd : RDD[T]) : Double = {
-    rdd.map(x => x.center.distanceTo(new Point3D(0.0, 0.0, 0.0, true))).max
+    rdd.map(x => x.center.distanceTo(new Point3D(0.0, 0.0, 0.0, x.center.isSpherical))).max
   }
 
   /**

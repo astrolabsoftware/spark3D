@@ -117,10 +117,10 @@ object SpatialQuery {
 
     while (itr.hasNext) {
       val currentElement = itr.next
-      if (!visited.contains(currentElement.center.getHash)) {
+      if (!visited.contains(currentElement.getHash)) {
         if (pq.size < k) {
           pq.enqueue(currentElement)
-          visited += currentElement.center.getHash
+          visited += currentElement.getHash
         } else {
           val currentEleDist = currentElement.center.distanceTo(queryObject.center)
           // TODO make use of pq.max
@@ -128,8 +128,8 @@ object SpatialQuery {
           val maxEleDist = maxElement.center.distanceTo(queryObject.center)
           if (currentEleDist < maxEleDist) {
             pq.enqueue(currentElement)
-            visited += currentElement.center.getHash
-            visited -= maxElement.center.getHash
+            visited += currentElement.getHash
+            visited -= maxElement.getHash
           } else {
             pq.enqueue(maxElement)
           }

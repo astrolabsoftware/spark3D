@@ -147,8 +147,4 @@ class Point3D(val x: Double, val y: Double, val z: Double,
     y == p.y &&
     z == p.z
   }
-
-  def getHash(): Int = {
-    (center.getCoordinate.mkString("/") + getEnvelope.toString).hashCode
-  }
 }

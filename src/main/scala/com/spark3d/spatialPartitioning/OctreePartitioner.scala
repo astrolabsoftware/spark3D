@@ -81,4 +81,19 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     }
     neighborNodes.toList
   }
+
+  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
+    val secondaryNeighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+    val box = containingNode.getEnvelope
+    val searchBox = BoxEnvelope.apply(box.minX+0.0001, box.maxX-0.0001,
+        box.minY+0.0001, box.maxY-0.0001,
+        box.minZ+0.0001, box.maxZ-0.0001)
+    val partitionNodes = octree.getMatchedLeaves(searchBox.getEnvelope)
+    // ideally partitionNodes should be of size 1
+    for (partitionNode <- partitionNodes) {
+      secondaryNeighborNodes ++= partitionNode.getLeafNeighbors(partitionNode.box.getEnvelope)
+    }
+    secondaryNeighborNodes.toList
+  }
+
 }

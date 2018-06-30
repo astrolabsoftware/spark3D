@@ -74,4 +74,6 @@ abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner wit
     * @return list of Tuple of neighbor partitions and their index/partition ID's
     */
   def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = ???
+
+  def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = ???
 }

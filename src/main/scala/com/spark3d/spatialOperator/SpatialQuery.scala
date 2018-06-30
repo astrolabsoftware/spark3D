@@ -21,10 +21,10 @@ import com.spark3d.utils.GeometryObjectComparator
 import org.apache.spark.rdd.RDD
 import com.spark3d.spatialPartitioning._
 
-import scala.collection.mutable.HashSet
-import scala.collection.mutable.PriorityQueue
+import scala.collection.mutable
+import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}
 import scala.reflect.ClassTag
-
+import scala.util.control.Breaks._
 
 object SpatialQuery {
 
@@ -45,7 +45,7 @@ object SpatialQuery {
     val visited = new HashSet[Int]
     knnHelper[B](rdd, k,queryObject, pq, visited)
     // sort the list based on the closeness to the queryObject
-    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
+    sortedList[B](queryObject, pq.toList)
   }
 
   /**
@@ -82,12 +82,15 @@ object SpatialQuery {
 
     // return if we found all k elements in the containing partitions
     if (pq.size >= k) {
-      return pq.toList
+      return sortedList[B](queryObject, pq.toList)
     }
 
+    val visitedPartitions = new HashSet[Int]
+    visitedPartitions ++= containingPartitionsIndex
+
     // get the neighbor partitions to the partitions containing the input object.
-    val neighborPartitions = partitioner.getNeighborNodes(queryObject)
-    val neighborPartitionsIndex = neighborPartitions.map(x => x._1)
+    val neighborPartitions = partitioner.getNeighborNodes(queryObject).to[ListBuffer]
+    val neighborPartitionsIndex = neighborPartitions.map(x => x._1).filter(x => !visitedPartitions.contains(x))
 
     // create a rdd of those partitions
     val matchedNeighborSubRDD = rdd.mapPartitionsWithIndex(
@@ -97,8 +100,40 @@ object SpatialQuery {
     )
 
     knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq, visited)
-    // sort the list based on the closeness to the queryObject
-    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
+
+    // return if we found all k elements in the containing partitions
+    if (pq.size >= k) {
+      return sortedList[B](queryObject, pq.toList)
+    }
+
+    visitedPartitions ++= neighborPartitionsIndex
+
+    breakable {
+      for (neighborPartition <- neighborPartitions) {
+        val secondaryNeighborPartitions = partitioner.getSecondaryNeighborNodes(neighborPartition._2, neighborPartition._1)
+        val secondaryNeighborPartitionsIndex = secondaryNeighborPartitions.map(x => x._1).filter(x => !visitedPartitions.contains(x))
+
+        // create a rdd of those partitions
+        val matchedSecondaryNeighborSubRDD = rdd.mapPartitionsWithIndex(
+          (index, iter) => {
+            if (secondaryNeighborPartitionsIndex.contains(index))
+              iter
+            else
+              Iterator.empty
+          }
+        )
+
+        knnHelper[B](matchedSecondaryNeighborSubRDD, k, queryObject, pq, visited)
+
+        if (pq.size >= k) {
+          break
+        }
+
+        visitedPartitions ++= secondaryNeighborPartitionsIndex
+        neighborPartitions ++= secondaryNeighborPartitions.filter(x => secondaryNeighborPartitionsIndex.contains(x._1))
+      }
+    }
+    sortedList[B](queryObject, pq.toList)
   }
 
   /**
@@ -136,5 +171,9 @@ object SpatialQuery {
         }
       }
     }
+  }
+
+  private def sortedList[A <: Shape3D: ClassTag](queryObject: Shape3D, pq: List[A]): List[A] = {
+    pq.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
 }

@@ -157,4 +157,17 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     neighborNodes.toList
 
   }
+
+  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
+    val secondaryNeighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+    if (containingNodeID == 0) {
+      secondaryNeighborNodes += new Tuple2(containingNodeID + 1, grids(containingNodeID + 1))
+    } else if (containingNodeID == (grids.size - 1)) {
+      secondaryNeighborNodes += new Tuple2(containingNodeID - 1, grids(containingNodeID - 1))
+    } else {
+      secondaryNeighborNodes += new Tuple2(containingNodeID + 1, grids(containingNodeID + 1))
+      secondaryNeighborNodes += new Tuple2(containingNodeID - 1, grids(containingNodeID - 1))
+    }
+    secondaryNeighborNodes.toList
+  }
 }

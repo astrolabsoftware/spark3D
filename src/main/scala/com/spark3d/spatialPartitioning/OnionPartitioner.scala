@@ -158,8 +158,17 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
   }
 
+  /**
+    * Gets the partitions which are the neighbors to the input partition. Useful when getting
+    * secondary neighbors (neighbors to neighbor) of the queryObject.
+    *
+    * @param containingNode The boundary of the Node for which neighbors are to be found.
+    * @param containingNodeID The index/partition ID of the containingNode
+    * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
+    */
   override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
     val secondaryNeighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+    // check corner cases
     if (containingNodeID == 0) {
       secondaryNeighborNodes += new Tuple2(containingNodeID + 1, grids(containingNodeID + 1))
     } else if (containingNodeID == (grids.size - 1)) {

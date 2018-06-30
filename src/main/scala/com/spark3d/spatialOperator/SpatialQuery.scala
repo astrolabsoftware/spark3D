@@ -42,8 +42,10 @@ object SpatialQuery {
 
     // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
-    val visited = new HashSet[Int]
-    knnHelper[B](rdd, k,queryObject, pq, visited)
+    // an object can belong to multiple partitions. Maining this set to ensure we output unique k elements
+    val visitedObjects = new HashSet[Int]
+
+    knnHelper[B](rdd, k,queryObject, pq, visitedObjects)
     // sort the list based on the closeness to the queryObject
     sortedList[B](queryObject, pq.toList)
   }
@@ -61,6 +63,7 @@ object SpatialQuery {
     */
   def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
 
+    rdd.cache
     // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
     // get the partitioner used for partitioning the input RDD
@@ -76,20 +79,23 @@ object SpatialQuery {
       }
     )
 
-    val visited = new HashSet[Int]
+    // an object can belong to multiple partitions. Maining this set to ensure we output unique k elements
+    val visitedObjects = new HashSet[Int]
 
-    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq, visited)
+    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq, visitedObjects)
 
     // return if we found all k elements in the containing partitions
     if (pq.size >= k) {
       return sortedList[B](queryObject, pq.toList)
     }
 
+    // maintain a set of visited partitions to avoid visiting partitions repeatedly.
     val visitedPartitions = new HashSet[Int]
     visitedPartitions ++= containingPartitionsIndex
 
     // get the neighbor partitions to the partitions containing the input object.
-    val neighborPartitions = partitioner.getNeighborNodes(queryObject).to[ListBuffer]
+    val neighborPartitions = partitioner.getNeighborNodes(queryObject)
+        .filter(x => !visitedPartitions.contains(x._1)).to[ListBuffer]
     val neighborPartitionsIndex = neighborPartitions.map(x => x._1).filter(x => !visitedPartitions.contains(x))
 
     // create a rdd of those partitions
@@ -99,7 +105,7 @@ object SpatialQuery {
       }
     )
 
-    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq, visited)
+    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq, visitedObjects)
 
     // return if we found all k elements in the containing partitions
     if (pq.size >= k) {
@@ -110,8 +116,10 @@ object SpatialQuery {
 
     breakable {
       for (neighborPartition <- neighborPartitions) {
+        // get the neighbor partitions to this partition which are not visited already
         val secondaryNeighborPartitions = partitioner.getSecondaryNeighborNodes(neighborPartition._2, neighborPartition._1)
-        val secondaryNeighborPartitionsIndex = secondaryNeighborPartitions.map(x => x._1).filter(x => !visitedPartitions.contains(x))
+            .filter(x => !visitedPartitions.contains(x._1))
+        val secondaryNeighborPartitionsIndex = secondaryNeighborPartitions.map(x => x._1)
 
         // create a rdd of those partitions
         val matchedSecondaryNeighborSubRDD = rdd.mapPartitionsWithIndex(
@@ -123,14 +131,14 @@ object SpatialQuery {
           }
         )
 
-        knnHelper[B](matchedSecondaryNeighborSubRDD, k, queryObject, pq, visited)
+        knnHelper[B](matchedSecondaryNeighborSubRDD, k, queryObject, pq, visitedObjects)
 
         if (pq.size >= k) {
           break
         }
 
         visitedPartitions ++= secondaryNeighborPartitionsIndex
-        neighborPartitions ++= secondaryNeighborPartitions.filter(x => secondaryNeighborPartitionsIndex.contains(x._1))
+        neighborPartitions ++= secondaryNeighborPartitions
       }
     }
     sortedList[B](queryObject, pq.toList)

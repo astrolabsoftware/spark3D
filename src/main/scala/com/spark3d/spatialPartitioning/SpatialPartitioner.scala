@@ -58,4 +58,30 @@ abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner wit
   override def getPartition(key : Any) : Int = {
     key.asInstanceOf[Int]
   }
+
+  /**
+    * Gets the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the containment is to be found
+    * @return list of Tuple of containing partitions and their index/partition IDs
+    */
+  def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = ???
+
+  /**
+    * Gets the partitions which are the neighbors of the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the neighbors are to be found
+    * @return list of Tuple of neighbor partitions and their index/partition IDs
+    */
+  def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = ???
+
+  /**
+    * Gets the partitions which are the neighbors to the input partition. Useful when getting
+    * secondary neighbors (neighbors to neighbor) of the queryObject.
+    *
+    * @param containingNode The boundary of the Node for which neighbors are to be found.
+    * @param containingNodeID The index/partition ID of the containingNode
+    * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
+    */
+  def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = ???
 }

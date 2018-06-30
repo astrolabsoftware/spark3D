@@ -40,3 +40,9 @@ Several goals have to be undertaken in this project:
   + selection capability of objects or objects within a region
 - work with as many input file format as possible (CSV, JSON, FITS, and so on)
 - package the developments into an open-source library.
+
+## Support
+
+![LAL]({{ "/assets/images/lal_logo.jpg" | absolute_url }})
+![UPSUD]({{ "/assets/images/Logo_Université_Paris-Saclay.svg.png" | absolute_url }})
+![CNRS]({{ "/assets/images/1012px-Centre_national_de_la_recherche_scientifique.svg.png" | absolute_url }})

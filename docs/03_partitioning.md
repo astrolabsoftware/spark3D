@@ -17,7 +17,7 @@ Unfortunately, re-partitioning the space involves potentially large shuffle betw
 
 There are currently 2 partitioning implemented in the library:
 
-- **Onion Partitioning:** See [here](https://github.com/JulienPeloton/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
+- **Onion Partitioning:** See [here](https://github.com/theastrolab/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
 - **Octree:** An octree extends a quadtree by using three orthogonal splitting planes to subdivide a tile into eight children. Like quadtrees, 3D Tiles allows variations to octrees such as non-uniform subdivision, tight bounding volumes, and overlapping children.
 
 ### Onion Partitioning
@@ -40,7 +40,7 @@ val hdu = 1
 val columns = "Z_COSMO,RA,DEC"
 val spherical = true
 
-// Load the data 
+// Load the data
 val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 
 // nPart is the wanted number of partitions. Default is pointRDD partition number.
@@ -71,10 +71,10 @@ val hdu = 1
 val columns = "x,y,z,radius"
 val spherical = false
 
-// Load the data 
+// Load the data
 val sphereRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
 
-// nPart is the wanted number of partitions (floored to a power of 8). 
+// nPart is the wanted number of partitions (floored to a power of 8).
 // Default is sphereRDD partition number.
 val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.OCTREE, nPart)
 ```

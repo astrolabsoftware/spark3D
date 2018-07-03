@@ -18,7 +18,7 @@ package com.spark3d.examples
 // spark3d lib
 import com.spark3d.utils.GridType
 import com.spark3d.utils.Utils.sphericalToCartesian
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 
 // Spark lib
 import org.apache.spark.sql.SparkSession
@@ -67,7 +67,7 @@ object OnionSpace {
     val fn_fits = args(0).toString
 
     // Load the data as Point3DRDD
-    val pointRDD = new Point3DRDDFromFITS(
+    val pointRDD = new Point3DRDD(
       spark, fn_fits, args(1).toInt, args(2).toString, true)
 
     // Count the number of partition before, and number of elements per partition

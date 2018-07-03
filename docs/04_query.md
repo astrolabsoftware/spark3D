@@ -14,7 +14,7 @@ The spark3D library contains a number of methods and tools to manipulate 3D RDD.
 A Envelope query takes as input a `RDD[Shape3D]` and an envelope, and returns all objects in the RDD intersecting the envelope (contained in and crossing the envelope):
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 import com.spark3d.geometryObjects.{Point3D, ShellEnvelope}
 import com.spark3d.spatialOperator.RangeQuery
 
@@ -31,7 +31,7 @@ val columns = "Z_COSMO,RA,DEC"
 val spherical = true
 
 // Load a RDD[Point3D] from the FITS file
-val objects = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
+val objects = new Point3DRDD(spark, fn, hdu, columns, spherical)
 
 // Define our envelope, here a sphere.
 val center = new Point3D(0.9, 0.0, 0.0, spherical)
@@ -53,7 +53,7 @@ Envelope = Sphere |Envelope = Box
 A cross-match takes as input two data sets, and return objects matching based on the center distance, or pixel index of objects. Note that performing a cross-match between a data set of N elements and another of M elements is a priori a NxM operation - so it can be very costly! Let's load two `Point3D` data sets:
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 
 import org.apache.spark.sql.SparkSession
 
@@ -69,8 +69,8 @@ val columns = "Z_COSMO,RA,DEC"
 val spherical = true
 
 // Load the two data sets
-val setA = new Point3DRDDFromFITS(spark, fnA, hdu, columns, spherical)
-val setB = new Point3DRDDFromFITS(spark, fnB, hdu, columns, spherical)
+val setA = new Point3DRDD(spark, fnA, hdu, columns, spherical)
+val setB = new Point3DRDD(spark, fnB, hdu, columns, spherical)
 ```
 
 By default, the two sets are partitioned randomly (in the sense points spatially close are probably not in the same partition).

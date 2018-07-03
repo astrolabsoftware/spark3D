@@ -25,7 +25,7 @@ There are currently 2 partitioning implemented in the library:
 In the following example, we load `Point3D` data, and we re-partition it with the onion partitioning
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 import com.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
@@ -41,7 +41,7 @@ val columns = "Z_COSMO,RA,DEC"
 val spherical = true
 
 // Load the data
-val pointRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
+val pointRDD = new Point3DRDD(spark, fn, hdu, columns, spherical)
 
 // nPart is the wanted number of partitions. Default is pointRDD partition number.
 val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, nPart)
@@ -56,7 +56,7 @@ val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID
 In the following example, we load `Point3D` data, and we re-partition it with the octree partitioning
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 import com.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
@@ -72,7 +72,7 @@ val columns = "x,y,z,radius"
 val spherical = false
 
 // Load the data
-val sphereRDD = new Point3DRDDFromFITS(spark, fn, hdu, columns, spherical)
+val sphereRDD = new Point3DRDD(spark, fn, hdu, columns, spherical)
 
 // nPart is the wanted number of partitions (floored to a power of 8).
 // Default is sphereRDD partition number.

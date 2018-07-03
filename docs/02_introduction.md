@@ -29,7 +29,7 @@ With FITS data, with data in the HDU #1, you would just do
 ```scala
 import com.spark3d.spatial3DRDD.Point3DRDD
 val hdu = 1
-val pointRDD = new Point3DRDDFromFITS(spark, "myfile.fits", hdu, "x,y,z", isSpherical=false)
+val pointRDD = new Point3DRDD(spark, "myfile.fits", hdu, "x,y,z", isSpherical=false)
 ```
 
 The resulting RDD is a `RDD[Point3D]`. Note that there is no space between columns labels.

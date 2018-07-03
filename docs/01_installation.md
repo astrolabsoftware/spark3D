@@ -13,14 +13,14 @@ redirect_from:
 
 This library requires Spark 2.0+ (not tested for earlier version). The
 library has been tested with Scala 2.11. If you want to use
-another version, feel free to contact us. In addition to Spark, the library has currently two external dependencies: [healpix](http://healpix.sourceforge.net/) and [spark-fits](https://github.com/JulienPeloton/spark-fits). Unfortunately, there are no Maven coordinates for healpix, so we release a jar of the latest version within spark3D under the `lib/` folder.
+another version, feel free to contact us. In addition to Spark, the library has currently two external dependencies: [healpix](http://healpix.sourceforge.net/) and [spark-fits](https://github.com/theastrolab/spark-fits). Unfortunately, there are no Maven coordinates for healpix, so we release a jar of the latest version within spark3D under the `lib/` folder.
 
 ## Including spark3D in your project
 
 You can link spark3D to your project (either `spark-shell` or `spark-submit`) by specifying the coordinates:
 
 ```bash
-toto:~$ spark-submit --packages "com.github.JulienPeloton:spark3d_2.11:0.1.1" <...>
+toto:~$ spark-submit --packages "com.github.theastrolab:spark3d_2.11:0.1.1" <...>
 ```
 
 It might not contain the latest features though (see *Building from source*).
@@ -70,7 +70,7 @@ First produce a jar of the spark3D library, and then launch a spark-shell by spe
 
 ```bash
 toto:~$ JARS="target/scala-2.11/spark3d_2.11-0.1.1.jar,lib/jhealpix.jar"
-toto:~$ PACKAGES="com.github.JulienPeloton:spark-fits_2.11:0.4.0"
+toto:~$ PACKAGES="com.github.theastrolab:spark-fits_2.11:0.4.0"
 toto:~$ spark-shell --jars $JARS --packages $PACKAGES
 ```
 
@@ -89,7 +89,7 @@ toto:~$ spark-shell --jars $FATJARS
 
 ## Using with jupyter notebook and examples
 
-We include a number of notebooks to describe the use of the library in the folder `examples/jupyter`. We included a [README](https://github.com/JulienPeloton/spark3D/blob/master/examples/jupyter/README.md) to install Apache Toree as kernel in Jupyter.
+We include a number of notebooks to describe the use of the library in the folder `examples/jupyter`. We included a [README](https://github.com/theastrolab/spark3D/blob/master/examples/jupyter/README.md) to install Apache Toree as kernel in Jupyter.
 
 ## Batch mode and provided examples
 
@@ -98,5 +98,5 @@ You can follow the different tutorials:
 - [Space partitioning]({{ site.baseurl }}{% link 03_partitioning.md %})
 - [Query]({{ site.baseurl }}{% link 04_query.md %})
 
-We also include [examples](https://github.com/JulienPeloton/spark3D/tree/master/src/main/scala/com/spark3d/examples) and runners (`run_*.sh`) in the root folder of the repo.
+We also include [examples](https://github.com/theastrolab/spark3D/tree/master/src/main/scala/com/spark3d/examples) and runners (`run_*.sh`) in the root folder of the repo.
 You might have to modify those scripts with your environment.

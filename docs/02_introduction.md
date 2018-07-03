@@ -63,7 +63,7 @@ to be directly injected into the HDFS infrastructure, so as to develop a Spark b
 Therefore we will have to develop low level Reader/Writer services,
 to support direct access to FITS data, without copy nor conversion needs.
 To tackle this challenge, we started a new project called
-[spark-fits](https://github.com/JulienPeloton/spark-fits), which provides a
+[spark-fits](https://github.com/theastrolab/spark-fits), which provides a
 Spark connector for FITS data, and a Scala library for manipulating FITS file.
 
 The other input format available is CSV. We plan to release more in the future, and you are welcome to submit requests for specific data sources!

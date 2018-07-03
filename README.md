@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/theastrolab/spark3D.svg?branch=master)](https://travis-ci.org/theastrolab/spark3D)
 [![codecov](https://codecov.io/gh/theastrolab/spark3D/branch/master/graph/badge.svg)](https://codecov.io/gh/theastrolab/spark3D)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3d_2.11/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.JulienPeloton/spark3d_2.11)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.theastrolab/spark3d_2.11/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.theastrolab/spark3d_2.11)
 
 **The package is under an active development!**
 
@@ -8,6 +8,7 @@
 
 - [05/2018] **GSoC 2018**: spark3D has been selected to the Google Summer of Code (GSoC) 2018. Congratulation to [@mayurdb](https://github.com/mayurdb) who will work on the project this year!
 - [06/2018] **Release**: version 0.1.0, 0.1.1
+- [07/2018] **New location**: spark3D is an official project of [AstroLab](https://theastrolab.github.io/)!
 
 ## Installation and tutorials
 

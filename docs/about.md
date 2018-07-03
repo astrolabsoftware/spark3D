@@ -24,7 +24,7 @@ which were hitherto too costly to be processed efficiently.
 With the recent development of fast and general engine such as
 [Apache Spark](http://spark.apache.org), taking advantage of
 distributed systems, we enter in a new area of possibilities.
-[spark3D](https://github.com/JulienPeloton/spark3D) extends Apache Spark to
+[spark3D](https://github.com/theastrolab/spark3D) extends Apache Spark to
 efficiently load, process, and analyze large-scale 3D spatial data sets across machines.
 
 ## Goals of spark3D

@@ -36,7 +36,7 @@ kind="healpix"
 
 ## Dependencies
 jars="lib/jhealpix.jar"
-packages="com.github.JulienPeloton:spark-fits_2.11:0.4.0"
+packages="com.github.theastrolab:spark-fits_2.11:0.4.0"
 
 # Run it!
 spark-submit \

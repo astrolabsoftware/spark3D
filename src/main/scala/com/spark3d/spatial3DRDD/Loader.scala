@@ -23,21 +23,29 @@ import org.apache.spark.rdd.RDD
 
 /**
   * Put here routine to load data for a specific data format
-  * Currently available: CSV, FITS
+  * Currently available: CSV, JSON, TXT, FITS
   */
 object Loader {
 
   /**
-    * Construct a RDD[Point3D] from CSV data.
+    * Construct a RDD[Point3D] from CSV, JSON or TXT data.
     * {{{
+    *   // CSV
     *   val fn = "src/test/resources/astro_obs.csv"
-    *   val rdd = new Point3DRDDFromFITS(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   // JSON
+    *   val fn = "src/test/resources/astro_obs.json"
+    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   // TXT
+    *   val fn = "src/test/resources/astro_obs.txt"
+    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
     * }}}
     *
     * @param spark : (SparkSession)
     *   The spark session
     * @param filename : (String)
-    *   File name where the data is stored
+    *   File name where the data is stored. Extension must be explicitly
+    *   written (.cvs, .json, or .txt)
     * @param colnames : (String)
     * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
     * @param isSpherical : (Boolean)
@@ -47,11 +55,31 @@ object Loader {
     *
     *
     */
-  def Point3DRDDFromCSV(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean): RDD[Point3D] = {
+  def Point3DRDDFromText(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean): RDD[Point3D] = {
 
-    val df = spark.read
-      .option("header", true)
-      .csv(filename)
+    val df = filename match {
+      case x if x.contains(".csv") => {
+        spark.read
+          .option("header", true)
+          .csv(filename)
+      }
+      case x if x.contains(".json") => {
+        spark.read
+          .option("header", true)
+          .json(filename)
+      }
+      case x if x.contains(".txt") => {
+        spark.read
+          .option("header", true)
+          .option("sep", " ")
+          .csv(filename)
+      }
+      case _ => throw new AssertionError("""
+        I do not understand the file format. Accepted extensions are:
+        .csv, .json, .txt, or .text
+        You can also load FITS file using the HDU option (see Point3DRDDFromFITS)
+      """)
+    }
 
     // Grab the name of columns
     val csplit = colnames.split(",")

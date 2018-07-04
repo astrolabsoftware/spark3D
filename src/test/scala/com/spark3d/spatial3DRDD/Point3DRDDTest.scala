@@ -63,11 +63,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
 
   // Test files
   val fn_fits = "src/test/resources/astro_obs.fits"
-  val fn_csv = "src/test/resources/astro_obs.csv"
-  val fn_json = "src/test/resources/astro_obs.json"
-  val fn_txt = "src/test/resources/astro_obs.txt"
 
-  test("FITS: Can you repartition a RDD with the onion space?") {
+  test("Can you repartition a RDD with the onion space?") {
     val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
     // Partition the space using the LINEARONIONGRID
@@ -80,7 +77,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     assert(partitions.size == 1 && partitions(0) == 20000)
   }
 
-  test("FITS: Can you repartition a RDD with the onion space with more partitions?") {
+  test("Can you repartition a RDD with the onion space with more partitions?") {
     val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
     // Partition my space with 10 data shells using the LINEARONIONGRID
@@ -93,47 +90,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     assert(partitions.size == 10 && partitions(5) == 2026 && partitions.sum == 20000)
   }
 
-  test("CSV: Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDD(spark, fn_csv, "Z_COSMO,RA,DEC", true)
-
-    // Partition the space using the LINEARONIONGRID
-    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
-
-    // Collect the size of each partition
-    val partitions = pointRDD_part.mapPartitions(
-      iter => Array(iter.size).iterator, true).collect()
-
-    assert(partitions.size == 1 && partitions(0) == 20000)
-  }
-
-  test("JSON: Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDD(spark, fn_json, "Z_COSMO,RA,DEC", true)
-
-    // Partition the space using the LINEARONIONGRID
-    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
-
-    // Collect the size of each partition
-    val partitions = pointRDD_part.mapPartitions(
-      iter => Array(iter.size).iterator, true).collect()
-
-    assert(partitions.size == 1 && partitions(0) == 20000)
-  }
-
-  test("TXT: Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDD(spark, fn_txt, "Z_COSMO,RA,DEC", true)
-
-    // Partition the space using the LINEARONIONGRID
-    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
-
-    // Collect the size of each partition
-    val partitions = pointRDD_part.mapPartitions(
-      iter => Array(iter.size).iterator, true).collect()
-
-    assert(partitions.size == 1 && partitions(0) == 20000)
-  }
-
   test("RDD: Can you construct a Point3DRDD from a RDD[Point3D]?") {
-    val pointRDD = new Point3DRDD(spark, fn_csv, "Z_COSMO,RA,DEC", true)
+    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
     val rdd = pointRDD.rawRDD
 

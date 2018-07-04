@@ -20,16 +20,16 @@ One of the goal of spark3D is to support as many data source as possible. Curren
 A point is an object with 3 spatial coordinates. In spark3D, you can choose the coordinate system between cartesian `(x, y, z)` and spherical `(r, theta, phi)`. Let's suppose we have a CSV file whose columns are labeled `x`, `y` and `z`, the cartesian coordinates of points:
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromCSV
-val pointRDD = new Point3DRDDFromCSV(spark, "myfile.csv", "x,y,z", isSpherical=false)
+import com.spark3d.spatial3DRDD.Point3DRDD
+val pointRDD = new Point3DRDD(spark, "myfile.csv", "x,y,z", isSpherical=false)
 ```
 
 With FITS data, with data in the HDU #1, you would just do
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
+import com.spark3d.spatial3DRDD.Point3DRDD
 val hdu = 1
-val pointRDD = new Point3DRDDFromFITS(spark, "myfile.csv", hdu, "x,y,z", isSpherical=false)
+val pointRDD = new Point3DRDD(spark, "myfile.fits", hdu, "x,y,z", isSpherical=false)
 ```
 
 The resulting RDD is a `RDD[Point3D]`. Note that there is no space between columns labels.
@@ -67,11 +67,14 @@ To tackle this challenge, we started a new project called
 Spark connector for FITS data, and a Scala library for manipulating FITS file.
 
 The other input format available is CSV. We plan to release more in the future, and you are welcome to submit requests for specific data sources!
-Alternatively you can define your own routine to read it, taking inspiration from existing scripts:
+Alternatively you can define your own routine to read it. Add a new routine in `Loader.scala`:
 
 ```scala
-class Point3DRDDFromMySource(spark : SparkSession, filename : String, colnames : String,
-    override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
+/**
+  * Your doc is important
+  */
+def Point3DRDDFromMySource(spark : SparkSession, filename : String, colnames : String,
+    isSpherical: Boolean, <other_options>): RDD[Point3D] {
 
   // Read the data using your data source
   val df = spark.read.option(...)
@@ -81,7 +84,7 @@ class Point3DRDDFromMySource(spark : SparkSession, filename : String, colnames :
 
   // Select the 3 columns (x, y, z)
   // and cast to double in case.
-  override val rawRDD = df.select(
+  val rawRDD = df.select(
     col(csplit(0)).cast("double"),
     col(csplit(1)).cast("double"),
     col(csplit(2)).cast("double")
@@ -92,8 +95,21 @@ class Point3DRDDFromMySource(spark : SparkSession, filename : String, colnames :
   .map(x => new Point3D(
     x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical)
   )
+
+  rawRDD
 }
 
+```
+
+and finally update `Point3DRDD.scala`:
+
+```scala
+/**
+  * Your doc is important
+  */
+def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean, <other_options>) {
+  this(Point3DRDDFromMySource(spark, filename, colnames, isSpherical, <other_options>), isSpherical)
+}
 ```
 
 here the example makes use of the DataFrame API, but you can use the RDD API as well to read your data.

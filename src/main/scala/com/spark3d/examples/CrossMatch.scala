@@ -17,8 +17,7 @@ package com.spark3d.examples
 
 // spark3d lib
 import com.spark3d.utils.GridType
-import com.spark3d.spatial3DRDD.Point3DRDDFromFITS
-import com.spark3d.spatial3DRDD.Point3DRDDFromCSV
+import com.spark3d.spatial3DRDD.Point3DRDD
 import com.spark3d.spatialPartitioning.SpatialPartitioner
 import com.spark3d.spatialOperator.PixelCrossMatch
 import com.spark3d.serialization.Spark3dConf.spark3dConf
@@ -92,8 +91,8 @@ object CrossMatch {
     val kind = args(6).toString
 
     // Load the data as Point3DRDD
-    val pointRDDA = new Point3DRDDFromFITS(spark, fnA_fits, hdu, columns, true)
-    val pointRDDB = new Point3DRDDFromFITS(spark, fnB_fits, hdu, columns, true)
+    val pointRDDA = new Point3DRDD(spark, fnA_fits, hdu, columns, true)
+    val pointRDDB = new Point3DRDD(spark, fnB_fits, hdu, columns, true)
 
     // Re-partition the space and cache the result
     val pointRDD_partA = pointRDDA.spatialPartitioning(

@@ -155,14 +155,14 @@ object Loader {
     * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
     * {{{
     *   // CSV
-    *   val fn = "src/test/resources/myfile.csv"
-    *   val rdd = new SphereRDD(spark, fn, "Z_COSMO,RA,Dec,radius", true)
+    *   val fn = "src/test/resources/cartesian_spheres.csv"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
     *   // JSON
-    *   val fn = "src/test/resources/myfile.json"
-    *   val rdd = new SphereRDD(spark, fn, "Z_COSMO,RA,Dec,radius", true)
+    *   val fn = "src/test/resources/cartesian_spheres.json"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
     *   // TXT
-    *   val fn = "src/test/resources/myfile.txt"
-    *   val rdd = new SphereRDD(spark, fn, "Z_COSMO,RA,Dec,radius", true)
+    *   val fn = "src/test/resources/cartesian_spheres.txt"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
     * }}}
     *
     * @param spark : (SparkSession)

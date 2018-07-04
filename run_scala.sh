@@ -31,7 +31,7 @@ display="show"
 
 ## Dependencies
 jars="lib/jhealpix.jar,lib/swingx-0.9.1.jar"
-packages="com.github.theastrolab:spark-fits_2.11:0.3.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
+packages="com.github.astrolabsoftware:spark-fits_2.11:0.3.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
 
 # Run it!
 spark-submit \

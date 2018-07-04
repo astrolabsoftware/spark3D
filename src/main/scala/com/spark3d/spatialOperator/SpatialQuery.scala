@@ -65,7 +65,7 @@ object SpatialQuery {
       }
     )
 
-    val knn_1 = rdd.takeOrdered(k)(new GeometryObjectComparator[B](queryObject.center))
+    val knn_1 = matchedContainingSubRDD.takeOrdered(k)(new GeometryObjectComparator[B](queryObject.center))
 
     if (knn_1.size >= k) {
       return knn_1.toList

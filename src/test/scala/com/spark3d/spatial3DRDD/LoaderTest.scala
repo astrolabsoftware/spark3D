@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialOperator
+package com.spark3d.spatial3DRDD
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import com.spark3d.spatial3DRDD._
-import com.spark3d.geometryObjects.ShellEnvelope
 import com.spark3d.geometryObjects.Point3D
+import com.spark3d.spatial3DRDD._
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
@@ -31,7 +30,7 @@ import org.apache.log4j.Logger
 /**
   * Test class for the Point3DRDD class.
   */
-class RangeQueryTest extends FunSuite with BeforeAndAfterAll {
+class LoaderTest extends FunSuite with BeforeAndAfterAll {
 
   // Set to Level.WARN is you want verbosity
   Logger.getLogger("org").setLevel(Level.OFF)
@@ -61,18 +60,40 @@ class RangeQueryTest extends FunSuite with BeforeAndAfterAll {
   // END TODO
 
   // Test files
-  val fn = "src/test/resources/astro_obs_A_light.fits"
+  val fn_fits = "src/test/resources/astro_obs.fits"
+  val fn_csv = "src/test/resources/astro_obs.csv"
+  val fn_json = "src/test/resources/astro_obs.json"
+  val fn_txt = "src/test/resources/astro_obs.txt"
+  val fn_wrong = "src/test/resources/astro_obs.wrong"
 
-  test("Can you find all points within a given region?") {
+  test("FITS: can you read points?") {
+    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
 
-    val pRDD = new Point3DRDD(spark, fn, 1, "Z_COSMO,RA,DEC", true)
+    assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
+  }
 
-    // Window is a Sphere centered on (0.05, 0.05, 0.05) and radius 0.1.
-    val p = new Point3D(0.05, 0.05, 0.05, true)
-    val window = new ShellEnvelope(p, 0.1)
+  test("CSV: can you read points?") {
+    val pointRDD = new Point3DRDD(spark, fn_csv, "Z_COSMO,RA,DEC", true)
 
-    val matches = RangeQuery.windowQuery(pRDD.rawRDD, window)
+    assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
+  }
 
-    assert(matches.count() == 182)
+  test("JSON: can you read points?") {
+    val pointRDD = new Point3DRDD(spark, fn_json, "Z_COSMO,RA,DEC", true)
+
+    assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
+  }
+
+  test("TXT: can you read points?") {
+    val pointRDD = new Point3DRDD(spark, fn_txt, "Z_COSMO,RA,DEC", true)
+
+    assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
+  }
+
+  test("UNKNOWN: can you catch a file extension error?") {
+    val exception = intercept[AssertionError] {
+      val pointRDD = new Point3DRDD(spark, fn_wrong, "Z_COSMO,RA,DEC", true)
+    }
+    assert(exception.getMessage.contains("I do not understand the file format"))
   }
 }

@@ -19,13 +19,13 @@ import xerial.sbt.Sonatype._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.1.1"
+     version      := "0.1.2"
      // mainClass in Compile := Some("com.sparkfits.examples.OnionSpace")
    )),
    // Name of the application
    name := "spark3D",
    // Name of the orga
-   organization := "com.github.JulienPeloton",
+   organization := "com.github.theastrolab",
    // Do not execute test in parallel
    parallelExecution in Test := false,
    // Fail the test suite if statement coverage is < 70%
@@ -60,12 +60,12 @@ lazy val root = (project in file(".")).
 
 // POM settings for Sonatype
 homepage := Some(
- url("https://github.com/JulienPeloton/spark3D")
+ url("https://github.com/theastrolab/spark3D")
 )
 scmInfo := Some(
  ScmInfo(
-   url("https://github.com/JulienPeloton/spark3D"),
-   " https://github.com/JulienPeloton/spark3D.git"
+   url("https://github.com/theastrolab/spark3D"),
+   " https://github.com/theastrolab/spark3D.git"
  )
 )
 

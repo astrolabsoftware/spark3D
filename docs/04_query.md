@@ -149,7 +149,7 @@ Cross match based on center distance (A, B, BxA)    |Cross match based on center
 :-------------------------:|:-------------------------:
 ![raw]({{ "/assets/images/CcrossmatchAxB.png" | absolute_url }}) | ![raw]({{ "/assets/images/CcrossmatchAxBOnly.png" | absolute_url }})
 
-For more details on the cross-match, see the following [notebook](https://github.com/theastrolab/spark3D/blob/master/examples/jupyter/CrossMatch.ipynb).
+For more details on the cross-match, see the following [notebook](https://github.com/astrolabsoftware/spark3D/blob/master/examples/jupyter/CrossMatch.ipynb).
 
 ## Neighbour search
 

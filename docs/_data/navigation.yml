@@ -1,11 +1,11 @@
 # main links
 main:
-  - title: "AstroLab Software"
-    url: https://github.com/astrolabsoftware
   - title: "Quick-Start Installation"
     url: /docs/installation/
   - title: "About"
     url: /about/
+  - title: "AstroLab Software"
+     url: https://astrolabsoftware.github.io/
   - title: "Fork me!"
     url: https://github.com/astrolabsoftware/spark3D
   # - title: "Sample Posts"

@@ -19,34 +19,169 @@ package com.spark3d.spatialOperator
 import com.spark3d.geometryObjects.Shape3D.Shape3D
 import com.spark3d.utils.GeometryObjectComparator
 import org.apache.spark.rdd.RDD
+import com.spark3d.spatialPartitioning._
 
-import scala.collection.mutable.PriorityQueue
-
+import scala.collection.mutable
+import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}
+import scala.reflect.ClassTag
+import scala.util.control.Breaks._
 
 object SpatialQuery {
 
-  def KNN[A <: Shape3D, B <:Shape3D](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+  /**
+    * Finds the K nearest neighbors of the query object. The naive implementation here searches
+    * through all the the objects in the RDD to get the KNN. The nearness of the objects here
+    * is decided on the basis of the distance between their centers.
+    *
+    * @param queryObject object to which the knn are to be found
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k number of nearest neighbors are to be found
+    * @return knn
+    */
+  def KNN[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
 
+    // priority queue ordered by the distance to the query object.
     val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
+    // an object can belong to multiple partitions. Maining this set to ensure we output unique k elements
+    val visitedObjects = new HashSet[Int]
+
+    knnHelper[B](rdd, k,queryObject, pq, visitedObjects)
+    // sort the list based on the closeness to the queryObject
+    sortedList[B](queryObject, pq.toList)
+  }
+
+  /**
+    * Much more efficient implementation of the KNN query above. First we seek the partitions in
+    * which the query object belongs and we will look for the knn only in those partitions. After
+    * this if the limit k is not satisfied, we keep looking similarly in the neighbors of the
+    * containing partitions.
+    *
+    * @param queryObject object to which the knn are to be found
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k number of nearest neighbors are to be found
+    * @return knn
+    */
+  def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+
+    rdd.cache
+    // priority queue ordered by the distance to the query object.
+    val pq: PriorityQueue[B] = PriorityQueue.empty[B](new GeometryObjectComparator[B](queryObject.center))
+    // get the partitioner used for partitioning the input RDD
+    val partitioner = rdd.partitioner.get.asInstanceOf[SpatialPartitioner]
+    // get the partitions which contain the input object
+    val containingPartitions = partitioner.getPartitionNodes(queryObject)
+    // get the index of those partitions
+    val containingPartitionsIndex = containingPartitions.map(x => x._1)
+    // create a rdd of those partitions
+    val matchedContainingSubRDD = rdd.mapPartitionsWithIndex(
+      (index, iter) => {
+        if (containingPartitionsIndex.contains(index)) iter else Iterator.empty
+      }
+    )
+
+    // an object can belong to multiple partitions. Maining this set to ensure we output unique k elements
+    val visitedObjects = new HashSet[Int]
+
+    knnHelper[B](matchedContainingSubRDD, k, queryObject, pq, visitedObjects)
+
+    // return if we found all k elements in the containing partitions
+    if (pq.size >= k) {
+      return sortedList[B](queryObject, pq.toList)
+    }
+
+    // maintain a set of visited partitions to avoid visiting partitions repeatedly.
+    val visitedPartitions = new HashSet[Int]
+    visitedPartitions ++= containingPartitionsIndex
+
+    // get the neighbor partitions to the partitions containing the input object.
+    val neighborPartitions = partitioner.getNeighborNodes(queryObject)
+        .filter(x => !visitedPartitions.contains(x._1)).to[ListBuffer]
+    val neighborPartitionsIndex = neighborPartitions.map(x => x._1).filter(x => !visitedPartitions.contains(x))
+
+    // create a rdd of those partitions
+    val matchedNeighborSubRDD = rdd.mapPartitionsWithIndex(
+      (index, iter) => {
+        if (neighborPartitionsIndex.contains(index)) iter else Iterator.empty
+      }
+    )
+
+    knnHelper[B](matchedNeighborSubRDD, k, queryObject, pq, visitedObjects)
+
+    // return if we found all k elements in the containing partitions
+    if (pq.size >= k) {
+      return sortedList[B](queryObject, pq.toList)
+    }
+
+    visitedPartitions ++= neighborPartitionsIndex
+
+    breakable {
+      for (neighborPartition <- neighborPartitions) {
+        // get the neighbor partitions to this partition which are not visited already
+        val secondaryNeighborPartitions = partitioner.getSecondaryNeighborNodes(neighborPartition._2, neighborPartition._1)
+            .filter(x => !visitedPartitions.contains(x._1))
+        val secondaryNeighborPartitionsIndex = secondaryNeighborPartitions.map(x => x._1)
+
+        // create a rdd of those partitions
+        val matchedSecondaryNeighborSubRDD = rdd.mapPartitionsWithIndex(
+          (index, iter) => {
+            if (secondaryNeighborPartitionsIndex.contains(index))
+              iter
+            else
+              Iterator.empty
+          }
+        )
+
+        knnHelper[B](matchedSecondaryNeighborSubRDD, k, queryObject, pq, visitedObjects)
+
+        if (pq.size >= k) {
+          break
+        }
+
+        visitedPartitions ++= secondaryNeighborPartitionsIndex
+        neighborPartitions ++= secondaryNeighborPartitions
+      }
+    }
+    sortedList[B](queryObject, pq.toList)
+  }
+
+  /**
+    * Helper function to iterate through all the objects of the input RDD and find k nearest
+    * objects to the input object.
+    *
+    * @param rdd RDD of a Shape3D (Shape3DRDD)
+    * @param k number of nearest neighbors are to be found
+    * @param queryObject object to which the knn are to be found
+    * @param pq Priority Queue for containing KNN
+    */
+  private def knnHelper[A <: Shape3D: ClassTag](rdd: RDD[A], k: Int,
+    queryObject: Shape3D, pq: PriorityQueue[A], visited: HashSet[Int]): Unit = {
 
     val itr = rdd.toLocalIterator
 
     while (itr.hasNext) {
       val currentElement = itr.next
-      if (pq.size < k) {
-        pq.enqueue(currentElement)
-      } else {
-        val currentEleDist = currentElement.center.distanceTo(queryObject.center)
-        // TODO make use of pq.max
-        val maxElement = pq.dequeue
-        val maxEleDist = maxElement.center.distanceTo(queryObject.center)
-        if (currentEleDist < maxEleDist) {
+      if (!visited.contains(currentElement.getHash)) {
+        if (pq.size < k) {
           pq.enqueue(currentElement)
+          visited += currentElement.getHash
         } else {
-          pq.enqueue(maxElement)
+          val currentEleDist = currentElement.center.distanceTo(queryObject.center)
+          // TODO make use of pq.max
+          val maxElement = pq.dequeue
+          val maxEleDist = maxElement.center.distanceTo(queryObject.center)
+          if (currentEleDist < maxEleDist) {
+            pq.enqueue(currentElement)
+            visited += currentElement.getHash
+            visited -= maxElement.getHash
+          } else {
+            pq.enqueue(maxElement)
+          }
         }
       }
     }
-    pq.toList.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
+  }
+
+  private def sortedList[A <: Shape3D: ClassTag](queryObject: Shape3D, pq: List[A]): List[A] = {
+    pq.sortWith(_.center.distanceTo(queryObject.center) < _.center.distanceTo(queryObject.center))
   }
 }

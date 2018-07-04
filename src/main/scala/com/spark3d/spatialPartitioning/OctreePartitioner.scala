@@ -46,10 +46,65 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
 
     val result = HashSet.empty[Tuple2[Int, T]]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
-    matchedPartitions ++= octree.getMatchedLeaves(spatialObject.getEnvelope)
+    matchedPartitions ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
     for(partition <- matchedPartitions) {
       result += new Tuple2(partition.indexID, spatialObject)
     }
     result.toIterator
   }
+
+  /**
+    * Gets the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the containment is to be found
+    * @return list of Tuple of containing partitions and their index/partition ID's
+    */
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+
+    var partitionNodes = new ListBuffer[Shape3D]
+    partitionNodes ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
+    var partitionNodesIDs = partitionNodes.map(x => new Tuple2(x.getEnvelope.indexID, x))
+    partitionNodesIDs.toList
+  }
+
+  /**
+    * Gets the partitions which are the neighbors of the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the neighbors are to be found
+    * @return list of Tuple of neighbor partitions and their index/partition ID's
+    */
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+    val neighborNodes  = new ListBuffer[Tuple2[Int, Shape3D]]
+    val partitionNodes = octree.getMatchedLeaves(spatialObject.getEnvelope)
+    for (partitionNode <- partitionNodes) {
+      neighborNodes ++= partitionNode.getLeafNeighbors(partitionNode.box.getEnvelope)
+    }
+    neighborNodes.toList
+  }
+
+  /**
+    * Gets the partitions which are the neighbors to the input partition. Useful when getting
+    * secondary neighbors (neighbors to neighbor) of the queryObject.
+    *
+    * @param containingNode The boundary of the Node for which neighbors are to be found.
+    * @param containingNodeID The index/partition ID of the containingNode
+    * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
+    */
+  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
+    val secondaryNeighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+    // get the bounding box
+    val box = containingNode.getEnvelope
+    // reduce the bounding box slightly to avoid getting all the neighbor nodes as the containing nodes
+    val searchBox = BoxEnvelope.apply(box.minX+0.0001, box.maxX-0.0001,
+        box.minY+0.0001, box.maxY-0.0001,
+        box.minZ+0.0001, box.maxZ-0.0001)
+    val partitionNodes = octree.getMatchedLeaves(searchBox.getEnvelope)
+    // ideally partitionNodes should be of size 1 as the input containingNode is nothing but the
+    // boundary of a node in the tree.
+    for (partitionNode <- partitionNodes) {
+      secondaryNeighborNodes ++= partitionNode.getLeafNeighbors(partitionNode.box.getEnvelope)
+    }
+    secondaryNeighborNodes.toList
+  }
+
 }

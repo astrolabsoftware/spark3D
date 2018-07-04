@@ -24,7 +24,7 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
 
     test ("Can you correctly place a Point3D inside the Octree space?") {
 
-    var valid_tree = new Octree(BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0), 0, 2)
+    var valid_tree = new Octree(BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0), 0, null, 2)
     val element1 = BoxEnvelope.apply(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
     val element2 = BoxEnvelope.apply(1.0, 3.0, 1.0, 3.0, 1.0, 3.0)
     val element3 = BoxEnvelope.apply(1.0, 2.0, 1.0, 2.0, 1.0, 2.0)

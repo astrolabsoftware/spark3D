@@ -44,6 +44,7 @@ import scala.collection.mutable.Queue
 class Octree(
     val box: BoxEnvelope,
     val level: Int,
+    val parentNode: Octree = null,
     val maxItemsPerNode: Int = 5,
     val maxLevel: Int = 10)
   extends Serializable {
@@ -77,56 +78,56 @@ class Octree(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         box.minZ, (box.maxZ - box.minZ) / 2),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         box.minY, (box.maxY - box.minY) / 2,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NW) = new Octree(
       BoxEnvelope.apply(
         box.minX, (box.maxX - box.minX) / 2,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NE) = new Octree(
       BoxEnvelope.apply(
         (box.maxX - box.minX) / 2, box.maxX,
         (box.maxY - box.minY) / 2, box.maxY,
         (box.maxZ - box.minZ) / 2, box.maxZ),
-      level + 1, maxItemsPerNode, maxLevel)
+      level + 1, this, maxItemsPerNode, maxLevel)
 
   }
 
@@ -254,9 +255,9 @@ class Octree(
     * @param obj input object for which the search is to be performed
     * @param data a ListBuffer in which the desired data should be placed when the funct() == true
     */
-  private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[BoxEnvelope]): Unit = {
+  private def dfsTraverse(func: (Octree, BoxEnvelope) => Boolean, obj: BoxEnvelope, data: ListBuffer[Octree]): Unit = {
     if (func(this, obj)) {
-      data += box
+      data += this
     }
 
     if (!isLeaf) {
@@ -360,22 +361,57 @@ class Octree(
   }
 
   /**
-    * get all the leaf nodes, which intersect, contain or are contained
+    * get all the containing Envelopes of the leaf nodes, which intersect, contain or are contained
+    * by the input BoxEnvelope
+    *
+    * @param obj Input object to be checked for the match
+    * @return list of Envelopes of the leafNodes which match the conditions
+    */
+  def getMatchedLeafBoxes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+
+    val matchedLeaves = getMatchedLeaves(obj)
+    matchedLeaves.map(x => x.box)
+  }
+
+  /**
+    * get all the containing Envelopes of the leaf nodes, which intersect, contain or are contained
     * by the input BoxEnvelope
     *
     * @param obj Input object to be checked for the match
     * @return list of leafNodes which match the conditions
     */
-  def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
-
-    val matchedLeaves = new ListBuffer[BoxEnvelope]
+  def getMatchedLeaves(obj: BoxEnvelope): ListBuffer[Octree] = {
+    val matchedLeaves = new ListBuffer[Octree]
     val traverseFunct: (Octree, BoxEnvelope) => Boolean = {
       (node, obj) => node.isLeaf && (node.box.intersects(obj) ||
-                      node.box.contains(obj) ||
-                      obj.contains(node.box))
+        node.box.contains(obj) ||
+        obj.contains(node.box))
     }
 
     dfsTraverse(traverseFunct, obj, matchedLeaves)
     matchedLeaves
+  }
+
+  /**
+    * Get the neighbors of this node. Neighbors here are leaf sibling or leaf descendants of the
+    * siblings.
+    *
+    * @param queryNode the box of the the input node to avoid passing same node as neighbor
+    * @return list of lead neghbors and their index/partition ID's
+    */
+  def getLeafNeighbors(queryNode: BoxEnvelope): List[Tuple2[Int, BoxEnvelope]] = {
+    val leafNeighbors = new ListBuffer[Tuple2[Int, BoxEnvelope]]
+    if (parentNode != null){
+      for (neighbor <- parentNode.children) {
+        if (!neighbor.box.isEqual(queryNode)) {
+          if (neighbor.isLeaf) {
+            leafNeighbors += new Tuple2(neighbor.box.indexID, neighbor.box)
+          } else {
+            leafNeighbors ++= neighbor.children(0).getLeafNeighbors(queryNode)
+          }
+        }
+      }
+    }
+    leafNeighbors.toList.distinct
   }
 }

@@ -86,7 +86,7 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     // maxItemsPerBox will be 2
     val maxItemsPerBox = ceil(dataSize  /pow(8, maxLevels)).asInstanceOf[Int]
     // construct Octree with sample data
-    val octree = new Octree(sphereRDD.getDataEnvelope, 0, maxItemsPerBox, maxLevels)
+    val octree = new Octree(sphereRDD.getDataEnvelope, 0, null, maxItemsPerBox, maxLevels)
     val partitioning = OctreePartitioning.apply(samples, octree)
     val grids = partitioning.getGrids
     val partitioner = new OctreePartitioner(octree, grids)

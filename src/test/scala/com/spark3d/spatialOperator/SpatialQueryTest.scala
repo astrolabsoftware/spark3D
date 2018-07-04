@@ -55,7 +55,7 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you find the K nearest neighbours?") {
 
-    val sphereRDD = new SphereRDDFromCSV(spark, csv_man,"x,y,z,radius", false)
+    val sphereRDD = new SphereRDD(spark, csv_man,"x,y,z,radius", false)
     val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 10)
     val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
 

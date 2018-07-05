@@ -14,9 +14,9 @@ The spark3D library contains a number of methods and tools to manipulate 3D RDD.
 A Envelope query takes as input a `RDD[Shape3D]` and an envelope, and returns all objects in the RDD intersecting the envelope (contained in and crossing the envelope):
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
-import com.spark3d.geometryObjects.{Point3D, ShellEnvelope}
-import com.spark3d.spatialOperator.RangeQuery
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.geometryObjects.{Point3D, ShellEnvelope}
+import com.astrolabsoftware.spark3d.spatialOperator.RangeQuery
 
 import org.apache.spark.sql.SparkSession
 
@@ -53,7 +53,7 @@ Envelope = Sphere |Envelope = Box
 A cross-match takes as input two data sets, and return objects matching based on the center distance, or pixel index of objects. Note that performing a cross-match between a data set of N elements and another of M elements is a priori a NxM operation - so it can be very costly! Let's load two `Point3D` data sets:
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 
 import org.apache.spark.sql.SparkSession
 
@@ -77,8 +77,8 @@ By default, the two sets are partitioned randomly (in the sense points spatially
 In order to decrease the cost of performing the cross-match, you need to partition the two data sets the same way. By doing so, you will cross-match only points belonging to the same partition. For a large number of partitions, you will decrease significantly the cost:
 
 ```scala
-import com.spark3d.utils.GridType
-import com.spark3d.spatialPartitioning.SpatialPartitioner
+import com.astrolabsoftware.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 
 // nPart is the wanted number of partitions. Default is setA_raw partition number.
 // For the spatial partitioning, you can currently choose between LINEARONIONGRID, or OCTREE.
@@ -114,7 +114,7 @@ Currently, we implemented two methods to perform a cross-match:
 Here is an example which returns only elements from B with counterpart in A using distance center:
 
 ```scala
-import com.spark3d.spatialOperator.CenterCrossMatch
+import com.astrolabsoftware.spark3d.spatialOperator.CenterCrossMatch
 
 // Distance threshold for the match
 val epsilon = 0.004
@@ -127,7 +127,7 @@ val xMatchCenter = CenterCrossMatch
 and the same using the Healpix indices:
 
 ```scala
-import com.spark3d.spatialOperator.PixelCrossMatch
+import com.astrolabsoftware.spark3d.spatialOperator.PixelCrossMatch
 
 // Shell resolution for Healpix indexing
 val nside = 512

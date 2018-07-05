@@ -25,8 +25,8 @@ There are currently 2 partitioning implemented in the library:
 In the following example, we load `Point3D` data, and we re-partition it with the onion partitioning
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
-import com.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
 
@@ -56,8 +56,8 @@ val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID
 In the following example, we load `Point3D` data, and we re-partition it with the octree partitioning
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
-import com.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
 

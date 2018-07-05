@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.spark3d.geometryObjects
+package com.astrolabsoftware.spark3d.geometryObjects
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 

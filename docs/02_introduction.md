@@ -14,7 +14,7 @@ spark3D supports various 3D shapes: points (`Point3D`), spherical shells (`Shell
 ### Point3D
 
 ```scala
-import com.spark3d.geometryObjects.Point3D
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 // Cartesian coordinates
 val points = new Point3D(x: Double, y: Double, z: Double, isSpherical: Boolean = false)
@@ -26,7 +26,7 @@ val points = new Point3D(r: Double, theta: Double, phi: Double, isSpherical: Boo
 ### Shells and Spheres
 
 ```scala
-import com.spark3d.geometryObjects.ShellEnvelope
+import com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope
 
 // Shell from 3D coordinates + inner/outer radii
 val shells = new ShellEnvelope(x: Double, y: Double, z: Double, isSpherical: Boolean, innerRadius: Double, outerRadius: Double)
@@ -44,7 +44,7 @@ val spheres = new ShellEnvelope(center: Point3D, isSpherical: Boolean, radius: D
 ### Boxes
 
 ```scala
-import com.spark3d.geometryObjects.BoxEnvelope
+import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 
 // Box from region defined by three (cartesian) coordinates.
 val boxes = new BoxEnvelope(p1: Point3D, p2: Point3D, p3: Point3D)
@@ -68,7 +68,7 @@ In this tutorial we will review the steps to simply create RDD from 3D data sets
 A point is an object with 3 spatial coordinates. In spark3D, you can choose the coordinate system between cartesian `(x, y, z)` and spherical `(r, theta, phi)`. Let's suppose we have a text file (CSV, JSON, or TXT) whose columns are labeled `x`, `y` and `z`, the cartesian coordinates of points:
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 
 // We assume filename contains at least 3 columns whose names are `colnames`
 // Order of columns in the file does not matter, as they will be re-aranged
@@ -79,7 +79,7 @@ val pointRDD = new Point3DRDD(spark: SparkSession, filename: String, colnames: S
 With FITS data, with data in the HDU #1, you would just do
 
 ```scala
-import com.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 
 // We assume hdu#1 of filename contains at least 3 columns whose names are `colnames`
 // Order of columns in the file does not matter, as they will be re-aranged
@@ -96,7 +96,7 @@ A sphere is defined by its center (3 spatial coordinates) plus a radius.
 In spark3D, you can choose the coordinate system of the center between cartesian `(x, y, z)` and spherical `(r, theta, phi)`. Let's suppose we have a text file (CSV, JSON, or TXT) whose columns are labeled `r`, `theta`, `phi`, the spherical coordinates and `radius`:
 
 ```scala
-import com.spark3d.spatial3DRDD.SphereRDD
+import com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD
 
 // We assume filename contains at least 4 columns whose names are `colnames`.
 // Order of columns in the file does not matter, as they will be re-aranged

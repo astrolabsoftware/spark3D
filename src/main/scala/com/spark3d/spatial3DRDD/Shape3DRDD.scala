@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatial3DRDD
+package com.astrolabsoftware.spark3d.spatial3DRDD
 
 // For implicits
 import scala.collection.mutable.ListBuffer
@@ -22,20 +22,20 @@ import scala.math._
 import scala.util.Random
 
 // Re-partitioning
-import com.spark3d.spatialPartitioning.SpatialPartitioner
-import com.spark3d.spatialPartitioning.OnionPartitioning
-import com.spark3d.spatialPartitioning.OnionPartitioner
-import com.spark3d.spatialPartitioning.Octree
-import com.spark3d.spatialPartitioning.OctreePartitioning
-import com.spark3d.spatialPartitioning.OctreePartitioner
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
+import com.astrolabsoftware.spark3d.spatialPartitioning.OnionPartitioning
+import com.astrolabsoftware.spark3d.spatialPartitioning.OnionPartitioner
+import com.astrolabsoftware.spark3d.spatialPartitioning.Octree
+import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioning
+import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioner
 
 // 3D Objects
-import com.spark3d.geometryObjects._
-import com.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.geometryObjects._
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 
 // Grids
-import com.spark3d.utils.GridType
-import com.spark3d.utils.GridType._
+import com.astrolabsoftware.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.utils.GridType._
 
 // Spark
 import org.apache.spark.rdd.RDD

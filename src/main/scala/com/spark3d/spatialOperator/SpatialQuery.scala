@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.spark3d.spatialOperator
+package com.astrolabsoftware.spark3d.spatialOperator
 
-import com.spark3d.geometryObjects.Shape3D.Shape3D
-import com.spark3d.utils.GeometryObjectComparator
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
+import com.astrolabsoftware.spark3d.utils.GeometryObjectComparator
 import org.apache.spark.rdd.RDD
-import com.spark3d.spatialPartitioning._
+import com.astrolabsoftware.spark3d.spatialPartitioning._
 
 import scala.collection.mutable
 import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}

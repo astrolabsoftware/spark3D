@@ -77,7 +77,7 @@ toto:~$ spark-shell --jars $JARS --packages $PACKAGES
 You will be able to import anything from spark3D
 
 ```scala
-scala> import com.spark3d.geometryObjects.Point3D
+scala> import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 scala> // etc...
 ```
 Note that if you make a fat jar (that is building with `sbt assembly` and not `sbt package`), you do not need to specify external dependencies as they are already included in the resulting jar:

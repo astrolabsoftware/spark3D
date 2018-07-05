@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.geometryObjects
+package com.astrolabsoftware.spark3d.geometryObjects
 
-import com.spark3d.utils.Utils._
-import com.spark3d.utils.ExtPointing
+import com.astrolabsoftware.spark3d.utils.Utils._
+import com.astrolabsoftware.spark3d.utils.ExtPointing
 
 import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing

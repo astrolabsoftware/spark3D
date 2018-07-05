@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
-import com.spark3d.geometryObjects._
+import com.astrolabsoftware.spark3d.geometryObjects._
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.collection.mutable.ListBuffer

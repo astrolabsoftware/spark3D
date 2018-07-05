@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.serialization
+package com.astrolabsoftware.spark3d.serialization
 
-import com.spark3d.serialization.Spark3dConf.spark3dConf
+import com.astrolabsoftware.spark3d.serialization.Spark3dConf.spark3dConf
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 

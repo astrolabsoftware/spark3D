@@ -29,7 +29,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     super.beforeAll()
 
     tree_space = BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0)
-    valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
+    valid_tree = new Octree(new BoxEnvelope(tree_space), 0, null,2)
   }
 
   def containsElement(list: ListBuffer[BoxEnvelope], obj: BoxEnvelope): Boolean = {
@@ -89,7 +89,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test ("Can you force grow the octree to given level?") {
-    valid_tree = new Octree(new BoxEnvelope(tree_space), 0, 2)
+    valid_tree = new Octree(new BoxEnvelope(tree_space), 0, null, 2)
     valid_tree.insertElement(new ShellEnvelope(1.0, 1.0, 1.0, false, 1.0))
     valid_tree.forceGrowTree(2)
     assert(valid_tree.getLeafNodes.size == 64)

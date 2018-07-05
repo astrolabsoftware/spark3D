@@ -101,5 +101,9 @@ object Shape3D extends Serializable {
     def hasCenterCloseTo(p: Point3D, epsilon: Double): Boolean = {
       center.distanceTo(p) <= epsilon
     }
+
+    def getHash(): Int = {
+      (center.getCoordinate.mkString("/") + getEnvelope.toString).hashCode
+    }
   }
 }

@@ -17,7 +17,7 @@ package com.spark3d.spatialPartitioning
 
 // Scala deps
 import scala.util.control.Breaks._
-import scala.collection.mutable.HashSet
+import scala.collection.mutable.{HashSet, ListBuffer}
 
 // spark3d deps
 import com.spark3d.geometryObjects.ShellEnvelope
@@ -101,5 +101,82 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
     // Return an iterator
     result.iterator
+  }
+
+  /**
+    * Gets the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the containment is to be found
+    * @return list of Tuple of containing partitions and their index/partition ID's
+    */
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+    val center = spatialObject.center
+    val partitionNodesIDs = new ListBuffer[Tuple2[Int, Shape3D]]
+
+    breakable {
+
+      for (pos <- 0 to grids.size - 1) {
+        val shell = grids(pos)
+
+        if (shell.isPointInShell(center)) {
+          partitionNodesIDs += new Tuple2(pos, shell)
+          break
+        }
+      }
+    }
+
+    partitionNodesIDs.toList
+  }
+
+  /**
+    * Gets the partitions which are the neighbors of the partitions which contain the input object.
+    *
+    * @param spatialObject input object for which the neighbors are to be found
+    * @return list of Tuple of neighbor partitions and their index/partition ID's
+    */
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
+    val partitionNodes = getPartitionNodes(spatialObject)
+    val neighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+
+    if (!partitionNodes.isEmpty) {
+      // this implementation assumes that in OnionPartitioning, the object will belong to only one
+      // node/partition
+      val nodePosition = partitionNodes(0)_1
+
+      // check for corner cases
+      if (nodePosition == 0) {
+        neighborNodes += new Tuple2(nodePosition + 1, grids(nodePosition + 1))
+      } else if (nodePosition == (grids.size - 1)) {
+        neighborNodes += new Tuple2(nodePosition - 1, grids(nodePosition - 1))
+      } else {
+        neighborNodes += new Tuple2(nodePosition + 1, grids(nodePosition + 1))
+        neighborNodes += new Tuple2(nodePosition - 1, grids(nodePosition - 1))
+      }
+    }
+
+    neighborNodes.toList
+
+  }
+
+  /**
+    * Gets the partitions which are the neighbors to the input partition. Useful when getting
+    * secondary neighbors (neighbors to neighbor) of the queryObject.
+    *
+    * @param containingNode The boundary of the Node for which neighbors are to be found.
+    * @param containingNodeID The index/partition ID of the containingNode
+    * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
+    */
+  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
+    val secondaryNeighborNodes = new ListBuffer[Tuple2[Int, Shape3D]]
+    // check corner cases
+    if (containingNodeID == 0) {
+      secondaryNeighborNodes += new Tuple2(containingNodeID + 1, grids(containingNodeID + 1))
+    } else if (containingNodeID == (grids.size - 1)) {
+      secondaryNeighborNodes += new Tuple2(containingNodeID - 1, grids(containingNodeID - 1))
+    } else {
+      secondaryNeighborNodes += new Tuple2(containingNodeID + 1, grids(containingNodeID + 1))
+      secondaryNeighborNodes += new Tuple2(containingNodeID - 1, grids(containingNodeID - 1))
+    }
+    secondaryNeighborNodes.toList
   }
 }

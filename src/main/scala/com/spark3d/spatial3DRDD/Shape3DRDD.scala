@@ -122,11 +122,11 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         if (maxItemsPerBox > Int.MaxValue) {
           throw new AssertionError(
             """
-              The max mumber of elements per partition have become greater than Int limit.
-              Consider increasing number of partitions.
+              The max number of elements per partition have become greater than Int limit.
+              Consider increasing the number of partitions.
             """)
         }
-        val octree = new Octree(getDataEnvelope, 0, maxItemsPerBox, maxLevels)
+        val octree = new Octree(getDataEnvelope, 0, null, maxItemsPerBox, maxLevels)
         val partitioning = OctreePartitioning.apply(samples, octree)
         val grids = partitioning.getGrids
         new OctreePartitioner(octree, grids)

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.serialization
+package com.astrolabsoftware.spark3d.serialization
 
 import org.apache.spark.SparkConf
 
-import com.spark3d.geometryObjects.{Point3D, ShellEnvelope, BoxEnvelope}
-import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.spatialPartitioning.{OnionPartitioner, OnionPartitioning, SpatialPartitioner}
-import com.spark3d.utils.ExtPointing
+import com.astrolabsoftware.spark3d.geometryObjects.{Point3D, ShellEnvelope, BoxEnvelope}
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.spatialPartitioning.{OnionPartitioner, OnionPartitioning, SpatialPartitioner}
+import com.astrolabsoftware.spark3d.utils.ExtPointing
 import java.util.HashSet
 
 /**

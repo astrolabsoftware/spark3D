@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.examples
+package com.astrolabsoftware.spark3d.examples
 
 // spark3d lib
-import com.spark3d.utils.GridType
-import com.spark3d.utils.Utils.sphericalToCartesian
-import com.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 
 // Spark lib
 import org.apache.spark.sql.SparkSession

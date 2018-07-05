@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.utils
+package com.astrolabsoftware.spark3d.utils
 
-import com.spark3d.geometryObjects._
+import com.astrolabsoftware.spark3d.geometryObjects._
 
 object Utils {
 

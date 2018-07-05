@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
-import com.spark3d.geometryObjects.BoxEnvelope
-import com.spark3d.geometryObjects.Shape3D.Shape3D
+import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.mutable.{HashSet, ListBuffer}
 

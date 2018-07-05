@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
 // Scala deps
 import scala.util.control.Breaks._
 import scala.collection.mutable.{HashSet, ListBuffer}
 
 // spark3d deps
-import com.spark3d.geometryObjects.ShellEnvelope
-import com.spark3d.spatialPartitioning
-import com.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope
+import com.astrolabsoftware.spark3d.spatialPartitioning
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 
 
 /**

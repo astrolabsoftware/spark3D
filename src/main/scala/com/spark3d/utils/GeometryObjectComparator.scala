@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.spark3d.utils
+package com.astrolabsoftware.spark3d.utils
 
-import com.spark3d.geometryObjects.Point3D
-import com.spark3d.geometryObjects.Shape3D.Shape3D
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 class GeometryObjectComparator[A <: Shape3D](val queryObjectCenter: Point3D) extends Ordering[A] {
 

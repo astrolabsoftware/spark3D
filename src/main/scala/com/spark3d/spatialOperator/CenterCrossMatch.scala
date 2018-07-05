@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialOperator
+package com.astrolabsoftware.spark3d.spatialOperator
 
 import scala.reflect.ClassTag
 
-import com.spark3d.geometryObjects.Shape3D._
-import com.spark3d.spatial3DRDD.Shape3DRDD
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.spatial3DRDD.Shape3DRDD
 
 import org.apache.spark.rdd.RDD
 

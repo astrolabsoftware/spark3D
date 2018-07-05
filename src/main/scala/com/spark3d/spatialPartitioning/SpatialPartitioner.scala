@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
 // Spark built-in partitioner
 import org.apache.spark.Partitioner
 
 // spark3d deps
-import com.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 
 /**
   * Abstract class for partitioning the 3D space.

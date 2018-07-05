@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialOperator
+package com.astrolabsoftware.spark3d.spatialOperator
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import com.spark3d.utils.GridType
-import com.spark3d.spatial3DRDD._
-import com.spark3d.spatialPartitioning.SpatialPartitioner
+import com.astrolabsoftware.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.spatial3DRDD._
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._

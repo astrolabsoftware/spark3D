@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
 import org.apache.spark.rdd.RDD
 
-import com.spark3d.geometryObjects.ShellEnvelope
-import com.spark3d.geometryObjects.Point3D
-import com.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 
 /**
   * Class to deal with the onion space.

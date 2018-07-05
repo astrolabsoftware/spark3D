@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.examples
+package com.astrolabsoftware.spark3d.examples
 
 // spark3d lib
-import com.spark3d.utils.GridType
-import com.spark3d.spatial3DRDD.Point3DRDD
-import com.spark3d.spatialPartitioning.SpatialPartitioner
-import com.spark3d.spatialOperator.PixelCrossMatch
-import com.spark3d.serialization.Spark3dConf.spark3dConf
+import com.astrolabsoftware.spark3d.utils.GridType
+import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
+import com.astrolabsoftware.spark3d.spatialOperator.PixelCrossMatch
+import com.astrolabsoftware.spark3d.serialization.Spark3dConf.spark3dConf
 
 // Spark lib
 import org.apache.spark.sql.SparkSession

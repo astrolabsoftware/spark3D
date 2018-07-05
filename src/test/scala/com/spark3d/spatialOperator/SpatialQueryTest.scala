@@ -55,7 +55,7 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
   val fn_fits = "src/test/resources/cartesian_points.fits"
 
   test("Can you find the unique K nearest neighbours?") {
-    val pointRDD = new Point3DRDDFromFITS(spark, fn_fits, 1, "x,y,z", false)
+    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "x,y,z", false)
     val queryObject = new Point3D(0.2, 0.2, 0.2, false)
     // using Octree partitioning
     val pointRDDPart = pointRDD.spatialPartitioning(GridType.OCTREE, 100)

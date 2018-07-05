@@ -1,3 +1,12 @@
+## 0.1.3
+
+- Add KNN routines ([KNN](https://github.com/astrolabsoftware/spark3D/pull/59), [KNN](https://github.com/astrolabsoftware/spark3D/pull/60), [KNN](https://github.com/astrolabsoftware/spark3D/pull/62))
+- Unify API to load data ([Point3DRDD](https://github.com/astrolabsoftware/spark3D/pull/63), [SphereRDD](https://github.com/astrolabsoftware/spark3D/pull/64))
+- Speed-up cross-match methods by using native Scala methods ([Scala](https://github.com/astrolabsoftware/spark3D/pull/58))
+- Add a new website + spark3D belongs to AstroLab Software ([website](https://astrolabsoftware.github.io/))
+- Update tutorials ([tuto](https://astrolabsoftware.github.io/spark3D/).
+- Few fixes here and there...
+
 ## 0.1.1
 
 - Add scripts to generate test data ([PR](https://github.com/astrolabsoftware/spark3D/pull/34))

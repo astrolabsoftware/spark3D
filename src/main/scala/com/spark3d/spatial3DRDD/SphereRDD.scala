@@ -16,10 +16,78 @@
 package com.spark3d.spatial3DRDD
 
 import com.spark3d.geometryObjects._
+import com.spark3d.spatial3DRDD.Loader._
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
+
+
+class SphereRDD(rdd : RDD[ShellEnvelope], override val isSpherical: Boolean) extends Shape3DRDD[ShellEnvelope] {
+
+  /**
+    * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
+    * {{{
+    *   // CSV
+    *   val fn = "src/test/resources/cartesian_spheres.csv"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
+    *   // JSON
+    *   val fn = "src/test/resources/cartesian_spheres.json"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
+    *   // TXT
+    *   val fn = "src/test/resources/cartesian_spheres.txt"
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
+    * }}}
+    *
+    * @param spark : (SparkSession)
+    *   The spark session
+    * @param filename : (String)
+    *   File name where the data is stored. Extension must be explicitly
+    *   written (.cvs, .json, or .txt)
+    * @param colnames : (String)
+    *   Comma-separated names of (x, y, z, r) columns to read.
+    *   Example: "Z_COSMO,RA,Dec,Radius".
+    * @param isSpherical : (Boolean)
+    *   If true, it assumes that the coordinates of the center of
+    *   the ShellEnvelope are (r, theta, phi).
+    *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+    * @return (RDD[ShellEnvelope])
+    *
+    */
+  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean) {
+    this(SphereRDDFromText(spark, filename, colnames, isSpherical), isSpherical)
+  }
+
+  /**
+    * Construct a RDD[ShellEnvelope] from FITS data.
+    * {{{
+    *   val fn = "src/test/resources/cartesian_spheres.fits"
+    *   val sphereRDD = new SphereRDD(spark, fn, 1, "x,y,z,radius", false)
+    * }}}
+    *
+    * @param spark : (SparkSession)
+    *   The spark session
+    * @param filename : (String)
+    *   File name where the data is stored
+    * @param hdu : (Int)
+    *   HDU to load.
+    * @param colnames : (String)
+    *   Comma-separated names of (x, y, z, r) columns to read.
+    *   Example: "Z_COSMO,RA,Dec,Radius".
+    * @param isSpherical : (Boolean)
+    *   If true, it assumes that the coordinates of the center of
+    *   the ShellEnvelope are (r, theta, phi).
+    *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+    * @return (RDD[ShellEnvelope)
+    *
+    */
+  def this(spark : SparkSession, filename : String, hdu : Int, colnames : String, isSpherical: Boolean) {
+    this(SphereRDDFromFITS(spark, filename, hdu, colnames, isSpherical), isSpherical)
+  }
+
+  // Raw partitioned RDD
+  override val rawRDD = rdd
+}
 
 /**
   * Construct a ShellEnvelopeRDD from a RDD[ShellEnvelope]
@@ -31,100 +99,8 @@ import org.apache.spark.rdd.RDD
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   */
-class SphereRDDFromRDD(
-    rdd : RDD[ShellEnvelope],
-    override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
-  override val rawRDD = rdd
-}
-
-/**
-  * Construct a ShellEnvelopeRDD from CSV data.
-  *
-  * @param spark : (SparkSession)
-  *   The spark session
-  * @param filename : (String)
-  *   File name where the data is stored
-  * @param colnames : (String)
-  * Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec,Radius".
-  * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the center of the ShellEnvelope are (r, theta, phi).
-  *   Otherwise, it assumes cartesian coordinates (x, y, z).
-  *
-  *
-  */
-class SphereRDDFromCSV(
-    spark : SparkSession, filename : String, colnames : String,
-    override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
-
-  val df = spark.read
-    .option("header", true)
-    .csv(filename)
-
-  // Grab the name of columns
-  val csplit = colnames.split(",")
-
-  // Select the 3 columns (x, y, z)
-  // and cast to double in case.
-  override val rawRDD = df.select(
-    col(csplit(0)).cast("double"),
-    col(csplit(1)).cast("double"),
-    col(csplit(2)).cast("double"),
-    col(csplit(3)).cast("double")
-  )
-    // DF to RDD
-    .rdd
-    // map to ShellEnvelope
-    .map(x => new ShellEnvelope(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
-  )
-}
-
-/**
-  * Class to make a ShellEnvelope RDD from FITS data.
-  * {{{
-  *   val fn = "src/test/resources/cartesian_spheres.fits"
-  *   val sphereRDD = new ShellEnvelopeRDD(spark, fn, 1, "Z_COSMO,RA,Dec,Radius")
-  * }}}
-  *
-  * @param spark : (SparkSession)
-  *   The spark session
-  * @param filename : (String)
-  *   File name where the data is stored
-  * @param hdu : (Int)
-  *   HDU to load.
-  * @param colnames : (String)
-  * Comma-separated names of (x, y, z, r) columns. Example: "Z_COSMO,RA,Dec,Radius".
-  * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the center of
-  *   the ShellEnvelope are (r, theta, phi).
-  *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
-  *
-  */
-class SphereRDDFromFITS(
-  spark : SparkSession, filename : String, hdu : Int,
-  colnames : String, override val isSpherical: Boolean = false) extends Shape3DRDD[ShellEnvelope] {
-
-  // Load the data as DataFrame using spark-fits
-  val df = spark.read
-    .format("com.sparkfits")
-    .option("hdu", hdu)
-    .load(filename)
-
-  // Grab the name of columns
-  val csplit = colnames.split(",")
-
-  // Select the 3 columns (x, y, z)
-  // and cast to double in case.
-  override val rawRDD = df.select(
-    col(csplit(0)).cast("double"),
-    col(csplit(1)).cast("double"),
-    col(csplit(2)).cast("double"),
-    col(csplit(3)).cast("double")
-  )
-    // DF to RDD
-    .rdd
-    // map to ShellEnvelope
-    .map(x => new ShellEnvelope(
-    x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
-  )
+object SphereRDD {
+  def apply(rdd : RDD[ShellEnvelope], isSpherical: Boolean): SphereRDD = {
+    new SphereRDD(rdd, isSpherical)
+  }
 }

@@ -17,7 +17,7 @@ Unfortunately, re-partitioning the space involves potentially large shuffle betw
 
 There are currently 2 partitioning implemented in the library:
 
-- **Onion Partitioning:** See [here](https://github.com/theastrolab/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
+- **Onion Partitioning:** See [here](https://github.com/astrolabsoftware/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells (and then partitioning the shells using Healpix).
 - **Octree:** An octree extends a quadtree by using three orthogonal splitting planes to subdivide a tile into eight children. Like quadtrees, 3D Tiles allows variations to octrees such as non-uniform subdivision, tight bounding volumes, and overlapping children.
 
 ### Onion Partitioning

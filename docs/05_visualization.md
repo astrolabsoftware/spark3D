@@ -11,6 +11,6 @@ For the moment, our visualisation is done thanks to [smile](https://github.com/h
 
 | Raw data set | Re-partitioned data set |
 |:---------:|:---------:|
-| ![raw](https://github.com/theastrolab/spark3D/blob/master/examples/jupyter/images/myOnionFigRaw.png) | ![repartitioning](https://github.com/theastrolab/spark3D/blob/master/examples/jupyter/images/myOnionFig.png)|
+| ![raw](https://github.com/astrolabsoftware/spark3D/blob/master/examples/jupyter/images/myOnionFigRaw.png) | ![repartitioning](https://github.com/astrolabsoftware/spark3D/blob/master/examples/jupyter/images/myOnionFig.png)|
 
 If you have better tools or want to develop something specific, let us know!

@@ -4,8 +4,10 @@ main:
     url: /docs/installation/
   - title: "About"
     url: /about/
+  - title: "AstroLab Software"
+    url: https://astrolabsoftware.github.io/
   - title: "Fork me!"
-    url: https://github.com/theastrolab/spark3D
+    url: https://github.com/astrolabsoftware/spark3D
   # - title: "Sample Posts"
   #   url: /year-archive/
   # - title: "Sample Collections"

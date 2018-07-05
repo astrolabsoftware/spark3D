@@ -30,13 +30,13 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends 
     * {{{
     *   // CSV
     *   val fn = "src/test/resources/astro_obs.csv"
-    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
     *   // JSON
     *   val fn = "src/test/resources/astro_obs.json"
-    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
     *   // TXT
     *   val fn = "src/test/resources/astro_obs.txt"
-    *   val rdd = new Point3DRDD(spark, fn, "RA,Dec,Z_COSMO", true)
+    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
     * }}}
     *
     * @param spark : (SparkSession)
@@ -45,7 +45,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends 
     *   File name where the data is stored. Extension must be explicitly
     *   written (.cvs, .json, .txt, or .text)
     * @param colnames : (String)
-    * Comma-separated names of (x, y, z) columns. Example: "RA,Dec,Z_COSMO".
+    * Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec".
     * @param isSpherical : (Boolean)
     *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
     *   Otherwise, it assumes cartesian coordinates (x, y, z).
@@ -61,7 +61,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends 
     * Class to make a Point3D RDD from FITS data.
     * {{{
     *   val fn = "src/test/resources/astro_obs.fits"
-    *   val p3DRDD = new Point3DRDD(spark, fn, 1, "RA,Dec,Z_COSMO", true)
+    *   val p3DRDD = new Point3DRDD(spark, fn, 1, "Z_COSMO,RA,Dec", true)
     * }}}
     *
     * @param spark : (SparkSession)
@@ -71,7 +71,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends 
     * @param hdu : (Int)
     *   HDU to load.
     * @param colnames : (String)
-    * Comma-separated names of columns. Example: "RA,Dec,Z_COSMO".
+    * Comma-separated names of columns. Example: "Z_COSMO,RA,Dec".
     * @param isSpherical : (Boolean)
     *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
     *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.

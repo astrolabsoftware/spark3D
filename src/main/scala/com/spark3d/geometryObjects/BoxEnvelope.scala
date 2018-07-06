@@ -16,7 +16,6 @@
 package com.astrolabsoftware.spark3d.geometryObjects
 
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
-import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
 
 import scala.math._
 
@@ -460,11 +459,11 @@ class BoxEnvelope private(
       return false
     }
 
-    !(env.minX > maxX ||
-      env.maxX < minX ||
-      env.minY > maxY ||
-      env.maxY < minY ||
-      env.minZ > maxZ ||
+    !(env.minX >= maxX ||
+      env.maxX < minX  ||
+      env.minY >= maxY ||
+      env.maxY < minY  ||
+      env.minZ >= maxZ ||
       env.maxZ < minZ)
   }
 
@@ -486,41 +485,24 @@ class BoxEnvelope private(
         using Utils.euclideantoSpherical(p).
         """)
     }
+
     if (isNull) {
       return false
     }
 
     val envMinX = min(p1.x, min(p2.x, p3.x))
-    if (envMinX > maxX) {
-      return false
-    }
-
     val envMaxX = max(p1.x, max(p2.x, p3.x))
-    if (envMaxX < minX) {
-      return false
-    }
-
     val envMinY = min(p1.y, min(p2.y, p3.y))
-    if (envMinY > maxY) {
-      return false
-    }
-
     val envMaxY = max(p1.y, max(p2.y, p3.y))
-    if (envMaxY < minY) {
-      return false
-    }
-
     val envMinZ = min(p1.z, min(p2.z, p3.z))
-    if (envMinZ > maxZ) {
-      return false
-    }
-
     val envMaxZ = max(p1.z, max(p2.z, p3.z))
-    if (envMaxZ < minZ) {
-      return false
-    }
 
-    true
+    !(envMinX >= maxX ||
+      envMaxX < minX  ||
+      envMinY >= maxY ||
+      envMaxY < minY  ||
+      envMinZ >= maxZ ||
+      envMaxZ < minZ)
   }
 
   /**
@@ -537,12 +519,12 @@ class BoxEnvelope private(
       return false
     }
 
-    !(x < minX ||
-      x > maxX ||
-      y < minY ||
-      y > maxY ||
-      z < minZ ||
-      z > maxZ)
+    !(x >= maxX ||
+      x < minX  ||
+      y >= maxY ||
+      y < minY  ||
+      z >= maxZ ||
+      z < minZ)
   }
 
   /**
@@ -624,12 +606,12 @@ class BoxEnvelope private(
       return false
     }
 
-    x >= minX &&
-      x <= maxX &&
+    x >= minX   &&
+      x < maxX  &&
       y >= minY &&
-      y <= maxY &&
+      y < maxY  &&
       z >= minZ &&
-      z <= maxZ
+      z < maxZ
 
   }
 
@@ -645,12 +627,12 @@ class BoxEnvelope private(
       return false
     }
 
-    env.minX >= minX &&
-      env.maxX <= maxX &&
+    env.minX >= minX   &&
+      env.maxX < maxX  &&
       env.minY >= minY &&
-      env.maxY <= maxY &&
+      env.maxY < maxY  &&
       env.minZ >= minZ &&
-      env.maxZ <= maxZ
+      env.maxZ < maxZ
   }
 
   /**

@@ -25,10 +25,10 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
     test ("Can you correctly place a Point3D inside the Octree space?") {
 
     var valid_tree = new Octree(BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0), 0, null, 2)
-    val element1 = BoxEnvelope.apply(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
+    val element1 = BoxEnvelope.apply(0.0, 0.9, 0.0, 0.9, 0.0, 0.9)
     val element2 = BoxEnvelope.apply(1.0, 3.0, 1.0, 3.0, 1.0, 3.0)
-    val element3 = BoxEnvelope.apply(1.0, 2.0, 1.0, 2.0, 1.0, 2.0)
-    val element4 = BoxEnvelope.apply(0.0, 1.0, 1.0, 2.0, 0.0, 1.0)
+    val element3 = BoxEnvelope.apply(1.0, 1.9, 1.0, 1.9, 1.0, 1.9)
+    val element4 = BoxEnvelope.apply(0.0, 0.9, 1.0, 1.9, 0.0, 0.9)
     val data = new ListBuffer[BoxEnvelope]
     data += element1
     data += element2
@@ -43,7 +43,7 @@ class OctreePartitionerTest extends FunSuite with BeforeAndAfterAll {
     assert(result.next._1 == 13)
 
     // case when object belongs to all partitions
-    spr = new ShellEnvelope(2, 2, 2, false, 1)
+    spr = new ShellEnvelope(2, 2, 2, false, 1.1)
     result = partitioner.placeObject(spr)
     var resultCount = 0
     while (result.hasNext) {

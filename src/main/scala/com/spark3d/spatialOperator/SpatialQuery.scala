@@ -18,6 +18,7 @@ package com.astrolabsoftware.spark3d.spatialOperator
 
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.utils.GeometryObjectComparator
+import com.astrolabsoftware.spark3d.utils.BoundedUniquePriorityQueue
 import org.apache.spark.rdd.RDD
 import com.astrolabsoftware.spark3d.spatialPartitioning._
 
@@ -25,6 +26,7 @@ import scala.collection.mutable
 import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}
 import scala.reflect.ClassTag
 import scala.util.control.Breaks._
+import org.apache.spark.util.collection.{Utils => collectionUtils}
 
 object SpatialQuery {
 
@@ -122,5 +124,31 @@ object SpatialQuery {
       }
     }
     knn_f.toList
+  }
+
+  private def takeOrdered[A <: Shape3D: ClassTag](rdd: RDD[A], num: Int, queryObject: A, unique: Boolean = false)(implicit ord: Ordering[A]): Array[A] = {
+
+    if (unique) {
+      if (num == 0) {
+        Array.empty
+      } else {
+        val mapRDDs = rdd.mapPartitions { items =>
+          val queue = new BoundedUniquePriorityQueue[A](num)(ord.reverse)
+          queue ++= collectionUtils.takeOrdered(items, num)(ord)
+          Iterator.single(queue)
+        }
+        if (mapRDDs.partitions.length == 0) {
+          Array.empty
+        } else {
+          mapRDDs.reduce { (queue1, queue2) =>
+            queue1 ++= queue2
+            queue1
+          }.toArray.sorted(ord)
+        }
+      }
+
+    }
+
+    return rdd.takeOrdered(num)(new GeometryObjectComparator[A](queryObject.center))
   }
 }

@@ -15,7 +15,14 @@
  */
 package com.astrolabsoftware.spark3d.utils
 
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.geometryObjects._
+import com.google.common.collect.{Ordering => GuavaOrdering}
+
+import org.apache.spark.rdd.RDD
+
+import scala.reflect.ClassTag
+import scala.collection.JavaConverters._
 
 object Utils {
 
@@ -102,4 +109,38 @@ object Utils {
       ra
     }
   }
+
+  def takeOrdered[T <: Shape3D: ClassTag](rdd: RDD[T], num: Int, queryObject: T, unique: Boolean = false)(ord: Ordering[T]): Array[T] = {
+
+    if (unique) {
+      if (num == 0) {
+        Array.empty
+      } else {
+        val mapRDDs = rdd.mapPartitions { items =>
+          val queue = new BoundedUniquePriorityQueue[T](num)(ord.reverse)
+          queue ++= takeOrdered(items, num)(ord)
+          Iterator.single(queue)
+        }
+        if (mapRDDs.partitions.length == 0) {
+          return Array.empty
+        } else {
+          return mapRDDs.reduce { (queue1, queue2) =>
+            queue1 ++= queue2
+            queue1
+          }.toArray.sorted(ord)
+        }
+      }
+
+    }
+
+    return rdd.takeOrdered(num)(new GeometryObjectComparator[T](queryObject.center))
+  }
+
+  private def takeOrdered[T](input: Iterator[T], num: Int)(implicit ord: Ordering[T]): Iterator[T] = {
+    val ordering = new GuavaOrdering[T] {
+      override def compare(l: T, r: T): Int = ord.compare(l, r)
+    }
+    ordering.leastOf(input.asJava, num).iterator.asScala
+  }
+
 }

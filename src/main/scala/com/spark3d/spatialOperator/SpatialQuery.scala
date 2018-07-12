@@ -39,7 +39,6 @@ object SpatialQuery {
     * @return knn
     */
   def KNN[T <: Shape3D: ClassTag](queryObject: T, rdd: RDD[T], k: Int, unique: Boolean = false): List[T] = {
-//    val knn = rdd.takeOrdered(k)(new GeometryObjectComparator[B](queryObject.center))
     val knn = takeOrdered[T](rdd, k, queryObject, unique)(new GeometryObjectComparator[T](queryObject.center))
     knn.toList
   }

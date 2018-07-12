@@ -21,11 +21,14 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.generic.Growable
 import collection.mutable.PriorityQueue
+import scala.collection.mutable
 
 class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Ordering[A])
   extends Iterable[A] with Growable[A] with Serializable {
 
   private val underlying = new PriorityQueue[A]()(ord)
+
+  private val containedElements = new mutable.HashSet[Int]()
 
   override def iterator: Iterator[A] = underlying.iterator
 
@@ -37,9 +40,11 @@ class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Order
   }
 
   override def +=(elem: A): this.type = {
-    if (!underlying.map(x => x.center).toList.contains(elem.center)) {
+    val elementHash = elem.center.getCoordinate.hashCode
+    if (!containedElements.contains(elementHash)) {
       if (size < maxSize) {
         underlying.enqueue(elem)
+        containedElements.add(elementHash)
       } else {
         maybeReplaceLowest(elem)
       }
@@ -59,6 +64,8 @@ class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Order
     if (head != null && ord.gt(a, head)) {
       underlying.dequeue
       underlying.enqueue(a)
+      containedElements.add(a.center.getCoordinate.hashCode)
+      containedElements.remove(head.center.getCoordinate.hashCode)
       true
     } else {
       false

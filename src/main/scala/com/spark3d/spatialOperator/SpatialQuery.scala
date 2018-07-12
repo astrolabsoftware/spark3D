@@ -18,11 +18,12 @@ package com.astrolabsoftware.spark3d.spatialOperator
 
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.utils.GeometryObjectComparator
-import org.apache.spark.rdd.RDD
+import com.astrolabsoftware.spark3d.utils.Utils.takeOrdered
 import com.astrolabsoftware.spark3d.spatialPartitioning._
 
-import scala.collection.mutable
-import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}
+import org.apache.spark.rdd.RDD
+
+import scala.collection.mutable.{HashSet, ListBuffer}
 import scala.reflect.ClassTag
 import scala.util.control.Breaks._
 

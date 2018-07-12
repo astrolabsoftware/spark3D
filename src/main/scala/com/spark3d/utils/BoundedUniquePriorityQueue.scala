@@ -20,14 +20,27 @@ import java.io.Serializable
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.generic.Growable
-import collection.mutable.PriorityQueue
 import scala.collection.mutable
 
+import collection.mutable.PriorityQueue
+
+/**
+  * A wrapper on top of the normal priority queue, so that it is bounded by a given capacity
+  * (in case of overflow, replace the element based on the priority defined) and at the same time
+  * ensure that the priority queue contains only unique elements.
+  *
+  * @param maxSize
+  * @param ord
+  * @tparam A
+  */
 class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Ordering[A])
   extends Iterable[A] with Growable[A] with Serializable {
 
+  // underlying base priority queue
   private val underlying = new PriorityQueue[A]()(ord)
 
+  // HashSet of elements contained in the priority queue used to ensure uniqueness of the elements
+  // in the priority queue.
   private val containedElements = new mutable.HashSet[Int]()
 
   override def iterator: Iterator[A] = underlying.iterator
@@ -41,6 +54,7 @@ class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Order
 
   override def +=(elem: A): this.type = {
     val elementHash = elem.center.getCoordinate.hashCode
+    // check if element to be inserted is unique or not
     if (!containedElements.contains(elementHash)) {
       if (size < maxSize) {
         underlying.enqueue(elem)

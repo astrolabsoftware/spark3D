@@ -201,6 +201,21 @@ class ShellEnvelopeTest extends FunSuite with BeforeAndAfterAll {
     assert(env.outerRadius == 12.6)
   }
 
+  test("Can you catch an error when intersecting a shell with unknown shape?") {
+    val env = new ShellEnvelope(valid_env)
+    assert(!null_env.intersects(env))
+
+    env.innerRadius = 2.0
+    env.outerRadius = 4.0
+    assert(!valid_env.intersects(env))
+
+    val unknown = new nonShape
+    val exception = intercept[AssertionError] {
+      env.intersects(unknown)
+    }
+    assert(exception.getMessage.contains("Cannot perform intersection because the type of shape is unknown!"))
+  }
+
   test("Can you check if the two shell Envelopes intersect each other?") {
     val env = new ShellEnvelope(valid_env)
     assert(!null_env.intersects(env))

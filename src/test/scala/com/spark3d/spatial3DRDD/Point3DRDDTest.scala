@@ -65,7 +65,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   val fn_fits = "src/test/resources/astro_obs.fits"
 
   test("Can you repartition a RDD with the onion space?") {
-    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition the space using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID)
@@ -78,7 +79,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you repartition a RDD with the onion space with more partitions?") {
-    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition my space with 10 data shells using the LINEARONIONGRID
     val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 10)
@@ -91,7 +93,8 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("RDD: Can you construct a Point3DRDD from a RDD[Point3D]?") {
-    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
 
     val rdd = pointRDD.rawRDD
 
@@ -101,8 +104,9 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Can you repartition a RDD from the partitioner of another?") {
-    val pointRDD1 = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDD2 = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDD1 = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDD2 = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 10 data shells using the LINEARONIONGRID
     val pointRDD1_part = pointRDD1.spatialPartitioning(GridType.LINEARONIONGRID, 10)

@@ -68,8 +68,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you cross match A and B centers and return A?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
@@ -85,8 +86,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you cross match A and B centers and return B?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
@@ -102,8 +104,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you cross match A and B centers and return (A,B)?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
@@ -119,8 +122,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you catch an error in center cross match (wrong name)?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
@@ -137,8 +141,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you catch an error in center cross match (different partitioners)?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)
@@ -153,8 +158,9 @@ class CenterCrossMatchTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you catch an error if epsilon is negative?") {
 
-    val pointRDDA = new Point3DRDD(spark, fnA, 1, "Z_COSMO,RA,DEC", true)
-    val pointRDDB = new Point3DRDD(spark, fnB, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDDA = new Point3DRDD(spark, fnA, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Partition 1st RDD with 100 data shells using the LINEARONIONGRID
     val pointRDDA_part = pointRDDA.spatialPartitioning(GridType.LINEARONIONGRID, 100)

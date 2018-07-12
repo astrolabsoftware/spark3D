@@ -67,8 +67,9 @@ object OnionSpace {
     val fn_fits = args(0).toString
 
     // Load the data as Point3DRDD
+    val options = Map("hdu" -> args(1).toString)
     val pointRDD = new Point3DRDD(
-      spark, fn_fits, args(1).toInt, args(2).toString, true)
+      spark, fn_fits, args(2).toString, true, "fits", options)
 
     // Count the number of partition before, and number of elements per partition
     val partitionsBefore = pointRDD.rawRDD.mapPartitions(

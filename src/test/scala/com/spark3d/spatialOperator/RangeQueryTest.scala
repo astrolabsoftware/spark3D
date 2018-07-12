@@ -65,7 +65,8 @@ class RangeQueryTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you find all points within a given region?") {
 
-    val pRDD = new Point3DRDD(spark, fn, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pRDD = new Point3DRDD(spark, fn, "Z_COSMO,RA,DEC", true, "fits", options)
 
     // Window is a Sphere centered on (0.05, 0.05, 0.05) and radius 0.1.
     val p = new Point3D(0.05, 0.05, 0.05, true)

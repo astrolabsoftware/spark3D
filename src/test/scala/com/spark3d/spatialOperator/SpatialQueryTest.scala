@@ -55,7 +55,8 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
   val fn_fits = "src/test/resources/cartesian_points.fits"
 
   test("Can you find the unique K nearest neighbours?") {
-    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "x,y,z", false)
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "x,y,z", false, "fits", options)
     val queryObject = new Point3D(0.2, 0.2, 0.2, false)
     // using Octree partitioning
     val pointRDDPart = pointRDD.spatialPartitioning(GridType.OCTREE, 100)
@@ -76,7 +77,8 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you find the K nearest neighbours correctly?") {
 
-    val sphereRDD = new SphereRDD(spark, csv_man,"x,y,z,radius", false)
+    val options = Map("header" -> "true")
+    val sphereRDD = new SphereRDD(spark, csv_man,"x,y,z,radius", false, "csv", options)
     val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 10)
     val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
 

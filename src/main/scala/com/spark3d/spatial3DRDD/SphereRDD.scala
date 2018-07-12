@@ -23,20 +23,24 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
 
 
-class SphereRDD(rdd : RDD[ShellEnvelope], override val isSpherical: Boolean) extends Shape3DRDD[ShellEnvelope] {
+class SphereRDD(rdd : RDD[ShellEnvelope],
+    override val isSpherical: Boolean) extends Shape3DRDD[ShellEnvelope] {
 
   /**
     * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
     * {{{
-    *   // CSV
-    *   val fn = "src/test/resources/cartesian_spheres.csv"
-    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
-    *   // JSON
-    *   val fn = "src/test/resources/cartesian_spheres.json"
-    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
-    *   // TXT
-    *   val fn = "src/test/resources/cartesian_spheres.txt"
-    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", false)
+    *   // Here is an example with a CSV file containing
+    *   // 3 cartesian coordinates + 1 radius columns labeled x,y,z,radius.
+    *
+    *   // Filename
+    *   val fn = "path/to/file.csv"
+    *   // Spark datasource
+    *   val format = "csv"
+    *   // Options to pass to the DataFrameReader - optional
+    *   val options = Map("header" -> "true")
+    *
+    *   // Load the data as RDD[ShellEnvelope]
+    *   val rdd = new SphereRDD(spark, fn, "x,y,z,radius", true, format, options)
     * }}}
     *
     * @param spark : (SparkSession)
@@ -51,38 +55,25 @@ class SphereRDD(rdd : RDD[ShellEnvelope], override val isSpherical: Boolean) ext
     *   If true, it assumes that the coordinates of the center of
     *   the ShellEnvelope are (r, theta, phi).
     *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
+    * @param format : (String)
+    *   The name of the data source as registered in Spark. For example:
+    *     - text
+    *     - csv
+    *     - json
+    *     - com.astrolabsoftware.sparkfits
+    *     - org.dianahep.sparkroot
+    *     - gov.llnl.spark.hdf or hdf5
+    * @param options : (Map[String, String])
+    *   Options to pass to the DataFrameReader. Default is no options.
     * @return (RDD[ShellEnvelope])
     *
     */
-  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean) {
-    this(SphereRDDFromText(spark, filename, colnames, isSpherical), isSpherical)
-  }
-
-  /**
-    * Construct a RDD[ShellEnvelope] from FITS data.
-    * {{{
-    *   val fn = "src/test/resources/cartesian_spheres.fits"
-    *   val sphereRDD = new SphereRDD(spark, fn, 1, "x,y,z,radius", false)
-    * }}}
-    *
-    * @param spark : (SparkSession)
-    *   The spark session
-    * @param filename : (String)
-    *   File name where the data is stored
-    * @param hdu : (Int)
-    *   HDU to load.
-    * @param colnames : (String)
-    *   Comma-separated names of (x, y, z, r) columns to read.
-    *   Example: "Z_COSMO,RA,Dec,Radius".
-    * @param isSpherical : (Boolean)
-    *   If true, it assumes that the coordinates of the center of
-    *   the ShellEnvelope are (r, theta, phi).
-    *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
-    * @return (RDD[ShellEnvelope)
-    *
-    */
-  def this(spark : SparkSession, filename : String, hdu : Int, colnames : String, isSpherical: Boolean) {
-    this(SphereRDDFromFITS(spark, filename, hdu, colnames, isSpherical), isSpherical)
+  def this(spark : SparkSession, filename : String,
+      colnames : String, isSpherical: Boolean,
+      format: String, options: Map[String, String] = Map("" -> "")) {
+    this(SphereRDDFromV2(spark, filename, colnames, isSpherical, format, options),
+      isSpherical
+    )
   }
 
   // Raw partitioned RDD
@@ -95,7 +86,8 @@ class SphereRDD(rdd : RDD[ShellEnvelope], override val isSpherical: Boolean) ext
   * @param rdd : (RDD[ShellEnvelope])
   *   RDD whose elements are ShellEnvelope instances.
   * @param isSpherical : (Boolean)
-  *   If true, it assumes that the coordinates of the ShellEnvelope center are (r, theta, phi).
+  *   If true, it assumes that the coordinates of the ShellEnvelope
+  *   center are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   *
   */

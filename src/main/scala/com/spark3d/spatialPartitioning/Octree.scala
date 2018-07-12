@@ -73,60 +73,64 @@ class Octree(
   private def splitBox(): Unit = {
     children = new Array[Octree](8)
 
+    val midX = (box.minX + box.maxX) / 2
+    val midY = (box.minY + box.maxY) / 2
+    val midZ = (box.minZ + box.maxZ) / 2
+
     children(CHILD_L_SW) = new Octree(
       BoxEnvelope.apply(
-        box.minX, (box.maxX - box.minX) / 2,
-        box.minY, (box.maxY - box.minY) / 2,
-        box.minZ, (box.maxZ - box.minZ) / 2),
+        box.minX, midX,
+        box.minY, midY,
+        box.minZ, midZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_SE) = new Octree(
       BoxEnvelope.apply(
-        (box.maxX - box.minX) / 2, box.maxX,
-        box.minY, (box.maxY - box.minY) / 2,
-        box.minZ, (box.maxZ - box.minZ) / 2),
+        midX, box.maxX,
+        box.minY, midY,
+        box.minZ, midZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NW) = new Octree(
       BoxEnvelope.apply(
-        box.minX, (box.maxX - box.minX) / 2,
-        (box.maxY - box.minY) / 2, box.maxY,
-        box.minZ, (box.maxZ - box.minZ) / 2),
+        box.minX, midX,
+        midY, box.maxY,
+        box.minZ, midZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_L_NE) = new Octree(
       BoxEnvelope.apply(
-        (box.maxX - box.minX) / 2, box.maxX,
-        (box.maxY - box.minY) / 2, box.maxY,
-        box.minZ, (box.maxZ - box.minZ) / 2),
+        midX, box.maxX,
+        midY, box.maxY,
+        box.minZ, midZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SW) = new Octree(
       BoxEnvelope.apply(
-        box.minX, (box.maxX - box.minX) / 2,
-        box.minY, (box.maxY - box.minY) / 2,
-        (box.maxZ - box.minZ) / 2, box.maxZ),
+        box.minX, midX,
+        box.minY, midY,
+        midZ, box.maxZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_SE) = new Octree(
       BoxEnvelope.apply(
-        (box.maxX - box.minX) / 2, box.maxX,
-        box.minY, (box.maxY - box.minY) / 2,
-        (box.maxZ - box.minZ) / 2, box.maxZ),
+        midX, box.maxX,
+        box.minY, midY,
+        midZ, box.maxZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NW) = new Octree(
       BoxEnvelope.apply(
-        box.minX, (box.maxX - box.minX) / 2,
-        (box.maxY - box.minY) / 2, box.maxY,
-        (box.maxZ - box.minZ) / 2, box.maxZ),
+        box.minX, midX,
+        midY, box.maxY,
+        midZ, box.maxZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
     children(CHILD_U_NE) = new Octree(
       BoxEnvelope.apply(
-        (box.maxX - box.minX) / 2, box.maxX,
-        (box.maxY - box.minY) / 2, box.maxY,
-        (box.maxZ - box.minZ) / 2, box.maxZ),
+        midX, box.maxX,
+        midY, box.maxY,
+        midZ, box.maxZ),
       level + 1, this, maxItemsPerNode, maxLevel)
 
   }
@@ -384,8 +388,8 @@ class Octree(
     val matchedLeaves = new ListBuffer[Octree]
     val traverseFunct: (Octree, BoxEnvelope) => Boolean = {
       (node, obj) => node.isLeaf && (node.box.intersects(obj) ||
-        node.box.contains(obj) ||
-        obj.contains(node.box))
+        node.box.contains(obj))
+//        obj.contains(node.box))
     }
 
     dfsTraverse(traverseFunct, obj, matchedLeaves)

@@ -44,12 +44,12 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test ("Can you insert the elements into a Octree and verify its correctness?") {
-    val element1 = BoxEnvelope.apply(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
-    val element2 = BoxEnvelope.apply(1.0, 3.0, 1.0, 3.0, 1.0, 3.0)
+    val element1 = BoxEnvelope.apply(0.0, 0.9, 0.0, 0.9, 0.0, 0.9)
+    val element2 = BoxEnvelope.apply(1.0, 2.9, 1.0, 2.9, 1.0, 2.9)
     valid_tree.insertElement(element1)
     valid_tree.insertElement(element2)
 
-    val spr = new ShellEnvelope(1.0, 1.0, 1.0, false, 1.0)
+    val spr = new ShellEnvelope(1.0, 1.0, 1.0, false, 0.9)
     var result = valid_tree.getElements(spr)
     assert(valid_tree.isLeaf)
     assert(result.size == 2)
@@ -59,9 +59,9 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     assert(leafNodes.size == 1)
     assert(containsElement(leafNodes, tree_space))
 
-    val element3 = BoxEnvelope.apply(1.0, 2.0, 1.0, 2.0, 1.0, 2.0)
+    val element3 = BoxEnvelope.apply(1.0, 1.9, 1.0, 1.9, 1.0, 1.9)
     valid_tree.insertElement(element3)
-    result = valid_tree.getElements(BoxEnvelope.apply(3.0, 4.0, 3.0, 4.0, 3.0, 4.0))
+    result = valid_tree.getElements(BoxEnvelope.apply(3.0, 3.9, 3.0, 3.9, 3.0, 3.9))
     assert(result.size == 1)
     assert(containsElement(result, element2))
     result = valid_tree.getElements(element1)
@@ -70,7 +70,7 @@ class OctreeTest extends FunSuite with BeforeAndAfterAll {
     assert(containsElement(result, element2))
     assert(containsElement(result, element3))
 
-    val element4 = BoxEnvelope.apply(0.0, 1.0, 1.0, 2.0, 0.0, 1.0)
+    val element4 = BoxEnvelope.apply(0.0, 0.9, 1.0, 1.9, 0.0, 0.9)
     valid_tree.insertElement(element4)
 
     result = valid_tree.getElements(element1)

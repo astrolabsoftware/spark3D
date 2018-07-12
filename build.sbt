@@ -46,7 +46,7 @@ lazy val root = (project in file(".")).
      "org.apache.spark" %% "spark-core" % "2.1.0" % "provided",
      "org.apache.spark" %% "spark-sql" % "2.1.0" % "provided",
      // For loading FITS files
-     "com.github.astrolabsoftware" %% "spark-fits" % "0.4.0",
+     "com.github.astrolabsoftware" %% "spark-fits" % "0.6.0",
      // "org.datasyslab" % "geospark" % "1.1.3",
      // Uncomment if you want to trigger visualisation
      // "com.github.haifengl" % "smile-plot" % "1.5.1",

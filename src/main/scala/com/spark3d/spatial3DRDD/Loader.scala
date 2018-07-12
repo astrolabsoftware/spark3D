@@ -23,7 +23,8 @@ import org.apache.spark.rdd.RDD
 
 /**
   * Put here routine to load data for a specific data format
-  * Currently available: CSV, JSON, TXT, FITS
+  * Currently available: all Spark DataSource V2 compatible format!
+  * i.e. CSV, JSON, TXT, Avro, Parquet, FITS, HDF5, ROOT (<= 6.11), ...
   */
 object Loader {
 
@@ -32,7 +33,7 @@ object Loader {
     * For more information about available official connectors:
     * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
     *
-    * This includes: CSV, JSON, TXT, FITS, ROOT, HDF5, ...
+    * This includes: CSV, JSON, TXT, Avro, parquet, FITS, ROOT, HDF5, ...
     *
     * {{{
     *   // Here is an example with a CSV file containing
@@ -101,7 +102,12 @@ object Loader {
   }
 
   /**
-    * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
+    * Construct a RDD[ShellEnvelope] from whatever data source registered in Spark.
+    * For more information about available official connectors:
+    * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
+    *
+    * This includes: CSV, JSON, TXT, Avro, parquet, FITS, ROOT, HDF5, ...
+    *
     * {{{
     *   // Here is an example with a CSV file containing
     *   // 3 cartesian coordinates + 1 radius columns labeled x,y,z,radius.

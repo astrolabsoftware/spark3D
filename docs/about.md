@@ -38,7 +38,7 @@ Several goals have to be undertaken in this project:
   + indexing mechanisms
   + ways to define a metric (ie. distance between objects)
   + selection capability of objects or objects within a region
-- work with as many input file format as possible (CSV, JSON, FITS, and so on)
+- work with as many input file format as possible (CSV, ROOT, FITS, HDF5 and so on)
 - package the developments into an open-source library.
 
 ## Support

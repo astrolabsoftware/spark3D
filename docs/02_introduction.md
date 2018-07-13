@@ -73,7 +73,8 @@ import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 // We assume filename contains at least 3 columns whose names are `colnames`
 // Order of columns in the file does not matter, as they will be re-aranged
 // according to `colnames`.
-val pointRDD = new Point3DRDD(spark: SparkSession, filename: String, colnames: String, isSpherical: Boolean, format: String, options: Map[String, String])
+val pointRDD = new Point3DRDD(spark: SparkSession, filename: String, colnames: String,
+  isSpherical: Boolean, format: String, options: Map[String, String])
 ```
 
 `format` and `options` control the correct reading of your data.
@@ -134,7 +135,8 @@ import com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD
 // We assume filename contains at least 4 columns whose names are `colnames`.
 // Order of columns in the file does not matter, as they will be re-aranged
 // according to `colnames`.
-val sphereRDD = new SphereRDD(spark: SparkSession, filename: String, colnames: String, isSpherical: Boolean, format: String, options: Map[String, String])
+val sphereRDD = new SphereRDD(spark: SparkSession, filename: String, colnames: String,
+  isSpherical: Boolean, format: String, options: Map[String, String])
 ```
 
 The resulting RDD is a `RDD[ShellEnvelope]`.

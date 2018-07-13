@@ -155,7 +155,20 @@ For more details on the cross-match, see the following [notebook](https://github
 
 ## Neighbour search
 
-TBD
+Brute force KNN:
+
+```scala
+// Load the data
+val pRDD = new Point3DRDD(spark, fn, columns, isSpherical, "csv", options)
+
+// Centre object for the query
+val queryObject = new Point3D(0.0, 0.0, 0.0, false)
+
+// Find the `nNeighbours` closest neighbours
+val knn = SpatialQuery.KNN(queryObject, pRDD.rawRDD, nNeighbours)
+```
+
+To come: partitioning + indexing!
 
 ## Benchmarks
 

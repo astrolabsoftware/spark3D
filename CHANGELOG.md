@@ -1,3 +1,8 @@
+## 0.1.4
+
+- Unify the IO: One constructor to rule them all! ([PR](https://github.com/astrolabsoftware/spark3D/pull/69))
+- Octree and Geometry Objects Bug Fixes ([PR](https://github.com/astrolabsoftware/spark3D/pull/67))
+
 ## 0.1.3
 
 - Add KNN routines ([KNN](https://github.com/astrolabsoftware/spark3D/pull/59), [KNN](https://github.com/astrolabsoftware/spark3D/pull/60), [KNN](https://github.com/astrolabsoftware/spark3D/pull/62))

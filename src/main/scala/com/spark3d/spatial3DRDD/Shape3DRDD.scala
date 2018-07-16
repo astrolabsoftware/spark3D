@@ -153,15 +153,28 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     // Go from RDD[V] to RDD[(K, V)] where K is specified by the partitioner.
     // Finally, return only RDD[V] with the new partitioning.
 
-    def mapElements(iter: Iterator[T]) : Iterator[(Int, T)] = {
+    def mapElements(iter: Iterator[T]) : Iterator[(Int, List[T])] = {
       var res = ListBuffer[(Int, T)]()
       while (iter.hasNext) {
         res ++= partitioner.placeObject(iter.next).toList
       }
-      res.iterator
+      res.toList.groupBy(_._1).mapValues(_.map(_._2)).iterator
     }
 
-    rawRDD.mapPartitions(mapElements).partitionBy(partitioner).mapPartitions(_.map(_._2), true)
+    /**
+      * Pre-group elements T by key within each partition
+      *
+      * @param iter: (Iterator[(Int, T)])
+      *    Iterator containing all (key, T) of a partition
+      * @return (Iterator[(Int, List[T])]) Iterator containing (key, List of same-key elements)
+      */
+    def internalGroupBy(iter: Iterator[(Int, T)]): Iterator[(Int, List[T])] = {
+      iter.toList.groupBy(_._1).mapValues(_.map(_._2)).iterator
+    }
+
+    rawRDD.mapPartitions(mapElements)
+      .partitionBy(partitioner)
+      .mapPartitions(_.flatMap(_._2), true)
 
   }
 

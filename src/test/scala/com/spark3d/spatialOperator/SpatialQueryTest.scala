@@ -52,18 +52,18 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
   }
 
   val csv_man = "src/test/resources/cartesian_spheres_manual_knn.csv"
-  val fn_fits = "src/test/resources/cartesian_points.fits"
+  val fn_fits = "src/test/resources/cartesian_spheres.fits"
 
-  test("Can you find the unique K nearest neighbours?") {
+  test("Can you find the K nearest neighbours?") {
     val options = Map("hdu" -> "1")
     val pointRDD = new Point3DRDD(spark, fn_fits, "x,y,z", false, "fits", options)
     val queryObject = new Point3D(0.2, 0.2, 0.2, false)
     // using Octree partitioning
     val pointRDDPart = pointRDD.spatialPartitioning(GridType.OCTREE, 100)
-    val knn = SpatialQuery.KNN(queryObject, pointRDDPart, 5000)
+    val knn = SpatialQuery.KNN(queryObject, pointRDDPart, 5000, true)
     val knnEff = SpatialQuery.KNNEfficient(queryObject, pointRDDPart, 5000)
 
-//    assert(knn.map(x=>x.center.getCoordinate).distinct.size == 5000)
+    assert(knn.map(x=>x.center.getCoordinate).distinct.size == 5000)
 //    assert(knnEff.map(x=>x.center.getCoordinate).distinct.size == 5000)
 
     // using Onion partitioning

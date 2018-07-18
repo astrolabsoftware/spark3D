@@ -18,11 +18,12 @@ package com.astrolabsoftware.spark3d.spatialOperator
 
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.utils.GeometryObjectComparator
-import org.apache.spark.rdd.RDD
+import com.astrolabsoftware.spark3d.utils.Utils.takeOrdered
 import com.astrolabsoftware.spark3d.spatialPartitioning._
 
-import scala.collection.mutable
-import scala.collection.mutable.{HashSet, ListBuffer, PriorityQueue}
+import org.apache.spark.rdd.RDD
+
+import scala.collection.mutable.{HashSet, ListBuffer}
 import scala.reflect.ClassTag
 import scala.util.control.Breaks._
 
@@ -38,8 +39,8 @@ object SpatialQuery {
     * @param k number of nearest neighbors are to be found
     * @return knn
     */
-  def KNN[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
-    val knn = rdd.takeOrdered(k)(new GeometryObjectComparator[B](queryObject.center))
+  def KNN[T <: Shape3D: ClassTag](queryObject: T, rdd: RDD[T], k: Int, unique: Boolean = false): List[T] = {
+    val knn = takeOrdered[T](rdd, k, queryObject, unique)(new GeometryObjectComparator[T](queryObject.center))
     knn.toList
   }
 

@@ -105,11 +105,17 @@ object Utils {
     }
   }
 
+  /**
+    * Get sample size to be taken from the RDD.
+    * This is required in order to avoid the drive Out of Memory (OOM) when the
+    * the data size in itself is very large. The min 5000 totalNumRecords
+    * bound is added in order to ensure a sufficiently deep Octree construction.
+    *
+    * @param totalNumRecords
+    * @param numPartitions
+    * @return
+    */
   def getSampleSize(totalNumRecords: Long, numPartitions: Int): Int = {
-
-    if (numPartitions * 2 < totalNumRecords) {
-      throw new AssertionError( """ Too few elements to partition the RDD. """)
-    }
 
     if (totalNumRecords < 5000) {
       return totalNumRecords.asInstanceOf[Int]

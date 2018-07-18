@@ -30,13 +30,13 @@ columns="Z_COSMO,RA,Dec"
 display="show"
 
 ## Dependencies
-jars="lib/jhealpix.jar,lib/swingx-0.9.1.jar"
+jars="lib/jhealpix.jar"
 packages="com.github.astrolabsoftware:spark-fits_2.11:0.6.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
 
 # Run it!
 spark-submit \
   --master local[*] \
-  --class com.spark3d.examples.OnionSpace \
+  --class com.astrolabsoftware.spark3d.examples.OnionSpace \
   --jars ${jars} \
   --packages ${packages} \
   target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \

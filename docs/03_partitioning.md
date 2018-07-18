@@ -36,12 +36,13 @@ val spark = SparkSession.builder()
 
 // Data is in src/test/resources
 val fn = "astro_obs.fits"
-val hdu = 1
 val columns = "Z_COSMO,RA,DEC"
 val spherical = true
+val format = "fits" // "com.astrolabsoftware.sparkfits"
+val options = Map("hdu" -> "1")
 
 // Load the data
-val pointRDD = new Point3DRDD(spark, fn, hdu, columns, spherical)
+val pointRDD = new Point3DRDD(spark, fn, columns, spherical, format, options)
 
 // nPart is the wanted number of partitions. Default is pointRDD partition number.
 val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, nPart)
@@ -53,10 +54,10 @@ val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID
 
 ### Octree Partitioning
 
-In the following example, we load `Point3D` data, and we re-partition it with the octree partitioning
+In the following example, we load `ShellEnvelope` data (spheres), and we re-partition it with the octree partitioning
 
 ```scala
-import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD
 import com.astrolabsoftware.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
@@ -67,12 +68,13 @@ val spark = SparkSession.builder()
 
 // Data is in src/test/resources
 val fn = "cartesian_spheres.fits"
-val hdu = 1
 val columns = "x,y,z,radius"
 val spherical = false
+val format = "fits" // com.astrolabsoftware.sparkfits
+val options = Map("hdu" -> "1")
 
 // Load the data
-val sphereRDD = new Point3DRDD(spark, fn, hdu, columns, spherical)
+val sphereRDD = new SphereRDD(spark, fn, columns, spherical, format, options)
 
 // nPart is the wanted number of partitions (floored to a power of 8).
 // Default is sphereRDD partition number.

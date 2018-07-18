@@ -8,7 +8,7 @@ header:
   cta_url: "/docs/installation/"
   caption:
 intro:
-  - excerpt: '<p><font size="6">Spark extension for processing large-scale 3D data sets: Astrophysics, High Energy Physics, Meteorology, ...</font></p><br /><a href="https://github.com/astrolabsoftware/spark3D/releases/tag/0.1.3">Latest release v0.1.3</a>'
+  - excerpt: '<p><font size="6">Spark extension for processing large-scale 3D data sets: Astrophysics, High Energy Physics, Meteorology, ...</font></p><br /><a href="https://github.com/astrolabsoftware/spark3D/releases/tag/0.1.4">Latest release v0.1.4</a>'
 excerpt: '{::nomarkdown}<iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=astrolabsoftware&repo=spark3D&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe> <iframe style="display: inline-block;" src="https://ghbtns.com/github-btn.html?user=astrolabsoftware&repo=spark3D&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>{:/nomarkdown}'
 feature_row:
   - image_path:

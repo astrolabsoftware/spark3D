@@ -57,7 +57,8 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
   val fn_csv_manual = "src/test/resources/cartesian_spheres_manual.csv"
 
   test("FITS: Can you repartition a RDD with the octree space?") {
-    val sphereRDD = new SphereRDD(spark, fn_fits, 1, "x,y,z,radius", false)
+    val options = Map("hdu" -> "1")
+    val sphereRDD = new SphereRDD(spark, fn_fits, "x,y,z,radius", false, "fits", options)
 
     // Partition the space using the OCTREE
     val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 100)
@@ -68,7 +69,8 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("CSV: Can you repartition a RDD with the octree space?") {
-    val sphereRDD = new SphereRDD(spark, fn_csv_manual,"x,y,z,radius", false)
+    val options = Map("header" -> "true")
+    val sphereRDD = new SphereRDD(spark, fn_csv_manual,"x,y,z,radius", false, "csv", options)
 
     // check the data boundary
     val dataBoundary = BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0)
@@ -122,7 +124,8 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("RDD: Can you construct a SphereRDD from a RDD[Shell]?") {
-    val pointRDD = new SphereRDD(spark, fn_csv, "x,y,z,radius", false)
+    val options = Map("header" -> "true")
+    val pointRDD = new SphereRDD(spark, fn_csv, "x,y,z,radius", false, "csv", options)
 
     val newRDD = new SphereRDD(pointRDD.rawRDD, pointRDD.isSpherical)
 

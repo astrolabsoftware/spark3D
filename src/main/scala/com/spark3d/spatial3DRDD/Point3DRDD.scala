@@ -26,59 +26,53 @@ import org.apache.spark.rdd.RDD
 class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
 
   /**
-    * Construct a Point3DRDD from CSV, JSON or TXT data.
+    * Construct a RDD[Point3D] from whatever data source registered in Spark.
+    * For more information about available official connectors:
+    * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
+    *
+    * This includes: CSV, JSON, TXT, FITS, ROOT, HDF5, ...
+    *
     * {{{
-    *   // CSV
-    *   val fn = "src/test/resources/astro_obs.csv"
-    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
-    *   // JSON
-    *   val fn = "src/test/resources/astro_obs.json"
-    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
-    *   // TXT
-    *   val fn = "src/test/resources/astro_obs.txt"
-    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true)
+    *   // Here is an example with a CSV file containing
+    *   // 3 spherical coordinates columns labeled Z_COSMO,RA,Dec.
+    *
+    *   // Filename
+    *   val fn = "path/to/file.csv"
+    *   // Spark datasource
+    *   val format = "csv"
+    *   // Options to pass to the DataFrameReader - optional
+    *   val options = Map("header" -> "true")
+    *
+    *   // Load the data as RDD[Point3D]
+    *   val rdd = new Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", true, format, options)
     * }}}
     *
     * @param spark : (SparkSession)
     *   The spark session
     * @param filename : (String)
-    *   File name where the data is stored. Extension must be explicitly
-    *   written (.cvs, .json, .txt, or .text)
+    *   File name where the data is stored.
     * @param colnames : (String)
-    * Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec".
+    *   Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec".
     * @param isSpherical : (Boolean)
     *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
     *   Otherwise, it assumes cartesian coordinates (x, y, z).
+    * @param format : (String)
+    *   The name of the data source as registered in Spark. For example:
+    *     - text
+    *     - csv
+    *     - json
+    *     - com.astrolabsoftware.sparkfits
+    *     - org.dianahep.sparkroot
+    *     - gov.llnl.spark.hdf or hdf5
+    * @param options : (Map[String, String])
+    *   Options to pass to the DataFrameReader. Default is no options.
     * @return (RDD[Point3D])
     *
     *
     */
-  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean) {
-    this(Point3DRDDFromText(spark, filename, colnames, isSpherical), isSpherical)
-  }
-
-  /**
-    * Class to make a Point3D RDD from FITS data.
-    * {{{
-    *   val fn = "src/test/resources/astro_obs.fits"
-    *   val p3DRDD = new Point3DRDD(spark, fn, 1, "Z_COSMO,RA,Dec", true)
-    * }}}
-    *
-    * @param spark : (SparkSession)
-    *   The spark session
-    * @param filename : (String)
-    *   File name where the data is stored
-    * @param hdu : (Int)
-    *   HDU to load.
-    * @param colnames : (String)
-    * Comma-separated names of columns. Example: "Z_COSMO,RA,Dec".
-    * @param isSpherical : (Boolean)
-    *   If true, it assumes that the coordinates of the Point3D are (r, theta, phi).
-    *   Otherwise, it assumes cartesian coordinates (x, y, z). Default is false.
-    *
-    */
-  def this(spark : SparkSession, filename : String, hdu : Int, colnames : String, isSpherical: Boolean) {
-    this(Point3DRDDFromFITS(spark, filename, hdu, colnames, isSpherical), isSpherical)
+  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
+      format: String, options: Map[String, String] = Map("" -> "")) {
+    this(Point3DRDDFromV2(spark, filename, colnames, isSpherical, format, options), isSpherical)
   }
 
   // Raw partitioned RDD

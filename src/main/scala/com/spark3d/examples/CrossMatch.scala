@@ -76,7 +76,7 @@ object CrossMatch {
     val fnB_fits = args(1).toString
 
     // HDU index
-    val hdu = args(2).toInt
+    val hdu = args(2).toString
 
     // Columns to load
     val columns = args(3).toString
@@ -91,8 +91,9 @@ object CrossMatch {
     val kind = args(6).toString
 
     // Load the data as Point3DRDD
-    val pointRDDA = new Point3DRDD(spark, fnA_fits, hdu, columns, true)
-    val pointRDDB = new Point3DRDD(spark, fnB_fits, hdu, columns, true)
+    val options = Map("hdu" -> hdu)
+    val pointRDDA = new Point3DRDD(spark, fnA_fits, columns, true, "fits", options)
+    val pointRDDB = new Point3DRDD(spark, fnB_fits, columns, true, "fits", options)
 
     // Re-partition the space and cache the result
     val pointRDD_partA = pointRDDA.spatialPartitioning(

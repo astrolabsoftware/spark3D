@@ -73,64 +73,58 @@ class LoaderTest extends FunSuite with BeforeAndAfterAll {
   val fns_wrong = "src/test/resources/cartesian_spheres.wrong"
 
   test("FITS: can you read points?") {
-    val pointRDD = new Point3DRDD(spark, fn_fits, 1, "Z_COSMO,RA,DEC", true)
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
 
     assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
   }
 
   test("FITS: can you read spheres?") {
-    val sRDD = new SphereRDD(spark, fns_fits, 1, "x,y,z,radius", false)
+    val options = Map("hdu" -> "1")
+    val sRDD = new SphereRDD(spark, fns_fits, "x,y,z,radius", false, "fits", options)
 
     assert(sRDD.isInstanceOf[SphereRDD] && sRDD.rawRDD.count() == 20000)
   }
 
   test("CSV: can you read points?") {
-    val pointRDD = new Point3DRDD(spark, fn_csv, "Z_COSMO,RA,DEC", true)
+    val options = Map("header" -> "true")
+    val pointRDD = new Point3DRDD(spark, fn_csv, "Z_COSMO,RA,DEC", true, "csv", options)
 
     assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
   }
 
   test("CSV: can you read spheres?") {
-    val sRDD = new SphereRDD(spark, fns_csv, "x,y,z,radius", false)
+    val options = Map("header" -> "true")
+    val sRDD = new SphereRDD(spark, fns_csv, "x,y,z,radius", false, "csv", options)
 
     assert(sRDD.isInstanceOf[SphereRDD] && sRDD.rawRDD.count() == 20000)
   }
 
   test("JSON: can you read points?") {
-    val pointRDD = new Point3DRDD(spark, fn_json, "Z_COSMO,RA,DEC", true)
+    val options = Map("header" -> "true")
+    val pointRDD = new Point3DRDD(spark, fn_json, "Z_COSMO,RA,DEC", true, "json", options)
 
     assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
   }
 
   test("JSON: can you read spheres?") {
-    val sRDD = new SphereRDD(spark, fns_json, "x,y,z,radius", false)
+    val options = Map("header" -> "true")
+    val sRDD = new SphereRDD(spark, fns_json, "x,y,z,radius", false, "json", options)
 
     assert(sRDD.isInstanceOf[SphereRDD] && sRDD.rawRDD.count() == 20000)
   }
 
   test("TXT: can you read points?") {
-    val pointRDD = new Point3DRDD(spark, fn_txt, "Z_COSMO,RA,DEC", true)
+    val options = Map("sep" -> " ", "header" -> "true")
+    val pointRDD = new Point3DRDD(spark, fn_txt, "Z_COSMO,RA,DEC", true, "csv", options)
 
     assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
   }
 
   test("TXT: can you read spheres?") {
-    val sRDD = new SphereRDD(spark, fns_txt, "x,y,z,radius", false)
+    val options = Map("sep" -> " ", "header" -> "true")
+    val sRDD = new SphereRDD(spark, fns_txt, "x,y,z,radius", false, "csv", options)
 
     assert(sRDD.isInstanceOf[SphereRDD] && sRDD.rawRDD.count() == 20000)
-  }
-
-  test("UNKNOWN: can you catch a file extension error (points)?") {
-    val exception = intercept[AssertionError] {
-      val pointRDD = new Point3DRDD(spark, fn_wrong, "Z_COSMO,RA,DEC", true)
-    }
-    assert(exception.getMessage.contains("I do not understand the file format"))
-  }
-
-  test("UNKNOWN: can you catch a file extension error (spheres)?") {
-    val exception = intercept[AssertionError] {
-      val pointRDD = new SphereRDD(spark, fn_wrong, "x,y,z,radius", false)
-    }
-    assert(exception.getMessage.contains("I do not understand the file format"))
   }
 }

@@ -26,12 +26,13 @@ val spark = SparkSession.builder()
 
 // Data files are in src/test/resources
 val fn = "astro_obs.fits"
-val hdu = 1
 val columns = "Z_COSMO,RA,DEC"
 val spherical = true
+val format = "fits" // "com.astrolabsoftware.sparkfits"
+val options = Map("hdu" -> "1")
 
 // Load a RDD[Point3D] from the FITS file
-val objects = new Point3DRDD(spark, fn, hdu, columns, spherical)
+val objects = new Point3DRDD(spark, fn, columns, spherical, format, options)
 
 // Define our envelope, here a sphere.
 val center = new Point3D(0.9, 0.0, 0.0, spherical)
@@ -64,13 +65,14 @@ val spark = SparkSession.builder()
 // Data files are in src/test/resources
 val fnA = "astro_obs.fits"
 val fnB = "astro_obs2.fits"
-val hdu = 1
 val columns = "Z_COSMO,RA,DEC"
 val spherical = true
+val format = "fits" // "com.astrolabsoftware.sparkfits"
+val options = Map("hdu" -> "1")
 
 // Load the two data sets
-val setA = new Point3DRDD(spark, fnA, hdu, columns, spherical)
-val setB = new Point3DRDD(spark, fnB, hdu, columns, spherical)
+val setA = new Point3DRDD(spark, fnA, hdu, columns, spherical, format, options)
+val setB = new Point3DRDD(spark, fnB, hdu, columns, spherical, format, options)
 ```
 
 By default, the two sets are partitioned randomly (in the sense points spatially close are probably not in the same partition).
@@ -153,7 +155,20 @@ For more details on the cross-match, see the following [notebook](https://github
 
 ## Neighbour search
 
-TBD
+Brute force KNN:
+
+```scala
+// Load the data
+val pRDD = new Point3DRDD(spark, fn, columns, isSpherical, "csv", options)
+
+// Centre object for the query
+val queryObject = new Point3D(0.0, 0.0, 0.0, false)
+
+// Find the `nNeighbours` closest neighbours
+val knn = SpatialQuery.KNN(queryObject, pRDD.rawRDD, nNeighbours)
+```
+
+To come: partitioning + indexing!
 
 ## Benchmarks
 

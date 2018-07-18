@@ -24,6 +24,8 @@ import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import scala.collection.JavaConverters._
 
+import scala.math.{min, max}
+
 object Utils {
 
   /**
@@ -108,6 +110,26 @@ object Utils {
     } else {
       ra
     }
+  }
+
+  /**
+    * Get sample size to be taken from the RDD.
+    * This is required in order to avoid the drive Out of Memory (OOM) when the
+    * the data size in itself is very large. The min 5000 totalNumRecords
+    * bound is added in order to ensure a sufficiently deep Octree construction.
+    *
+    * @param totalNumRecords
+    * @param numPartitions
+    * @return
+    */
+  def getSampleSize(totalNumRecords: Long, numPartitions: Int): Int = {
+
+    if (totalNumRecords < 5000) {
+      return totalNumRecords.asInstanceOf[Int]
+    }
+
+    val minSampleSize = numPartitions * 2
+    max(5000, max(minSampleSize, min(totalNumRecords / 100, Integer.MAX_VALUE)).asInstanceOf[Int])
   }
 
   /**

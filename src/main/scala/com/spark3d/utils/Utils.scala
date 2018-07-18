@@ -17,6 +17,8 @@ package com.astrolabsoftware.spark3d.utils
 
 import com.astrolabsoftware.spark3d.geometryObjects._
 
+import scala.math.{min, max}
+
 object Utils {
 
   /**
@@ -101,5 +103,19 @@ object Utils {
     } else {
       ra
     }
+  }
+
+  def getSampleSize(totalNumRecords: Long, numPartitions: Int): Int = {
+
+    if (numPartitions * 2 < totalNumRecords) {
+      throw new AssertionError( """ Too few elements to partition the RDD. """)
+    }
+
+    if (totalNumRecords < 5000) {
+      return totalNumRecords.asInstanceOf[Int]
+    }
+
+    val minSampleSize = numPartitions * 2
+    max(5000, max(minSampleSize, min(totalNumRecords / 100, Integer.MAX_VALUE)).asInstanceOf[Int])
   }
 }

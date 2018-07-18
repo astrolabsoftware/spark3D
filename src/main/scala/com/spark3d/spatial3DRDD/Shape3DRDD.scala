@@ -28,6 +28,7 @@ import com.astrolabsoftware.spark3d.spatialPartitioning.OnionPartitioner
 import com.astrolabsoftware.spark3d.spatialPartitioning.Octree
 import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioning
 import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioner
+import com.astrolabsoftware.spark3d.utils.Utils.getSampleSize
 
 // 3D Objects
 import com.astrolabsoftware.spark3d.geometryObjects._
@@ -111,14 +112,14 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
       }
       case GridType.OCTREE => {
         // taking 20% of the data as a sample
-        val dataSize = rawRDD.count
-        val sampleSize = (dataSize * 0.2).asInstanceOf[Int]
+        val dataCount = rawRDD.count //20000
+        val sampleSize = getSampleSize(dataCount, numPartitions) //
         val samples = rawRDD.takeSample(false, sampleSize,
-          new Random(dataSize).nextInt(dataSize.asInstanceOf[Int])).toList.map(x => x.getEnvelope)
+        new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.getEnvelope)
         // see https://github.com/JulienPeloton/spark3D/issues/37
         // for the maxLevels and maxItemsPerNode calculations logic
         val maxLevels = floor(log(numPartitionsRaw)/log(8)).asInstanceOf[Int]
-        val maxItemsPerBox = ceil(dataSize  /pow(8, maxLevels)).asInstanceOf[Int]
+        val maxItemsPerBox = ceil(dataCount/pow(8, maxLevels)).asInstanceOf[Int]
         if (maxItemsPerBox > Int.MaxValue) {
           throw new AssertionError(
             """

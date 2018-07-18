@@ -16,6 +16,13 @@
 package com.astrolabsoftware.spark3d.utils
 
 import com.astrolabsoftware.spark3d.geometryObjects._
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
+import com.google.common.collect.{Ordering => GuavaOrdering}
+
+import org.apache.spark.rdd.RDD
+
+import scala.reflect.ClassTag
+import scala.collection.JavaConverters._
 
 import scala.math.{min, max}
 
@@ -123,5 +130,47 @@ object Utils {
 
     val minSampleSize = numPartitions * 2
     max(5000, max(minSampleSize, min(totalNumRecords / 100, Integer.MAX_VALUE)).asInstanceOf[Int])
+  }
+
+  /**
+    * Custom takeOrdered function to take unique top k elements from the RDD based on the priority
+    * of the elements relative to the queryObject defined by the custom Ordering.
+    * In case, the unique elements are not needed, fallback to using the RDD's takeOrdered function.
+    *
+    * @param rdd RDD from which the elements are to be taken
+    * @param num number of elements to be taken from the RDD
+    * @param queryObject elements relative to which the priority is to be defined
+    * @param unique true/false based on whether unique elements should be returned or not
+    * @param ord custom Ordering based on which the top k elements are to be taken
+    * @return array of top k elements based on the Ordering relative to the queryObject from the input RDD
+    */
+  def takeOrdered[T <: Shape3D: ClassTag](rdd: RDD[T], num: Int, queryObject: T, unique: Boolean = false)(ord: Ordering[T]): Array[T] = {
+    if (unique) {
+      if (num == 0) {
+        Array.empty
+      } else {
+        val mapRDDs = rdd.mapPartitions { items =>
+          val queue = new BoundedUniquePriorityQueue[T](num)(ord.reverse)
+          queue ++= takeOrdered(items, num)(ord)
+          Iterator.single(queue)
+        }
+        if (mapRDDs.partitions.length == 0) {
+          return Array.empty
+        } else {
+          return mapRDDs.reduce { (queue1, queue2) =>
+            queue1 ++= queue2
+            queue1
+          }.toArray.sorted(ord)
+        }
+      }
+    }
+    return rdd.takeOrdered(num)(new GeometryObjectComparator[T](queryObject.center))
+  }
+
+  private def takeOrdered[T](input: Iterator[T], num: Int)(implicit ord: Ordering[T]): Iterator[T] = {
+    val ordering = new GuavaOrdering[T] {
+      override def compare(l: T, r: T): Int = ord.compare(l, r)
+    }
+    ordering.leastOf(input.asJava, num).iterator.asScala
   }
 }

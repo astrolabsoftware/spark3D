@@ -46,7 +46,7 @@ spark-submit \
   --master spark://134.158.75.222:7077 \
   --driver-memory 15g --executor-memory 29g --executor-cores 17 --total-executor-cores 153 \
   --jars ${jars} \
-  --class com.spark3d.examples.Partitioning \
+  --class com.astrolabsoftware.spark3d.examples.Partitioning \
   --conf "spark.kryoserializer.buffer.max=1024" \
   --packages ${packages} \
   target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \

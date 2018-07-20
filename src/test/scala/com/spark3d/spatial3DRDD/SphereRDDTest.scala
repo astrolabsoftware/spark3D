@@ -73,7 +73,7 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     val sphereRDD = new SphereRDD(spark, fn_csv_manual,"x,y,z,radius", false, "csv", options)
 
     // check the data boundary
-    val dataBoundary = BoxEnvelope.apply(0.0, 4.0, 0.0, 4.0, 0.0, 4.0)
+    val dataBoundary = BoxEnvelope.apply(0.0, 4.001, 0.0, 4.001, 0.0, 4.001)
     assert(sphereRDD.getDataEnvelope.isEqual(dataBoundary))
 
     // replicating the Shape3DRDD code here to verify the placeObject
@@ -99,7 +99,7 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
       iterator.next
     }
     assert(count == 1)
-    iterator = partitioner.placeObject(new ShellEnvelope(1.0,1.0,1.0,false,1.0))
+    iterator = partitioner.placeObject(new ShellEnvelope(1.0,1.0,1.0,false,1.1))
     count = 0
     while(iterator.hasNext) {
       count += 1

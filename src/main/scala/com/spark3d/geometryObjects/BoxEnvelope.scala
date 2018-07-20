@@ -264,6 +264,32 @@ class BoxEnvelope private(
   }
 
   /**
+    * Expand cube Envelope outwards by given distance along the all three dimensions.
+    *
+    * @param delta
+    */
+  def expandOutwards(delta: Double): Unit = {
+    expandOutwards(delta, delta, delta)
+  }
+
+  /**
+    * Expand cube Envelope outwards by given distances along the three dimension.
+    *
+    * @param deltaX
+    * @param deltaY
+    * @param deltaZ
+    */
+  def expandOutwards(deltaX: Double, deltaY: Double, deltaZ: Double): Unit = {
+    if (isNull) {
+      return
+    }
+
+    maxX += deltaX
+    maxY += deltaY
+    maxZ += deltaZ
+  }
+
+  /**
     * Expand cube Envelope by given distances along the three dimension.
     *
     * @param deltaX the distance to expand the cube Envelope along the the X axis

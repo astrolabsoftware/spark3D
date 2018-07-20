@@ -41,6 +41,11 @@ Several goals have to be undertaken in this project:
 - work with as many input file format as possible (CSV, ROOT, FITS, HDF5 and so on)
 - package the developments into an open-source library.
 
+## Current structure
+
+<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.1.4.png"/>
+</p>
+
 ## Support
 
 ![LAL]({{ "/assets/images/lal_logo.jpg" | absolute_url }})

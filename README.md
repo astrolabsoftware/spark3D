@@ -11,6 +11,9 @@
 - [07/2018] **New location**: spark3D is an official project of [AstroLab Software](https://astrolabsoftware.github.io/)!
 - [07/2018] **Release**: version 0.1.3, 0.1.4
 
+<p align="center"><img src="https://github.com/astrolabsoftware/spark-fits/raw/master/pic/spark3d_lib_0.1.4.png"/>
+</p>
+
 ## Installation and tutorials
 
 See our amazing [website](https://astrolabsoftware.github.io/spark3D/)!

@@ -193,6 +193,11 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     // set it to null
     bx.setToNull
 
-    rawRDD.aggregate(bx)(combOp, seqOp)
+    val dataBoundary = rawRDD.aggregate(bx)(combOp, seqOp)
+
+    // expand the boundary to also Include the elements at the border
+    dataBoundary.expandOutwards(0.001)
+
+    dataBoundary
   }
 }

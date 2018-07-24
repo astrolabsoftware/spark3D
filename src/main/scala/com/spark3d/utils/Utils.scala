@@ -150,7 +150,7 @@ object Utils {
         Array.empty
       } else {
         val mapRDDs = rdd.mapPartitions { items =>
-          val queue = new BoundedUniquePriorityQueue[T](num)(ord.reverse)
+          val queue = new BoundedUniquePriorityQueue[T](num)(ord)
           queue ++= takeOrdered(items, num)(ord)
           Iterator.single(queue)
         }

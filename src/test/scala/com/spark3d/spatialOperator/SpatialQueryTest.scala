@@ -87,8 +87,8 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     assert(knn.size == 3)
 
     assert(knn(0).center.isEqual(new ShellEnvelope(2.0,2.0,2.0,false,2.0).center))
-    assert(knn(1).center.isEqual(new ShellEnvelope(1.0,1.0,3.0,false,0.8).center))
-    assert(knn(2).center.isEqual(new ShellEnvelope(1.0,3.0,0.7,false,0.8).center))
+    assert(knn(1).center.isEqual(new ShellEnvelope(1.9,1.9,1.9,false,1.9).center))
+    assert(knn(2).center.isEqual(new ShellEnvelope(3.0,2.0,1.0,false,0.8).center))
 
     //    assert(knn2(0).center.isEqual(new ShellEnvelope(2.0,2.0,2.0,false,2.0).center))
     //    assert(knn2(1).center.isEqual(new ShellEnvelope(1.0,1.0,3.0,false,0.8).center))

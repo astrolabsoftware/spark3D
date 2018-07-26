@@ -21,6 +21,7 @@ import com.astrolabsoftware.spark3d.spatial3DRDD._
 import com.astrolabsoftware.spark3d.utils.GridType
 
 // Spark lib
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
@@ -64,7 +65,9 @@ object Partitioning {
 
     // Load the data
     val options = Map("hdu" -> hdu)
-    val pRDD = new Point3DRDD(spark, fn_fits, columns, isSpherical, "fits", options)
+    val pRDD = new Point3DRDD(
+      spark, fn_fits, columns, isSpherical, "fits", options, StorageLevel.MEMORY_ONLY
+    )
 
     // Partition it
     val rdd = mode match {

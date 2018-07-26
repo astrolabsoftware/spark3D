@@ -67,7 +67,7 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
     * @param options : (Map[String, String])
     *   Options to pass to the DataFrameReader. Default is no options.
     * @param storageLevel : (StorageLevel)
-    *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_AND_DISK.
+    *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.NONE.
     *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
     *   for more information.
     * @return (RDD[ShellEnvelope])
@@ -97,7 +97,7 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
   *   center are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   * @param storageLevel : (StorageLevel)
-  *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_AND_DISK.
+  *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.NONE.
   *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
   *   for more information.
   *

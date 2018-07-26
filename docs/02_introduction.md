@@ -75,10 +75,10 @@ import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 // according to `colnames`.
 val pointRDD = new Point3DRDD(spark: SparkSession, filename: String, colnames: String,
   isSpherical: Boolean, format: String, options: Map[String, String],
-  storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK)
+  storageLevel: StorageLevel = StorageLevel.NONE)
 ```
 
-Since we typically need to operate multiple times on the rawRDD (e.g. gather statistics), you can control the persistence on the rawRDD (default is StorageLevel.MEMORY_AND_DISK, aka `.cache()`) to reduce the execution time.
+Since we typically need to operate multiple times on the rawRDD (e.g. gather statistics), you can control the persistence on the rawRDD (default is `StorageLevel.NONE`, but you are strongly advised to choose `StorageLevel.MEMORY_ONLY` aka `.cache()` if you have enough memory) to reduce the execution time.
 `format` and `options` control the correct reading of your data.
 
 * `format` is the name of the data source as registered in Spark. For example: `csv`, `json`, `org.dianahep.sparkroot`, ... For Spark built-in see [here](https://github.com/apache/spark/blob/301bff70637983426d76b106b7c659c1f28ed7bf/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/DataSource.scala#L560).
@@ -139,7 +139,7 @@ import com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD
 // according to `colnames`.
 val sphereRDD = new SphereRDD(spark: SparkSession, filename: String, colnames: String,
   isSpherical: Boolean, format: String, options: Map[String, String],
-  storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK)
+  storageLevel: StorageLevel = StorageLevel.NONE)
 ```
 
 The resulting RDD is a `RDD[ShellEnvelope]`.

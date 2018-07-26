@@ -68,7 +68,7 @@ object Partitioning {
 
     // Partition it
     val rdd = mode match {
-        case "nopart" => pRDD.rawRDD.cache()
+        case "nopart" => pRDD.rawRDD
         case "octree" => pRDD.spatialPartitioning(GridType.OCTREE).cache()
         case "onion" => pRDD.spatialPartitioning(GridType.LINEARONIONGRID).cache()
         case _ => throw new AssertionError("Choose between nopart, onion, or octree for the partitioning.")

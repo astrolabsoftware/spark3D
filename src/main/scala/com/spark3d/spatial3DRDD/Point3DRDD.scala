@@ -18,12 +18,13 @@ package com.astrolabsoftware.spark3d.spatial3DRDD
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.spatial3DRDD.Loader._
 
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
 
 
-class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends Shape3DRDD[Point3D] {
+class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageLevel: StorageLevel) extends Shape3DRDD[Point3D] {
 
   /**
     * Construct a RDD[Point3D] from whatever data source registered in Spark.
@@ -71,19 +72,19 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean) extends 
     *
     */
   def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
-      format: String, options: Map[String, String] = Map("" -> "")) {
-    this(Point3DRDDFromV2(spark, filename, colnames, isSpherical, format, options), isSpherical)
+      format: String, options: Map[String, String] = Map("" -> ""), storageLevel: StorageLevel = StorageLevel.MEMORY_ONLY_SER) {
+    this(Point3DRDDFromV2(spark, filename, colnames, isSpherical, format, options), isSpherical, storageLevel)
   }
 
   // Raw partitioned RDD
-  override val rawRDD = rdd
+  override val rawRDD = rdd.persist(storageLevel)
 }
 
 /**
   * Handle point3DRDD.
   */
 object Point3DRDD {
-  def apply(rdd : RDD[Point3D], isSpherical: Boolean): Point3DRDD = {
-    new Point3DRDD(rdd, isSpherical)
+  def apply(rdd : RDD[Point3D], isSpherical: Boolean, storageLevel: StorageLevel): Point3DRDD = {
+    new Point3DRDD(rdd, isSpherical, storageLevel)
   }
 }

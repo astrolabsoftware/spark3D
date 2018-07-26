@@ -72,12 +72,13 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     *
     */
   def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
-      format: String, options: Map[String, String] = Map("" -> ""), storageLevel: StorageLevel = StorageLevel.MEMORY_ONLY_SER) {
+      format: String, options: Map[String, String] = Map("" -> ""), storageLevel: StorageLevel = StorageLevel.MEMORY_ONLY) {
     this(Point3DRDDFromV2(spark, filename, colnames, isSpherical, format, options), isSpherical, storageLevel)
   }
 
   // Raw partitioned RDD
-  override val rawRDD = rdd.persist(storageLevel)
+  override val rawRDD = rdd
+  rawRDD.persist(storageLevel)
 }
 
 /**

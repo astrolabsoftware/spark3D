@@ -44,7 +44,7 @@ val options = Map("hdu" -> "1")
 
 // Load the data and cache the rawRDD to speed-up the re-partitioning
 val pointRDD = new Point3DRDD(
-	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_ONLY
+	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_AND_DISK
 )
 
 // nPart is the wanted number of partitions. Default is pointRDD partition number.
@@ -78,7 +78,7 @@ val options = Map("hdu" -> "1")
 
 // Load the data and cache the rawRDD to speed-up the re-partitioning
 val sphereRDD = new SphereRDD(
-	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_ONLY
+	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_AND_DISK
 )
 
 // nPart is the wanted number of partitions (floored to a power of 8).

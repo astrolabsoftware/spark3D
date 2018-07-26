@@ -68,7 +68,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     * @param options : (Map[String, String])
     *   Options to pass to the DataFrameReader. Default is no options.
     * @param storageLevel : (StorageLevel)
-    *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_ONLY.
+    *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_AND_DISK.
     *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
     *   for more information.
     * @return (RDD[Point3D])
@@ -77,7 +77,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     */
   def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
       format: String, options: Map[String, String] = Map("" -> ""),
-      storageLevel: StorageLevel = StorageLevel.MEMORY_ONLY) {
+      storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK) {
     this(
       Point3DRDDFromV2(
         spark, filename, colnames, isSpherical, format, options
@@ -100,7 +100,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
   *   center are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
   * @param storageLevel : (StorageLevel)
-  *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_ONLY.
+  *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_AND_DISK.
   *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
   *   for more information.
   *

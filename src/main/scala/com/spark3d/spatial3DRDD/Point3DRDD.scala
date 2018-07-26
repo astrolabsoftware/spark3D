@@ -77,7 +77,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     */
   def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
       format: String, options: Map[String, String] = Map("" -> ""),
-      storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK) {
+      storageLevel: StorageLevel = StorageLevel.NONE) {
     this(
       Point3DRDDFromV2(
         spark, filename, colnames, isSpherical, format, options

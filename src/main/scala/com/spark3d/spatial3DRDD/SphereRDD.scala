@@ -76,7 +76,7 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
   def this(spark : SparkSession, filename : String,
       colnames : String, isSpherical: Boolean,
       format: String, options: Map[String, String] = Map("" -> ""),
-      storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK) {
+      storageLevel: StorageLevel = StorageLevel.NONE) {
     this(SphereRDDFromV2(spark, filename, colnames, isSpherical, format, options),
       isSpherical, storageLevel
     )

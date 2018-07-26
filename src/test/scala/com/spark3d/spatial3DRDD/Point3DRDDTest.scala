@@ -22,6 +22,7 @@ import com.astrolabsoftware.spark3d.utils.GridType
 import com.astrolabsoftware.spark3d.spatial3DRDD._
 import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
@@ -98,7 +99,7 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
 
     val rdd = pointRDD.rawRDD
 
-    val newRDD = new Point3DRDD(rdd, pointRDD.isSpherical)
+    val newRDD = new Point3DRDD(rdd, pointRDD.isSpherical, StorageLevel.MEMORY_ONLY)
 
     assert(newRDD.isInstanceOf[Shape3DRDD[Point3D]])
   }

@@ -29,6 +29,7 @@ import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
 import com.astrolabsoftware.spark3d.utils.GridType
 
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.storage.StorageLevel
 
 val spark = SparkSession.builder()
 	.appName("OnionSpace")
@@ -41,8 +42,10 @@ val spherical = true
 val format = "fits" // "com.astrolabsoftware.sparkfits"
 val options = Map("hdu" -> "1")
 
-// Load the data
-val pointRDD = new Point3DRDD(spark, fn, columns, spherical, format, options)
+// Load the data and cache the rawRDD to speed-up the re-partitioning
+val pointRDD = new Point3DRDD(
+	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_ONLY
+)
 
 // nPart is the wanted number of partitions. Default is pointRDD partition number.
 val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, nPart)
@@ -73,8 +76,10 @@ val spherical = false
 val format = "fits" // com.astrolabsoftware.sparkfits
 val options = Map("hdu" -> "1")
 
-// Load the data
-val sphereRDD = new SphereRDD(spark, fn, columns, spherical, format, options)
+// Load the data and cache the rawRDD to speed-up the re-partitioning
+val sphereRDD = new SphereRDD(
+	spark, fn, columns, spherical, format, options, StorageLevel.MEMORY_ONLY
+)
 
 // nPart is the wanted number of partitions (floored to a power of 8).
 // Default is sphereRDD partition number.
@@ -82,7 +87,7 @@ val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.OCTREE, nPart)
 ```
 
 
-We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
+We advice to cache as well the re-partitioned sets, to speed-up future call by not performing the re-partitioning again. If you are short in memory, unpersist first the rawRDD before caching the repartitioned RDD.
 However keep in mind that if a large `nPart` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `nPart` which applies in general, and you'll need to set it according to the needs of your problem. My only advice would be: re-partitioning is typically done once, queries can be multiple...
 
 | Raw data set | Re-partitioned data set

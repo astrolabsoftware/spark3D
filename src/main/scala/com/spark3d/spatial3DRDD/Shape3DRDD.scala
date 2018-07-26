@@ -112,8 +112,8 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
       }
       case GridType.OCTREE => {
         // taking 20% of the data as a sample
-        val dataCount = rawRDD.count //20000
-        val sampleSize = getSampleSize(dataCount, numPartitions) //
+        val dataCount = rawRDD.count
+        val sampleSize = getSampleSize(dataCount, numPartitions)
         val samples = rawRDD.takeSample(false, sampleSize,
             new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.getEnvelope)
         // see https://github.com/JulienPeloton/spark3D/issues/37

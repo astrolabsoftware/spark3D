@@ -18,13 +18,14 @@ package com.astrolabsoftware.spark3d.spatial3DRDD
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.spatial3DRDD.Loader._
 
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import org.apache.spark.rdd.RDD
 
 
 class SphereRDD(rdd : RDD[ShellEnvelope],
-    override val isSpherical: Boolean) extends Shape3DRDD[ShellEnvelope] {
+    override val isSpherical: Boolean, storageLevel: StorageLevel) extends Shape3DRDD[ShellEnvelope] {
 
   /**
     * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
@@ -65,19 +66,25 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
     *     - gov.llnl.spark.hdf or hdf5
     * @param options : (Map[String, String])
     *   Options to pass to the DataFrameReader. Default is no options.
+    * @param storageLevel : (StorageLevel)
+    *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_ONLY.
+    *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
+    *   for more information.
     * @return (RDD[ShellEnvelope])
     *
     */
   def this(spark : SparkSession, filename : String,
       colnames : String, isSpherical: Boolean,
-      format: String, options: Map[String, String] = Map("" -> "")) {
+      format: String, options: Map[String, String] = Map("" -> ""),
+      storageLevel: StorageLevel = StorageLevel.MEMORY_ONLY) {
     this(SphereRDDFromV2(spark, filename, colnames, isSpherical, format, options),
-      isSpherical
+      isSpherical, storageLevel
     )
   }
 
   // Raw partitioned RDD
   override val rawRDD = rdd
+  rawRDD.persist(storageLevel)
 }
 
 /**
@@ -89,10 +96,14 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
   *   If true, it assumes that the coordinates of the ShellEnvelope
   *   center are (r, theta, phi).
   *   Otherwise, it assumes cartesian coordinates (x, y, z).
+  * @param storageLevel : (StorageLevel)
+  *   Storage level for the raw RDD (unpartitioned). Default is StorageLevel.MEMORY_ONLY.
+  *   See https://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence
+  *   for more information.
   *
   */
 object SphereRDD {
-  def apply(rdd : RDD[ShellEnvelope], isSpherical: Boolean): SphereRDD = {
-    new SphereRDD(rdd, isSpherical)
+  def apply(rdd : RDD[ShellEnvelope], isSpherical: Boolean, storageLevel: StorageLevel): SphereRDD = {
+    new SphereRDD(rdd, isSpherical, storageLevel)
   }
 }

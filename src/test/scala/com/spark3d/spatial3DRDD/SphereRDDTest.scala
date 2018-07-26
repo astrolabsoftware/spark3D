@@ -20,11 +20,11 @@ import com.astrolabsoftware.spark3d.geometryObjects.{BoxEnvelope, ShellEnvelope}
 import com.astrolabsoftware.spark3d.utils.GridType
 import com.astrolabsoftware.spark3d.spatial3DRDD._
 import com.astrolabsoftware.spark3d.spatialPartitioning.{Octree, OctreePartitioner, OctreePartitioning, SpatialPartitioner}
+
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
-import org.apache.log4j.Level
-import org.apache.log4j.Logger
 
 import scala.math.{ceil, floor, log, pow}
 
@@ -127,7 +127,7 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     val options = Map("header" -> "true")
     val pointRDD = new SphereRDD(spark, fn_csv, "x,y,z,radius", false, "csv", options)
 
-    val newRDD = new SphereRDD(pointRDD.rawRDD, pointRDD.isSpherical)
+    val newRDD = new SphereRDD(pointRDD.rawRDD, pointRDD.isSpherical, StorageLevel.MEMORY_ONLY)
 
     assert(newRDD.isInstanceOf[Shape3DRDD[ShellEnvelope]])
   }

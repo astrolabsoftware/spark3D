@@ -18,26 +18,31 @@ SBT_VERSION=2.11.8
 SBT_VERSION_SPARK=2.11
 
 ## Package version
-VERSION=0.1.4
+VERSION=0.1.5
 
 # Package it
 sbt ++${SBT_VERSION} package
 
 # Parameters (put your file)
-fitsfn="file://$PWD/src/test/resources/astro_obs2.fits"
+fitsfnA="file://$PWD/src/test/resources/sph_point_100000.fits"
+fitsfnB="file://$PWD/src/test/resources/sph_point_1000000.fits"
+
 hdu=1
 columns="Z_COSMO,RA,Dec"
-display="show"
+nPart=100
+nside=8192
+kind="healpix"
 
 ## Dependencies
 jars="lib/jhealpix.jar"
-packages="com.github.astrolabsoftware:spark-fits_2.11:0.6.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
+packages="com.github.astrolabsoftware:spark-fits_2.11:0.4.0"
 
 # Run it!
 spark-submit \
   --master local[*] \
-  --class com.astrolabsoftware.spark3d.examples.OnionSpace \
+  --driver-memory 4g --executor-memory 4g \
+  --class com.spark3d.examples.CrossMatch \
   --jars ${jars} \
   --packages ${packages} \
   target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \
-  $fitsfn $hdu $columns $display
+  $fitsfnA $fitsfnB $hdu $columns $nPart $nside $kind

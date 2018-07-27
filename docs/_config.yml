@@ -18,7 +18,7 @@ locale                   : "en-US"
 title                    : "spark3D"
 title_separator          : "-"
 name                     : "spark3D"
-description              : "Apache Spark extension for processing large-scale 3D data sets, such as astrophysical or high energy physics data."
+description              : "Spark extension for processing large-scale 3D data sets: Astrophysics, High Energy Physics, Meteorology, ..."
 url                      : https://astrolabsoftware.github.io
 baseurl                  : /spark3D
 repository               : "astrolabsoftware/spark3D"

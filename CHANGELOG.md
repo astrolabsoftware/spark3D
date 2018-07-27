@@ -1,3 +1,9 @@
+## 0.1.5
+
+- Allow user to cache the rawRDD while loading data to speed-up re-partitioning. ([PR](https://github.com/astrolabsoftware/spark3D/pull/81))
+- Script to benchmark the partitioning ([PR](https://github.com/astrolabsoftware/spark3D/pull/72))
+- Several minor fix ([PR](https://github.com/astrolabsoftware/spark3D/pull/71), [PR](https://github.com/astrolabsoftware/spark3D/pull/76), [PR](https://github.com/astrolabsoftware/spark3D/pull/80))
+
 ## 0.1.4
 
 - Unify the IO: One constructor to rule them all! ([PR](https://github.com/astrolabsoftware/spark3D/pull/69))

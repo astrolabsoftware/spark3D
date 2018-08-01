@@ -14,6 +14,7 @@
 from pyspark import SparkContext
 from typing import Any, List
 
+import os
 import doctest
 import numpy as np
 
@@ -127,7 +128,10 @@ if __name__ == "__main__":
     failure(s) will be printed out.
     """
     # Activate the SparkContext for the test suite
-    dic = {"spark.jars": "/Users/julien/Documents/workspace/myrepos/spark3D/target/scala-2.11/spark3d_2.11-0.1.5.jar"}
+    pwd = os.environ["PWD"]
+    spark3d_jar = os.path.join(
+        pwd, "../target/scala-2.11/spark3d_2.11-0.1.5.jar")
+    dic = {"spark.jars": spark3d_jar}
     conf = pyspark3d_conf("local", "test", dic)
     sc = SparkContext.getOrCreate(conf=conf)
 

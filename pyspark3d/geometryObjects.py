@@ -76,6 +76,167 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
 
     return p3d(x, y, z, isSpherical)
 
+def ShellEnvelope(*args) -> JavaObject:
+    """
+    Binding arount ShellEnvelope.scala. For full description, see
+    `$spark3d/src/main/scala/com/spark3d/geometryObjects/ShellEnvelope.scala`
+
+    The Scala version makes use of several constructors (i.e. with different
+    kinds of argument). In order to mimick this within a single routine, we
+    abstract the arguments of the constructor using the iterable `*args`.
+    There are then 5 possibilities to instantiate a `ShellEnvelope`:
+
+    Case 1: Defined with a center coordinates, inner and outer radius.
+        args = [x: Double, y: Double, z: Double,
+            isSpherical: Boolean, innerRadius: Double, outerRadius: Double]
+    Case 2: Defined with a center coordinates, and a radius (= a sphere).
+        args = [x: Double, y: Double, z: Double,
+            isSpherical: Boolean, radius: Double]
+    Case 3: Defined with a Point3D, and a radius (= a sphere).
+        args = [p: Point3D(...), radius: Double]
+    Case 4: from another ShellEnvelope
+        args = [shell: ShellEnvelope(...)]
+    Case 5: Null envelope
+        args = []
+
+    Returns
+    ----------
+    shell : ShellEnvelope instance
+        An instance of the class ShellEnvelope. Throw an error if
+        the iterable in the constructor is not understood.
+
+    Example
+    ----------
+    >>> from pyspark3d.geometryObjects import Point3D
+
+    Case 1: Defined with a center coordinates (cart), inner and outer radius.
+    >>> shell_case1 = ShellEnvelope(0.0, 1.0, 1.0, False, 0.5, 1.0)
+    >>> assert("ShellEnvelope" in shell_case1.__str__())
+
+    Case 2: Defined with a center coordinates, and a radius (= a sphere).
+    >>> shell_case2 = ShellEnvelope(0.0, 0.0, 0.0, False, 1.0)
+    >>> print(round(shell_case2.getArea(), 1))
+    12.6
+
+    Case 3: Defined with a Point3D, and a radius (= a sphere).
+    >>> origin = Point3D(0.0, 0.0, 0.0, False)
+    >>> shell_case3 = ShellEnvelope(origin, 1.0)
+    >>> print(shell_case3.intersects(origin))
+    True
+
+    Case 4: From another ShellEnvelope
+    >>> shell_case4 = ShellEnvelope(shell_case3)
+    >>> print(shell_case4.isEqual(shell_case3))
+    True
+
+    Case 5: The null shell
+    >>> shell_case5 = ShellEnvelope()
+    >>> print(shell_case5.isNull())
+    True
+
+    To see all the available methods:
+    >>> print(sorted(shell_case1.__dir__())) # doctest: +NORMALIZE_WHITESPACE
+    ['center', 'contains', 'equals', 'expandBy', 'expandInnerRadius',
+    'expandOuterRadius', 'expandToInclude', 'getArea', 'getClass',
+    'getEnvelope', 'getHash', 'hasCenterCloseTo', 'hashCode', 'innerRadius',
+    'innerRadius_$eq', 'intersects', 'intersectsShell', 'isEqual', 'isNull',
+    'isPointInShell', 'notify', 'notifyAll', 'outerRadius', 'outerRadius_$eq',
+    'setToNull', 'toHealpix', 'toHealpix$default$2', 'toString', 'wait']
+
+    """
+    warning = """
+        There are 5 possibilities to instantiate a `ShellEnvelope`:
+
+        Case 1: Defined with a center coordinates, inner and outer radius.
+            args = [x: Double, y: Double, z: Double,
+                isSpherical: Boolean, innerRadius: Double, outerRadius: Double]
+        Case 2: Defined with a center coordinates, and a radius (= a sphere).
+            args = [x: Double, y: Double, z: Double,
+                isSpherical: Boolean, radius: Double]
+        Case 3: Defined with a Point3D, and a radius (= a sphere).
+            args = [p: Point3D(...), radius: Double]
+        Case 4: from another ShellEnvelope
+            args = [shell: ShellEnvelope(...)]
+        Case 5: Null envelope
+            args = []
+    """
+    scalapath = "com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope"
+    shell = load_from_jvm(scalapath)
+
+    # case 6
+    if len(args) == 0:
+        return shell()
+
+    # Case 5
+    elif len(args) == 1:
+        cond_shell = "ShellEnvelope" in args[0].__str__()
+
+        msg = """
+        You are trying to instantiate a ShellEnvelope with 1 argument which is
+        not a ShellEnvelope.
+
+        {}
+        """.format(warning)
+
+        assert(cond_shell), msg
+
+        return shell(args[0])
+
+    # Case 3
+    elif len(args) == 2:
+        msg = """
+        You are trying to instantiate a ShellEnvelope with 2 arguments
+        which are not a Point3D (center) and a float (radius).
+
+        {}
+        """.format(warning)
+
+        assert("Point3D" in args[0].__str__()), msg
+        assert(type(args[1]) is float or type(args[1]) is int), msg
+
+        return shell(args[0], args[1])
+
+    # Case 2
+    elif len(args) == 5:
+        msg = """
+        You are trying to instantiate a ShellEnvelope with 5 arguments
+        but there is one or several type mismatch.
+
+        {}
+        """.format(warning)
+
+        assert(type(args[0]) == int or type(args[0]) == float), msg
+        assert(type(args[1]) == int or type(args[1]) == float), msg
+        assert(type(args[2]) == int or type(args[2]) == float), msg
+        assert(type(args[3]) == bool), msg
+        assert(type(args[4]) == int or type(args[4]) == float), msg
+
+        return shell(args[0], args[1], args[2], args[3], args[4])
+    # Case 1
+    elif len(args) == 6:
+        msg = """
+        You are trying to instantiate a ShellEnvelope with 6 arguments
+        but there is one or several type mismatch.
+
+        {}
+        """.format(warning)
+
+        assert(type(args[0]) == int or type(args[0]) == float), msg
+        assert(type(args[1]) == int or type(args[1]) == float), msg
+        assert(type(args[2]) == int or type(args[2]) == float), msg
+        assert(type(args[3]) == bool), msg
+        assert(type(args[4]) == int or type(args[4]) == float), msg
+        assert(type(args[5]) == int or type(args[5]) == float), msg
+
+        return shell(args[0], args[1], args[2], args[3], args[4], args[5])
+    else:
+        msg = """
+        Constructor not understood.
+
+        {}
+        """.format(warning)
+        assert(False), msg
+
 def BoxEnvelope(*args) -> JavaObject:
     """
     Binding arount BoxEnvelope.scala. For full description,
@@ -87,15 +248,15 @@ def BoxEnvelope(*args) -> JavaObject:
     There are then 5 possibilities to instantiate a `BoxEnvelope`:
 
     Case 1: from coordinates
-        args = [xmin, xmax, ymin, ymax, zmin, zmax]
+        args = [x1: float, x2: float, y1: float, y2: float,
+            z1: float, z2: float]
     Case 2: from a single Point3D (i.e. the box is a Point3D)
-        args = [Point3D(...)]
+        args = [p: Point3D(...)]
     Case 3: from three Point3D
-        args = [Point3D(...), Point3D(...), Point3D(...)]
+        args = [p1: Point3D(...), p2: Point3D(...), p3: Point3D(...)]
     Case 4: from another BoxEnvelope
-        args = [BoxEnvelope(...)]
-    Case 5: Null envelope (goto case 1 with
-            args = [0.0, -1.0, 0.0, -1.0, 0.0, -1.0])
+        args = [b: BoxEnvelope(...)]
+    Case 5: Null envelope
         args = []
 
     Coordinates of input Point3D MUST be cartesian.
@@ -103,8 +264,8 @@ def BoxEnvelope(*args) -> JavaObject:
     Returns
     ----------
     box : BoxEnvelope instance
-        An instance of the class Point3D. Throw an error if the iterable in the
-        constructor is not understood.
+        An instance of the class BoxEnvelope. Throw an error if the
+        iterable in the constructor is not understood.
 
     Example
     ----------
@@ -154,21 +315,20 @@ def BoxEnvelope(*args) -> JavaObject:
 
     """
     warning = """
-        There are then 5 possibilities to instantiate a `BoxEnvelope`:
+        There are 5 possibilities to instantiate a `BoxEnvelope`:
 
         Case 1: from coordinates
-            args = [xmin, xmax, ymin, ymax, zmin, zmax]
+            args = [x1: float, x2: float, y1: float, y2: float,
+                z1: float, z2: float]
         Case 2: from a single Point3D (i.e. the box is a Point3D)
-            args = [Point3D(...)]
+            args = [p: Point3D(...)]
         Case 3: from three Point3D
-            args = [Point3D(...), Point3D(...), Point3D(...)]
+            args = [p1: Point3D(...), p2: Point3D(...), p3: Point3D(...)]
         Case 4: from another BoxEnvelope
-            args = [BoxEnvelope(...)]
-        Case 5: from nothing (default constructor, goto case 1 with
-                args = [0.0, -1.0, 0.0, -1.0, 0.0, -1.0])
+            args = [b: BoxEnvelope(...)]
+        Case 5: Null envelope
             args = []
     """
-
     scalapath = "com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope"
     box = load_from_jvm(scalapath)
 
@@ -219,6 +379,13 @@ def BoxEnvelope(*args) -> JavaObject:
             assert(type(arg) == int or type(arg) == float), msg
 
         return box(args[0], args[1], args[2], args[3], args[4], args[5])
+    else:
+        msg = """
+        Constructor not understood.
+
+        {}
+        """.format(warning)
+        assert(False), msg
 
 
 if __name__ == "__main__":

@@ -101,4 +101,32 @@ class BaseRTree (private val maxN: Int){
 
     slices.toList.map(x => x.toList).toList
   }
+
+  def getLeafNodes(): List[AnyRef] = {
+    val leafNodes = ListBuffer[AnyRef]()
+    getLeafNodes(root, leafNodes)
+    leafNodes.toList
+  }
+
+  def getLeafNodes(node: Node, leafNodes: ListBuffer[AnyRef]): Unit = {
+
+    val leafNodes = ListBuffer[AnyRef]()
+
+    var isLeaf = false
+
+    root.children.map(x => {
+      if (x.isInstanceOf[LeafNode]){
+        isLeaf = true
+      }
+    })
+
+    if (isLeaf) {
+      leafNodes += root.envelope
+      return
+    } else {
+      for (child <- root.children) {
+        getLeafNodes(child, leafNodes)
+      }
+    }
+  }
 }

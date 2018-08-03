@@ -27,10 +27,10 @@ before_script:
   - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
 
 install:
-  - sudo pip install --upgrade pip setuptools wheel
-  - sudo pip install -r requirements.txt
-  - python setup.py build sdist bdist_wheel
-  - sudo pip install dist/pyspark3*.whl
+  - sudo pip3 install --upgrade pip setuptools wheel
+  - sudo pip3 install -r requirements.txt
+  - python3 setup.py build sdist bdist_wheel
+  - sudo pip3 install dist/pyspark3*.whl
 
 script:
   - cd pyspark3d; ./test.sh; cd ..

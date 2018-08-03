@@ -13,7 +13,8 @@
 # limitations under the License.
 from pyspark import SparkContext
 from pyspark3d import load_from_jvm
-from pyspark3d_conf import pyspark3d_conf
+from pyspark3d import pyspark3d_conf
+from pyspark3d import load_user_conf
 from py4j.java_gateway import JavaObject
 
 import os
@@ -392,23 +393,13 @@ if __name__ == "__main__":
     """
     Run the doctest using
 
-    python point3d.py
+    python geometryObjects.py
 
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
     # Activate the SparkContext for the test suite
-    pwd = os.environ["PWD"]
-    spark3d_jar = os.path.join(
-        pwd, "../target/scala-2.11/spark3d_2.11-0.1.5.jar")
-    healpix_jar = os.path.join(pwd, "../lib/jhealpix.jar")
-    sparkfits_maven = "com.github.astrolabsoftware:spark-fits_2.11:0.6.0"
-
-    dic = {
-        "spark.jars": spark3d_jar+","+healpix_jar,
-        "spark.jars.packages": sparkfits_maven
-        }
-
+    dic = load_user_conf()
     conf = pyspark3d_conf("local", "test", dic)
     sc = SparkContext.getOrCreate(conf=conf)
 

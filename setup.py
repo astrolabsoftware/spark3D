@@ -10,7 +10,7 @@ from distutils.command.clean import clean
 from distutils.command.sdist import sdist
 from distutils.spawn import find_executable
 
-requirements = ["numpy>=1.14"]
+requirements = ["numpy>=1.14", "pyspark"]
 setup_requirements = ["wheel"]
 test_requirements = ["coverage>=4.2", "coveralls"]
 

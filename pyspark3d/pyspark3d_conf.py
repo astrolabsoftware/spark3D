@@ -11,66 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pyspark import SparkConf
-from typing import Dict
+import os
+pwd = os.environ["PWD"]
 
-import doctest
-import numpy as np
+# This is the place where paths and environment variables should be defined
+# Note that this is only for the driver (loading JARS, conf, etc)
 
-def pyspark3d_conf(
-        master: str, AppName: str, confdic: Dict={}) -> SparkConf:
-    """
-    Set the configuration for running pyspark3d.
-    In case you have a doubt about a missing package, just run:
-    `conf.toDebugString().split("\n")`
-    to see what is registered in the conf.
+# spark3D version
+version = "0.1.5"
 
-    Parameters
-    ----------
-    master : str
-        The master URL to connect to, such as "local" to run
-        locally with one thread, "local[4]" to run locally with 4 cores, or
-        "spark://master:7077" to run on a Spark standalone cluster, or
-        "yarn" to run on a YARN cluster.
-    AppName : str
-        The name for the application.
-    confdic : Dict, optional
-        Additional key/value to be passed to the configuration.
-        Typically, this is the place where you will set the path to
-        external JARS.
+# Scala version used to compile spark3D
+scala_version = "2.11"
 
-    Returns
-    ----------
-    conf : SparkConf instance
+# External JARS to be added to both driver and executors
+extra_jars = [
+    os.path.join(pwd, "../target/scala-{}/spark3d_{}-{}.jar".format(
+        scala_version, scala_version, version)),
+    os.path.join(pwd, "../lib/jhealpix.jar")
+]
 
-    Examples
-    ----------
-    >>> dic = {"spark.jars": "path/to/my/jar1,path/to/my/jar2"}
-    >>> conf = pyspark3d_conf("local[*]", "myTest", dic)
-    >>> conf.get("spark.master")
-    'local[*]'
-    """
-    conf = SparkConf()
-    conf.setMaster(master)
-    conf.setAppName(AppName)
-    for k, v in confdic.items():
-        conf.set(key=k, value=v)
-
-    return conf
-
-
-if __name__ == "__main__":
-    """
-    Run the doctest using
-
-    python pyspark3d_conf.py
-
-    If the tests are OK, the script should exit gracefuly, otherwise the
-    failure(s) will be printed out.
-    """
-    # Numpy introduced non-backward compatible change from v1.14.
-    if np.__version__ >= "1.14.0":
-        np.set_printoptions(legacy="1.13")
-
-    # Run the test suite
-    doctest.testmod()
+# External packages specified using their Maven coordinates
+extra_packages = [
+    "com.github.astrolabsoftware:spark-fits_2.11:0.6.0",
+]

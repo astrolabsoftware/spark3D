@@ -11,14 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from pyspark import SparkConf
 from pyspark import SparkContext
-from typing import Any, List
+from pyspark.sql import SparkSession
+
+from typing import Any, List, Dict
 
 import os
 import doctest
 import numpy as np
 
-from pyspark3d_conf import pyspark3d_conf
+from pyspark3d_conf import *
 
 ROOT_JVM = "_gateway.jvm"
 
@@ -31,6 +34,12 @@ def get_spark_context() -> SparkContext:
     ---------
     sparkContext : SparkContext instance
         The active sparkContext
+
+    Examples
+    ---------
+    >>> pysc = get_spark_context()
+    >>> print(type(pysc))
+    <class 'pyspark.context.SparkContext'>
     """
     if SparkContext._active_spark_context:
         return SparkContext._active_spark_context
@@ -117,6 +126,113 @@ def load_from_jvm(scala_package: str) -> Any:
 
     return jvm_obj
 
+def get_spark_session(
+        master: str="local[*]",
+        appname: str="test",
+        dicconf={}) -> SparkSession:
+    """
+    Return a SparkSession.
+
+    Parameters
+    ----------
+    master : str
+        Execution mode: local[*], spark://..., yarn, etc
+    appname : str
+        Name for the application
+    dicconf : dictionary
+        Key/value to pass to the SparkConf. Typically location of JARS,
+        Maven coordinates, etc..
+
+    Returns
+    ----------
+    spark : SparkSession
+        The spark session
+
+    Examples
+    ----------
+    >>> dicconf = load_user_conf()
+    >>> spark = get_spark_session("local[*]", "test", dicconf)
+    >>> print(type(spark))
+    <class 'pyspark.sql.session.SparkSession'>
+    """
+    # Grab the user conf
+    conf = pyspark3d_conf("local", "test", dicconf)
+
+    # Instantiate a spark session
+    spark = SparkSession\
+        .builder\
+        .appName("test")\
+        .config(conf=conf)\
+        .getOrCreate()
+
+    return spark
+
+def load_user_conf() -> Dict:
+    """
+    Load pre-defined user Spark configuration stored in pyspark3d_conf.py
+    to be passed to the SparkConf.
+
+    Returns
+    ---------
+    dic : dictionary
+        Dictionary with extra arguments to be passed to the SparkConf
+
+    Examples
+    ---------
+    >>> dic = load_user_conf()
+    >>> assert("spark.jars" in dic)
+    """
+    extra_jars_with_commas = ",".join(extra_jars)
+    extra_packages_with_commas = ",".join(extra_packages)
+
+    dic = {
+        "spark.jars": extra_jars_with_commas,
+        "spark.jars.packages": extra_packages_with_commas
+        }
+
+    return dic
+
+def pyspark3d_conf(
+        master: str, AppName: str, confdic: Dict={}) -> SparkConf:
+    """
+    Set the configuration for running pyspark3d.
+    In case you have a doubt about a missing package, just run:
+    `conf.toDebugString().split("\n")`
+    to see what is registered in the conf.
+
+    Parameters
+    ----------
+    master : str
+        The master URL to connect to, such as "local" to run
+        locally with one thread, "local[4]" to run locally with 4 cores, or
+        "spark://master:7077" to run on a Spark standalone cluster, or
+        "yarn" to run on a YARN cluster.
+    AppName : str
+        The name for the application.
+    confdic : Dict, optional
+        Additional key/value to be passed to the configuration.
+        Typically, this is the place where you will set the path to
+        external JARS.
+
+    Returns
+    ----------
+    conf : SparkConf instance
+
+    Examples
+    ----------
+    >>> dic = load_user_conf()
+    >>> conf = pyspark3d_conf("local[*]", "myTest", dic)
+    >>> conf.get("spark.master")
+    'local[*]'
+    """
+    conf = SparkConf()
+    conf.setMaster(master)
+    conf.setAppName(AppName)
+    for k, v in confdic.items():
+        conf.set(key=k, value=v)
+
+    return conf
+
 
 if __name__ == "__main__":
     """
@@ -128,10 +244,7 @@ if __name__ == "__main__":
     failure(s) will be printed out.
     """
     # Activate the SparkContext for the test suite
-    pwd = os.environ["PWD"]
-    spark3d_jar = os.path.join(
-        pwd, "../target/scala-2.11/spark3d_2.11-0.1.5.jar")
-    dic = {"spark.jars": spark3d_jar}
+    dic = load_user_conf()
     conf = pyspark3d_conf("local", "test", dic)
     sc = SparkContext.getOrCreate(conf=conf)
 

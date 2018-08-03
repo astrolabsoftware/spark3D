@@ -15,6 +15,8 @@
  */
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
+import java.util.HashMap
+
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.spatial3DRDD.Loader._
 
@@ -31,7 +33,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     * For more information about available official connectors:
     * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
     *
-    * This includes: CSV, JSON, TXT, FITS, ROOT, HDF5, ...
+    * We currently include: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
     *
     * {{{
     *   // Here is an example with a CSV file containing
@@ -62,7 +64,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     *     - text
     *     - csv
     *     - json
-    *     - com.astrolabsoftware.sparkfits
+    *     - com.astrolabsoftware.sparkfits or fits
     *     - org.dianahep.sparkroot
     *     - gov.llnl.spark.hdf or hdf5
     * @param options : (Map[String, String])
@@ -82,6 +84,23 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
       Point3DRDDFromV2(
         spark, filename, colnames, isSpherical, format, options
       ), isSpherical, storageLevel
+    )
+  }
+
+  /**
+    * Constructor of `Point3DRDD` which is suitable for py4j.
+    * It calls `Point3DRDDFromV2PythonHelper` instead of `Point3DRDDFromV2`.
+    * All args are the same but `options` which is a `java.util.HashMap`, and
+    * `storageLevel` which is removed and set to StorageLevel.MEMORY_ONLY
+    * (user cannot set the storage level in pyspark3d for the moment).
+    *
+    */
+  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
+      format: String, options: HashMap[String, String]) {
+    this(
+      Point3DRDDFromV2PythonHelper(
+        spark, filename, colnames, isSpherical, format, options
+      ), isSpherical, StorageLevel.MEMORY_ONLY
     )
   }
 

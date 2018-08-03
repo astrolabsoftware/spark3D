@@ -15,6 +15,9 @@
  */
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
+import java.util.HashMap
+import scala.collection.JavaConverters._
+
 import com.astrolabsoftware.spark3d.geometryObjects._
 
 import org.apache.spark.sql.SparkSession
@@ -33,7 +36,7 @@ object Loader {
     * For more information about available official connectors:
     * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
     *
-    * This includes: CSV, JSON, TXT, Avro, parquet, FITS, ROOT, HDF5, ...
+    * That currently includes: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
     *
     * {{{
     *   // Here is an example with a CSV file containing
@@ -102,11 +105,52 @@ object Loader {
   }
 
   /**
+    * Point3DRDDFromV2 version suitable for py4j.
+    *
+    * Note that pyspark works with Python wrappers around the *Java* version
+    * of Spark objects, not around the *Scala* version of Spark objects.
+    * Therefore on the Scala side, we trigger the method
+    * `Point3DRDDFromV2PythonHelper` which is a modified version of
+    * `Point3DRDDFromV2`. The change is that `options` on the Scala side
+    * is a java.util.HashMap in order to smoothly connect to `dictionary` in
+    * the Python side.
+    *
+    */
+  def Point3DRDDFromV2PythonHelper(
+      spark : SparkSession, filename : String,
+      colnames : String, isSpherical: Boolean, format: String,
+      options: HashMap[String, String]): RDD[Point3D] = {
+
+    // Generic load for v2 datasource
+    val optionsScala = options.asScala
+    val df = spark.read.format(format).options(optionsScala).load(filename)
+
+    // Grab the name of columns
+    val csplit = colnames.split(",")
+
+    // Select the 3 columns (x, y, z)
+    // and cast to double in case.
+    val rawRDD = df.select(
+      col(csplit(0)).cast("double"),
+      col(csplit(1)).cast("double"),
+      col(csplit(2)).cast("double")
+    )
+    // DF to RDD
+    .rdd
+    // map to Point3D
+    .map(x => new Point3D(
+      x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical)
+    )
+
+    rawRDD
+  }
+
+  /**
     * Construct a RDD[ShellEnvelope] from whatever data source registered in Spark.
     * For more information about available official connectors:
     * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
     *
-    * This includes: CSV, JSON, TXT, Avro, parquet, FITS, ROOT, HDF5, ...
+    * That currently includes: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
     *
     * {{{
     *   // Here is an example with a CSV file containing

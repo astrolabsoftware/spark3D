@@ -12,22 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-pwd = os.environ["PWD"]
+from pathlib import Path
+from version import __version__
+
+path_to_conf = Path().parent
 
 # This is the place where paths and environment variables should be defined
 # Note that this is only for the driver (loading JARS, conf, etc)
 
 # spark3D version
-version = "0.1.5"
+version = __version__
 
 # Scala version used to compile spark3D
 scala_version = "2.11"
 
+# Verbosity for Spark
+log_level = "WARN"
+
 # External JARS to be added to both driver and executors
+# Should contain the FAT JAR of spark3D.
 extra_jars = [
-    os.path.join(pwd, "../target/scala-{}/spark3d_{}-{}.jar".format(
-        scala_version, scala_version, version)),
-    os.path.join(pwd, "../lib/jhealpix.jar")
+    os.path.join(
+        path_to_conf, "../target/scala-{}/spark3D-assembly-{}.jar".format(
+            scala_version, version))
 ]
 
 # External packages specified using their Maven coordinates

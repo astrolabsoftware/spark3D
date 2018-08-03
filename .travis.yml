@@ -18,26 +18,36 @@ addons:
 cache:
   directories:
     - $HOME/.m2/repository
-      # - $HOME/.sbt
-      # - $HOME/.ivy2
     - $HOME/.sbt/launchers/
 
+before_install:
+  # Get python 3.6 which is not available for
+  # direct download in trusty
+  - sudo add-apt-repository ppa:jonathonf/python-3.6
+  - sudo apt-get update
+  - sudo apt-get install python3.6
+
 before_script:
+  # Get SBT
   - mkdir -p $HOME/.sbt/launchers/0.13.8/
   - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
 
 install:
+  # Install all python deps and deploy pyspark3d
   - sudo pip3 install --upgrade pip setuptools wheel
   - sudo pip3 install -r requirements.txt
   - python3 setup.py build sdist bdist_wheel
   - sudo pip3 install dist/pyspark3*.whl
 
 script:
+  # Test pyspark3d
   - ./test_python.sh
+  # Test spark3D
   - echo "Scala version:" $TRAVIS_SCALA_VERSION
   - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
   # Trick to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
 
 after_success:
+  # Send data to codecov
   - bash <(curl -s https://codecov.io/bash)

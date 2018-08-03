@@ -21,11 +21,11 @@ cache:
     - $HOME/.sbt/launchers/
 
 before_install:
-  # Get python 3.6 which is not available for
+  # Get python 3.6 from PPA as it is not available for
   # direct download in trusty
-  - sudo add-apt-repository ppa:jonathonf/python-3.6
+  - sudo add-apt-repository -y ppa:jonathonf/python-3.6
   - sudo apt-get update
-  - sudo apt-get install python3.6
+  - sudo apt-get install -y python3.6
 
 before_script:
   # Get SBT

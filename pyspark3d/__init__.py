@@ -17,11 +17,8 @@ from pyspark.sql import SparkSession
 
 from typing import Any, List, Dict
 
-import os
-import doctest
-import numpy as np
-
-from pyspark3d_conf import *
+from version import __version__
+from pyspark3d_conf import extra_jars, extra_packages, log_level
 
 ROOT_JVM = "_gateway.jvm"
 
@@ -233,6 +230,30 @@ def pyspark3d_conf(
 
     return conf
 
+def quiet_logs(log_level_manual=None):
+    """
+    Set the level of log in Spark.
+
+    Parameters
+    ----------
+    log_level_manual : String, optional
+        Level of log wanted: INFO, WARN, ERROR, OFF, etc.
+        By default, this is read from pyspark3d_conf.py
+    """
+    ## Get the logger
+    pysc = get_spark_context()
+    logger = pysc._jvm.org.apache.log4j
+
+    ## Set the level
+    if log_level_manual is None:
+        level = getattr(logger.Level, log_level, "OFF")
+    else:
+        level = getattr(logger.Level, log_level_manual, "INFO")
+
+    logger.LogManager.getLogger("org"). setLevel(level)
+    logger.LogManager.getLogger("akka").setLevel(level)
+
+
 
 if __name__ == "__main__":
     """
@@ -243,6 +264,10 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import os
+    import doctest
+    import numpy as np
+
     # Activate the SparkContext for the test suite
     dic = load_user_conf()
     conf = pyspark3d_conf("local", "test", dic)

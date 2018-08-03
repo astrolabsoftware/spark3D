@@ -1,26 +1,48 @@
-language: scala
+matrix:
+  include:
+    - language: scala
 
-scala:
-  - 2.11.8
+      scala:
+        - 2.11.8
 
-jdk:
-  - oraclejdk8
-cache:
-  directories:
-    - $HOME/.m2/repository
-      # - $HOME/.sbt
-      # - $HOME/.ivy2
-    - $HOME/.sbt/launchers/
+      jdk:
+        - oraclejdk8
+      cache:
+        directories:
+          - $HOME/.m2/repository
+            # - $HOME/.sbt
+            # - $HOME/.ivy2
+          - $HOME/.sbt/launchers/
 
-before_script:
-  - mkdir -p $HOME/.sbt/launchers/0.13.8/
-  - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
+      before_script:
+        - mkdir -p $HOME/.sbt/launchers/0.13.8/
+        - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
 
-script:
-  - echo "Scala version:" $TRAVIS_SCALA_VERSION
-  - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
-  # Trick to avoid unnecessary cache updates
-  - find $HOME/.sbt -name "*.lock" | xargs rm
+      script:
+        - echo "Scala version:" $TRAVIS_SCALA_VERSION
+        - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
+        # Trick to avoid unnecessary cache updates
+        - find $HOME/.sbt -name "*.lock" | xargs rm
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
+    - language: python
+
+      python:
+        - 3.6
+
+      before_install:
+        - mkdir -p $HOME/.sbt/launchers/0.13.8/
+        - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
+
+      install:
+        - pip install --upgrade pip setuptools wheel
+        - pip install -r requirements.txt
+        - python setup.py build sdist bdist_wheel
+        - pip install dist/pyspark3*.whl
+
+      # Tests are inside modules (doctest)
+      script:
+        - cd pyspark3d
+        - ./test.sh

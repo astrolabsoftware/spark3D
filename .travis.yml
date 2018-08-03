@@ -10,8 +10,6 @@ addons:
   apt:
     packages:
     - build-essential
-    - python-dev
-    - python-pip
 
 cache:
   directories:

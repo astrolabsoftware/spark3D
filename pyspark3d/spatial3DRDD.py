@@ -119,7 +119,7 @@ if __name__ == "__main__":
     """
     Run the doctest using
 
-    python point3d.py
+    python spatial3DRDD.py
 
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.

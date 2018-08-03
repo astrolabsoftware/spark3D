@@ -1,3 +1,5 @@
+sudo: required
+
 language: scala
 
 scala:
@@ -10,6 +12,8 @@ addons:
   apt:
     packages:
     - build-essential
+    - python3-dev
+    - python3-pip
 
 cache:
   directories:

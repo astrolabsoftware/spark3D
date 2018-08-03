@@ -33,7 +33,7 @@ install:
   - sudo pip3 install dist/pyspark3*.whl
 
 script:
-  - cd pyspark3d; ./test.sh; cd ..
+  - ./test_python.sh
   - echo "Scala version:" $TRAVIS_SCALA_VERSION
   - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
   # Trick to avoid unnecessary cache updates

@@ -35,9 +35,11 @@ before_script:
 install:
   # Install all python deps and deploy pyspark3d
   - sudo pip3 install --upgrade pip setuptools wheel
-  - sudo pip3 install -r requirements.txt
-  - python3.6 setup.py build sdist bdist_wheel
-  - sudo pip3 install dist/pyspark3*.whl
+  - sudo pip3 install --upgrade virtualenvwrapper
+  - virtualenv -p `which python3.6` wrapper
+  - sudo wrapper/bin/pip3 install -r requirements.txt
+  - wrapper/bin/python3.6 setup.py build sdist bdist_wheel
+  - sudo wrapper/bin/pip3 install dist/pyspark3*.whl
 
 script:
   # Test pyspark3d

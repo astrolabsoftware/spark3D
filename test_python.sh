@@ -6,7 +6,7 @@
 cd pyspark3d
 for i in *.py
 do
-    coverage run -a $i
+    coverage run -a --source=. $i
 done
 
 coverage report

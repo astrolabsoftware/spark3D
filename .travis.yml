@@ -93,7 +93,7 @@ script:
      source $HOME/miniconda/bin/activate test-environment;
      cd $HOME/spark3D;
      export PATH=/root/.local/bin:$PATH;
-     export PYTHONPATH=$HOME/spark3D:$PYTHONPATH
+     export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
      ./test_python.sh"
 
 after_success:

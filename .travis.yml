@@ -77,10 +77,12 @@ install:
 
 script:
  # Run the scala unit tests first
- - docker exec -t ubuntu-test bash -c "
+ - ci_env=`bash <(curl -s https://codecov.io/env)`
+ - docker exec $ci_env -t ubuntu-test bash -c "
      source $HOME/miniconda/bin/activate test-environment;
      cd $HOME/spark3D;
-     ./test_scala.sh"
+     ./test_scala.sh;
+     bash <(curl -s https://codecov.io/bash)"
 
  # Build the assembly (without re-running the test)
  - docker exec -t ubuntu-test bash -c "
@@ -96,6 +98,6 @@ script:
      export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
      ./test_python.sh"
 
-after_success:
-  # Send data to codecov
-  - docker exec -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"
+# after_success:
+#   # Send data to codecov
+#   - docker exec -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"

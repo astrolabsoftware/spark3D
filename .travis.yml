@@ -98,4 +98,4 @@ script:
 
 after_success:
   # Send data to codecov
-  - bash <(curl -s https://codecov.io/bash)
+  - docker exec -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"

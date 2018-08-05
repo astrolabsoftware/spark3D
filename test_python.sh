@@ -9,11 +9,11 @@ do
     coverage run -a --source=. $i
 done
 
-coverage report
-
-echo " " >> cov.txt
-echo $(date) >> cov.txt
-coverage report >> cov.txt
-
-coverage html
-cd ../
+# coverage report
+#
+# echo " " >> cov.txt
+# echo $(date) >> cov.txt
+# coverage report >> cov.txt
+#
+# coverage html
+# cd ../

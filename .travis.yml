@@ -82,7 +82,7 @@ script:
      source $HOME/miniconda/bin/activate test-environment;
      cd $HOME/spark3D;
      ./test_scala.sh;
-     bash <(curl -s https://codecov.io/bash)"
+     bash <(curl -s https://codecov.io/bash) -cF scala"
 
  # Build the assembly (without re-running the test)
  - docker exec -t ubuntu-test bash -c "
@@ -91,13 +91,15 @@ script:
      sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly"
 
  # Run python tests
- - docker exec -t ubuntu-test bash -c "
+ - docker exec $ci_env -t ubuntu-test bash -c "
      source $HOME/miniconda/bin/activate test-environment;
      cd $HOME/spark3D;
      export PATH=/root/.local/bin:$PATH;
      export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
-     ./test_python.sh"
+     ./test_python.sh;
+     bash <(curl -s https://codecov.io/bash) -cF python"
 
 # after_success:
 #   # Send data to codecov
-#   - docker exec -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"
+#   - ci_env=`bash <(curl -s https://codecov.io/env)`
+#   - docker run $ci_env -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"

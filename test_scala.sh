@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## SBT Version
-SBT_VERSION=2.11.8
-
 # Clean and launch the test suite
-sbt ++${SBT_VERSION} clean
-sbt ++${SBT_VERSION} coverage test coverageReport
+# Must be launched using ./test_scala.sh <SCALA_BINARY_VERSION>
+sbt ++$1 clean
+sbt ++$1 coverage test coverageReport

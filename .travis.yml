@@ -82,26 +82,20 @@ install:
 script:
   # Run the scala unit tests first and send coverage data
   # This step is currently the longer as one needs to initialise SBT
-  # and download million of packages...
+  # and download millions of packages...
   - ci_env=`bash <(curl -s https://codecov.io/env)`
   - docker exec $ci_env -t ubuntu-test bash -c "
       source $HOME/miniconda/bin/activate test-environment;
       cd $HOME/spark3D;
-      ./test_scala.sh;
+      ./test_scala.sh $SCALA_BINARY_VERSION;
       bash <(curl -s https://codecov.io/bash) -cF scala"
 
-  # Build the assembly JAR (without re-running the test) which will
-  # be used for running the python unit tests
-  - docker exec -t ubuntu-test bash -c "
-      source $HOME/miniconda/bin/activate test-environment;
-      cd $HOME/spark3D;
-      sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly"
-
-  # Run the python unit tests and send coverage data
+  # Run the python unit tests (which includes building the
+  # assembly JAR) and send coverage data.
   - docker exec $ci_env -t ubuntu-test bash -c "
       source $HOME/miniconda/bin/activate test-environment;
       cd $HOME/spark3D;
       export PATH=/root/.local/bin:$PATH;
       export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
-      ./test_python.sh;
+      ./test_python.sh $SCALA_BINARY_VERSION;
       bash <(curl -s https://codecov.io/bash) -cF python"

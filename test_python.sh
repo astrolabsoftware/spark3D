@@ -14,6 +14,12 @@
 # limitations under the License.
 
 ## Script to launch the python test suite and measure the coverage.
+## Must be launched as ./test_python.sh <SCALA_BINARY_VERSION>
+
+# First build the assembly JAR
+sbt 'set test in assembly := {}' ++$1 assembly
+
+# Then run the test suite
 cd pyspark3d
 for i in *.py
 do

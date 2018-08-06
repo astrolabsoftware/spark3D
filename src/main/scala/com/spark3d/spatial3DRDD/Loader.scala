@@ -220,4 +220,46 @@ object Loader {
 
     rawRDD
   }
+
+  /**
+    * SphereRDDFromV2 version suitable for py4j.
+    *
+    * Note that pyspark works with Python wrappers around the *Java* version
+    * of Spark objects, not around the *Scala* version of Spark objects.
+    * Therefore on the Scala side, we trigger the method
+    * `SphereRDDFromV2PythonHelper` which is a modified version of
+    * `SphereRDDFromV2`. The change is that `options` on the Scala side
+    * is a java.util.HashMap in order to smoothly connect to `dictionary` in
+    * the Python side.
+    *
+    */
+  def SphereRDDFromV2PythonHelper(
+      spark : SparkSession, filename : String,
+      colnames : String, isSpherical: Boolean, format: String,
+      options: HashMap[String, String]): RDD[ShellEnvelope] = {
+
+    // Generic load for v2 datasource
+    val optionsScala = options.asScala
+    val df = spark.read.format(format).options(options).load(filename)
+
+    // Grab the name of columns
+    val csplit = colnames.split(",")
+
+    // Select the 3 columns (x, y, z) + radius
+    // and cast to double in case.
+    val rawRDD = df.select(
+      col(csplit(0)).cast("double"),
+      col(csplit(1)).cast("double"),
+      col(csplit(2)).cast("double"),
+      col(csplit(3)).cast("double")
+    )
+      // DF to RDD
+      .rdd
+      // map to ShellEnvelope
+      .map(x => new ShellEnvelope(
+      x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
+    )
+
+    rawRDD
+  }
 }

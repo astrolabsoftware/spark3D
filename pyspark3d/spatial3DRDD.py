@@ -61,7 +61,7 @@ def Point3DRDD(
     filename : str
         File name where the data is stored.
     colnames : str
-        Comma-separated names of (x, y, z) columns. Example: "Z_COSMO,RA,Dec".
+        Comma-separated names of (x,y,z) columns. Example: "Z_COSMO,RA,Dec".
     isSpherical : bool
         If true, it assumes that the coordinates of the Point3D are
         (r, theta, phi). Otherwise, it assumes cartesian coordinates (x, y, z).
@@ -113,6 +113,99 @@ def Point3DRDD(
         isSpherical, format, options)
 
     return p3drdd
+
+def SphereRDD(
+        spark: SparkSession, filename: str, colnames: str,
+        isSpherical: bool, format: str, options: Dict={"": ""}) -> JavaObject:
+    """
+    Binding arount SphereRDD.scala. For full description,
+    see `$spark3d/src/main/scala/com/spark3d/spatial3DRDD/SphereRDD.scala`
+
+    Construct a SphereRDD from a RDD[ShellEnvelope].
+    The RDD[Point3D] is constructed from any available data source registered
+    in Spark. For more information about available official connectors:
+    `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`.
+    That currently includes: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
+
+    Note
+    -----------
+    The Scala version makes use of several constructors (i.e. with different
+    kinds of argument). Here we only provide one way to instantiate a
+    SphereRDD Scala class, through the full list of arguments.
+
+    Note that pyspark works with Python wrappers around the *Java* version
+    of Spark objects, not around the *Scala* version of Spark objects.
+    Therefore on the Scala side, we trigger the method
+    `SphereRDDFromV2PythonHelper` which is a modified version of
+    `SphereRDDFromV2`. The main change is that `options` on the Scala side
+    is a java.util.HashMap in order to smoothly connect to `dictionary` in
+    the Python side.
+
+    Also for convenience (for the developper!), the StorageLevel is no more an
+    argument in the constructor but is set to `StorageLevel.MEMORY_ONLY`.
+    This is because I couldn't find how to pass that information from
+    Python to Java... TBD!
+
+    Parameters
+    ----------
+    spark : SparkSession
+        The current Spark session.
+    filename : str
+        File name where the data is stored.
+    colnames : str
+        Comma-separated names of (x,y,z,radius) columns.
+        Example: "Z_COSMO,RA,Dec,Radius".
+    isSpherical : bool
+        If true, it assumes that the coordinates of the Point3D are
+        (r, theta, phi). Otherwise, it assumes cartesian coordinates (x, y, z).
+    format : str
+        The name of the data source as registered in Spark. For example:
+            - text
+            - csv
+            - json
+            - com.astrolabsoftware.sparkfits or fits
+            - org.dianahep.sparkroot
+            - gov.llnl.spark.hdf or hdf5
+    options : dic of (str: str), optional
+        Options to pass to the DataFrameReader. Default is no options.
+
+    Returns
+    ----------
+    sphererdd : SphereRDD instance
+        Instance of the Scala SphereRDD class.
+
+    Examples
+    ----------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+    >>> fn = "../src/test/resources/cartesian_spheres.fits"
+    >>> rdd = SphereRDD(spark, fn, "x,y,z,radius",
+    ...     False, "fits", {"hdu": "1"})
+    >>> assert("spark3d.spatial3DRDD.SphereRDD" in rdd.toString())
+    >>> print(rdd.rawRDD().count())
+    20000
+
+    To see all the available methods:
+    >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE
+    ['$lessinit$greater$default$6', '$lessinit$greater$default$7', 'apply',
+    'boundary', 'boundary_$eq',
+    'com$astrolabsoftware$spark3d$spatial3DRDD$Shape3DRDD$$mapElements$1',
+    'equals', 'getClass', 'getDataEnvelope', 'hashCode', 'isSpherical',
+    'notify', 'notifyAll', 'partition', 'rawRDD', 'spatialPartitioning',
+    'spatialPartitioning$default$2', 'toString', 'wait']
+
+    """
+    scalapath = "com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD"
+    scalaclass = load_from_jvm(scalapath)
+
+    sphererdd = scalaclass(
+        spark._jwrapped.sparkSession(), filename, colnames,
+        isSpherical, format, options)
+
+    return sphererdd
 
 
 if __name__ == "__main__":

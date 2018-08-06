@@ -15,6 +15,8 @@
  */
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
+import java.util.HashMap
+
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.spatial3DRDD.Loader._
 
@@ -28,7 +30,12 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
     override val isSpherical: Boolean, storageLevel: StorageLevel) extends Shape3DRDD[ShellEnvelope] {
 
   /**
-    * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
+    * Construct a RDD[ShellEnvelope] from whatever data source registered in Spark.
+    * For more information about available official connectors:
+    * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
+    *
+    * We currently include: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
+    *
     * {{{
     *   // Here is an example with a CSV file containing
     *   // 3 cartesian coordinates + 1 radius columns labeled x,y,z,radius.
@@ -79,6 +86,23 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
       storageLevel: StorageLevel = StorageLevel.NONE) {
     this(SphereRDDFromV2(spark, filename, colnames, isSpherical, format, options),
       isSpherical, storageLevel
+    )
+  }
+
+  /**
+    * Constructor of `SphereRDD` which is suitable for py4j.
+    * It calls `SphereRDDFromV2PythonHelper` instead of `SphereRDDFromV2`.
+    * All args are the same but `options` which is a `java.util.HashMap`, and
+    * `storageLevel` which is removed and set to StorageLevel.MEMORY_ONLY
+    * (user cannot set the storage level in pyspark3d for the moment).
+    *
+    */
+  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
+      format: String, options: HashMap[String, String]) {
+    this(
+      SphereRDDFromV2PythonHelper(
+        spark, filename, colnames, isSpherical, format, options
+      ), isSpherical, StorageLevel.MEMORY_ONLY
     )
   }
 

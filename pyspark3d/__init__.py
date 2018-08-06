@@ -265,7 +265,6 @@ def set_spark_log_level(log_level_manual=None):
     logger.LogManager.getLogger("akka").setLevel(level)
 
 
-
 if __name__ == "__main__":
     """
     Run the doctest using

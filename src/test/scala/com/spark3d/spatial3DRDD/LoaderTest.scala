@@ -135,4 +135,12 @@ class LoaderTest extends FunSuite with BeforeAndAfterAll {
 
     assert(pointRDD.isInstanceOf[Point3DRDD] && pointRDD.rawRDD.count() == 20000)
   }
+
+  test("PythonHelper: can you initialise a SphereRDD?") {
+    val options = new java.util.HashMap[String, String]()
+    options.put("hdu", "1")
+    val sRDD = new SphereRDD(spark, fns_fits, "x,y,z,radius", false, "fits", options)
+
+    assert(sRDD.isInstanceOf[SphereRDD] && sRDD.rawRDD.count() == 20000)
+  }
 }

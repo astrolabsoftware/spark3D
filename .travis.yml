@@ -24,7 +24,7 @@ env:
       PYTHON_VERSION=3.6.2
 
 before_install:
-  # - ./bin/download_travis_dependencies.sh
+  # Link to python 2 or 3
   - if [[ "$PYTHON_VERSION" == 2.* ]]; then
         export CONDA_URL="repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
         export PYSPARK_PYTHON=python2;
@@ -32,6 +32,7 @@ before_install:
         export CONDA_URL="repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
         export PYSPARK_PYTHON=python3;
       fi
+  # Run the base image (Ubuntu 16.04) and set the env
   - docker run -e "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
                -e SPARK_VERSION
                -e SPARK_BUILD
@@ -40,8 +41,11 @@ before_install:
                -e PYSPARK_PYTHON
                -e CONDA_URL
                -d --name ubuntu-test -v $HOME ubuntu:16.04 tail -f /dev/null
+  # Copy our file to the image
   - docker cp `pwd` ubuntu-test:$HOME/
+  # Copy the cache to speed-up later call
   - docker cp $HOME/.cache ubuntu-test:$HOME/
+  # For debug - show the process
   - docker ps
 
 # See this page: http://conda.pydata.org/docs/travis.html
@@ -60,7 +64,7 @@ install:
       $HOME/miniconda/bin/conda info -a;
       $HOME/miniconda/bin/conda create -q -n test-environment python=$PYTHON_VERSION"
 
-  # Install SBT
+  # Install SBT (long - need to speed-up this!)
   - docker exec -t ubuntu-test bash -c "apt-get install apt-transport-https"
   - docker exec -t ubuntu-test bash -c "
       echo 'deb https://dl.bintray.com/sbt/debian /' | tee -a /etc/apt/sources.list.d/sbt.list;
@@ -76,30 +80,28 @@ install:
       pip install --user -r $HOME/spark3D/requirements.txt;"
 
 script:
- # Run the scala unit tests first
- - ci_env=`bash <(curl -s https://codecov.io/env)`
- - docker exec $ci_env -t ubuntu-test bash -c "
-     source $HOME/miniconda/bin/activate test-environment;
-     cd $HOME/spark3D;
-     ./test_scala.sh;
-     bash <(curl -s https://codecov.io/bash) -cF scala"
+  # Run the scala unit tests first and send coverage data
+  # This step is currently the longer as one needs to initialise SBT
+  # and download million of packages...
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
+  - docker exec $ci_env -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      cd $HOME/spark3D;
+      ./test_scala.sh;
+      bash <(curl -s https://codecov.io/bash) -cF scala"
 
- # Build the assembly (without re-running the test)
- - docker exec -t ubuntu-test bash -c "
-     source $HOME/miniconda/bin/activate test-environment;
-     cd $HOME/spark3D;
-     sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly"
+  # Build the assembly JAR (without re-running the test) which will
+  # be used for running the python unit tests
+  - docker exec -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      cd $HOME/spark3D;
+      sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly"
 
- # Run python tests
- - docker exec $ci_env -t ubuntu-test bash -c "
-     source $HOME/miniconda/bin/activate test-environment;
-     cd $HOME/spark3D;
-     export PATH=/root/.local/bin:$PATH;
-     export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
-     ./test_python.sh;
-     bash <(curl -s https://codecov.io/bash) -cF python"
-
-# after_success:
-#   # Send data to codecov
-#   - ci_env=`bash <(curl -s https://codecov.io/env)`
-#   - docker run $ci_env -t ubuntu-test bash -c "bash <(curl -s https://codecov.io/bash)"
+  # Run the python unit tests and send coverage data
+  - docker exec $ci_env -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      cd $HOME/spark3D;
+      export PATH=/root/.local/bin:$PATH;
+      export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
+      ./test_python.sh;
+      bash <(curl -s https://codecov.io/bash) -cF python"

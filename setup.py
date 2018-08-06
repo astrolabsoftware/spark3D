@@ -71,7 +71,7 @@ setup(
     version=VERSION,
     description="Spark extension for processing large-scale 3D data sets",
     long_description="",
-    author="Julien Peloton",
+    author="AstroLab Software",
     author_email='peloton@lal.in2p3.fr',
     url='https://github.com/astrolabsoftware/spark3d',
     packages=['pyspark3d'],

@@ -18,7 +18,7 @@ SBT_VERSION=2.11.8
 SBT_VERSION_SPARK=2.11
 
 ## Package version
-VERSION=0.1.5
+VERSION=0.2.0
 
 # Package it
 sbt ++${SBT_VERSION} package
@@ -35,7 +35,7 @@ kind="healpix"
 
 ## Dependencies
 jars="lib/jhealpix.jar"
-packages="com.github.astrolabsoftware:spark-fits_2.11:0.4.0"
+packages="com.github.astrolabsoftware:spark-fits_2.11:0.6.0"
 
 # Run it!
 spark-submit \

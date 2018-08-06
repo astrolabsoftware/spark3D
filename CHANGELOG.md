@@ -1,3 +1,9 @@
+## 0.2.0
+
+- Add support for Python: pyspark3d ([PR](https://github.com/astrolabsoftware/spark3D/pull/86)).
+- Update the Travis script to run test suites for both scala and python ([PR](https://github.com/astrolabsoftware/spark3D/pull/86)).
+- Switch to docker-based travis to test against ubuntu 16.04 ([PR](https://github.com/astrolabsoftware/spark3D/pull/86)).
+
 ## 0.1.5
 
 - Allow user to cache the rawRDD while loading data to speed-up re-partitioning. ([PR](https://github.com/astrolabsoftware/spark3D/pull/81))

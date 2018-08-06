@@ -230,7 +230,7 @@ def pyspark3d_conf(
 
     return conf
 
-def quiet_logs(log_level_manual=None):
+def set_spark_log_level(log_level_manual=None):
     """
     Set the level of log in Spark.
 
@@ -239,6 +239,17 @@ def quiet_logs(log_level_manual=None):
     log_level_manual : String, optional
         Level of log wanted: INFO, WARN, ERROR, OFF, etc.
         By default, this is read from pyspark3d_conf.py
+
+    Example
+    ----------
+    >>> pysc = get_spark_context()
+
+    # should be verbose or whatever Spark default has been set
+    >>> rdd_verb = pysc.parallelize([1, 2, 3, 4]).collect()
+
+    # force to be silent
+    >>> set_spark_log_level("OFF")
+    >>> rdd_silent = pysc.parallelize([1, 2, 3, 4]).collect()
     """
     ## Get the logger
     pysc = get_spark_context()
@@ -250,7 +261,7 @@ def quiet_logs(log_level_manual=None):
     else:
         level = getattr(logger.Level, log_level_manual, "INFO")
 
-    logger.LogManager.getLogger("org"). setLevel(level)
+    logger.LogManager.getLogger("org").setLevel(level)
     logger.LogManager.getLogger("akka").setLevel(level)
 
 

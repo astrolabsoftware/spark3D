@@ -1,26 +1,101 @@
-language: scala
+dist: trusty
 
-scala:
-  - 2.11.8
+language: java
 
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
+
+sudo: required
+
+services:
+  - docker
+
 cache:
   directories:
-    - $HOME/.m2/repository
-      # - $HOME/.sbt
-      # - $HOME/.ivy2
-    - $HOME/.sbt/launchers/
+  - $HOME/.ivy2/
+  - $HOME/.sbt/launchers/
+  - $HOME/.cache/spark-versions/
+  - $HOME/.sbt/boot/scala-2.10.6/
+  - $HOME/.sbt/boot/scala-2.11.8/
 
-before_script:
-  - mkdir -p $HOME/.sbt/launchers/0.13.8/
-  - curl -L -o $HOME/.sbt/launchers/0.13.8/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/sbt-launch.jar
+env:
+  matrix:
+    - SCALA_BINARY_VERSION=2.11.8 SPARK_VERSION=2.3.0 SPARK_BUILD="spark-2.3.0-bin-hadoop2.7"
+        SPARK_BUILD_URL="https://dist.apache.org/repos/dist/release/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz"
+        PYTHON_VERSION=3.6.4
+
+before_install:
+  # Link to python 2 or 3
+  - if [[ "$PYTHON_VERSION" == 2.* ]]; then
+        export CONDA_URL="repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
+        export PYSPARK_PYTHON=python2;
+      else
+        export CONDA_URL="repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
+        export PYSPARK_PYTHON=python3;
+      fi
+  # Run the base image (Ubuntu 16.04) and set the env
+  - docker run -e "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+               -e SPARK_VERSION
+               -e SPARK_BUILD
+               -e SCALA_BINARY_VERSION
+               -e PYTHON_VERSION
+               -e PYSPARK_PYTHON
+               -e CONDA_URL
+               -d --name ubuntu-test -v $HOME ubuntu:16.04 tail -f /dev/null
+  # Copy our file to the image
+  - docker cp `pwd` ubuntu-test:$HOME/
+  # Copy the cache to speed-up later call
+  - docker cp $HOME/.cache ubuntu-test:$HOME/
+  # For debug - show the process
+  - docker ps
+
+# See this page: http://conda.pydata.org/docs/travis.html
+install:
+  # install needed ubuntu packages
+  - docker exec -t ubuntu-test bash -c "apt-get update && apt-get upgrade -y"
+  - docker exec -t ubuntu-test bash -c "apt-get install -y curl bzip2 openjdk-8-jdk"
+
+  # download and set up miniconda
+  - docker exec -t ubuntu-test bash -c "
+      curl https://$CONDA_URL >> $HOME/miniconda.sh;
+      bash $HOME/miniconda.sh -b -p $HOME/miniconda;
+      bash $HOME/miniconda.sh -b -p $HOME/miniconda;
+      $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no;
+      $HOME/miniconda/bin/conda update -q conda;
+      $HOME/miniconda/bin/conda info -a;
+      $HOME/miniconda/bin/conda create -q -n test-environment python=$PYTHON_VERSION"
+
+  # Install SBT (long - need to speed-up this!)
+  - docker exec -t ubuntu-test bash -c "apt-get install apt-transport-https"
+  - docker exec -t ubuntu-test bash -c "
+      echo 'deb https://dl.bintray.com/sbt/debian /' | tee -a /etc/apt/sources.list.d/sbt.list;
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823;
+      apt-get update -y;
+      apt-get install sbt -y"
+
+  # Activate conda environment and install required packages
+  - docker exec -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      python --version;
+      pip --version;
+      pip install --user -r $HOME/spark3D/requirements.txt;"
 
 script:
-  - echo "Scala version:" $TRAVIS_SCALA_VERSION
-  - sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport
-  # Trick to avoid unnecessary cache updates
-  - find $HOME/.sbt -name "*.lock" | xargs rm
+  # Run the scala unit tests first and send coverage data
+  # This step is currently the longer as one needs to initialise SBT
+  # and download millions of packages...
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
+  - docker exec $ci_env -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      cd $HOME/spark3D;
+      ./test_scala.sh $SCALA_BINARY_VERSION;
+      bash <(curl -s https://codecov.io/bash) -cF scala"
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  # Run the python unit tests (which includes building the
+  # assembly JAR) and send coverage data.
+  - docker exec $ci_env -t ubuntu-test bash -c "
+      source $HOME/miniconda/bin/activate test-environment;
+      cd $HOME/spark3D;
+      export PATH=/root/.local/bin:$PATH;
+      export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
+      ./test_python.sh $SCALA_BINARY_VERSION;
+      bash <(curl -s https://codecov.io/bash) -cF python"

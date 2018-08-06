@@ -94,4 +94,17 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     //    assert(knn2(1).center.isEqual(new ShellEnvelope(1.0,1.0,3.0,false,0.8).center))
     //    assert(knn2(2).center.isEqual(new ShellEnvelope(1.0,3.0,0.7,false,0.8).center))
   }
+
+  test("Do you have the correct behaviour if K=0?") {
+
+    val options = Map("header" -> "true")
+    val sphereRDD = new SphereRDD(spark, csv_man,"x,y,z,radius", false, "csv", options)
+    val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 10)
+    val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
+
+    val knn = SpatialQuery.KNN(queryObject, sphereRDD_part, 0, false)
+    val knnUnique = SpatialQuery.KNN(queryObject, sphereRDD_part, 0, true)
+    assert(knn.size == 0)
+    assert(knnUnique.size == 0)
+  }
 }

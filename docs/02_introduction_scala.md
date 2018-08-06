@@ -1,5 +1,5 @@
 ---
-permalink: /docs/introduction/
+permalink: /docs/introduction/scala/
 layout: splash
 title: "Tutorial: Introduction"
 date: 2018-06-15 22:31:13 +0200
@@ -29,16 +29,16 @@ val points = new Point3D(r: Double, theta: Double, phi: Double, isSpherical: Boo
 import com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope
 
 // Shell from 3D coordinates + inner/outer radii
-val shells = new ShellEnvelope(x: Double, y: Double, z: Double, isSpherical: Boolean, innerRadius: Double, outerRadius: Double)
+val shell = new ShellEnvelope(x: Double, y: Double, z: Double, isSpherical: Boolean, innerRadius: Double, outerRadius: Double)
 
 // Shell from Point3D + inner/outer radii
-val shells = new ShellEnvelope(center: Point3D, isSpherical: Boolean, innerRadius: Double, outerRadius: Double)
+val shell = new ShellEnvelope(center: Point3D, isSpherical: Boolean, innerRadius: Double, outerRadius: Double)
 
 // Sphere from 3D coordinates + radius
-val spheres = new ShellEnvelope(x: Double, y: Double, z: Double, isSpherical: Boolean, radius: Double)
+val sphere = new ShellEnvelope(x: Double, y: Double, z: Double, isSpherical: Boolean, radius: Double)
 
-// Sphere from Point3D + inner/outer radii
-val spheres = new ShellEnvelope(center: Point3D, isSpherical: Boolean, radius: Double)
+// Sphere from Point3D + radius
+val sphere = new ShellEnvelope(center: Point3D, isSpherical: Boolean, radius: Double)
 ```
 
 ### Boxes
@@ -47,14 +47,14 @@ val spheres = new ShellEnvelope(center: Point3D, isSpherical: Boolean, radius: D
 import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 
 // Box from region defined by three (cartesian) coordinates.
-val boxes = new BoxEnvelope(p1: Point3D, p2: Point3D, p3: Point3D)
+val box = new BoxEnvelope(p1: Point3D, p2: Point3D, p3: Point3D)
 
 // Box from region defined by two (cartesian) coordinates.
-val boxes = new BoxEnvelope(p1: Point3D, p2: Point3D)
+val box = new BoxEnvelope(p1: Point3D, p2: Point3D)
 
 // Box from region defined by one (cartesian) coordinates.
 // The cube Envelope in this case will be a point.
-val boxes = new BoxEnvelope(p1: Point3D)
+val point = new BoxEnvelope(p1: Point3D)
 ```
 
 ## Supported data sources

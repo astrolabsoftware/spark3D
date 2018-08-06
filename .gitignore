@@ -4,5 +4,9 @@ derby.log
 old/
 .ipynb_checkpoints/
 .DS_Store
-.log
+*.log
 misc
+__pycache__
+htmlcov
+cov.txt
+.coverage

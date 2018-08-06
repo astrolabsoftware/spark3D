@@ -15,23 +15,32 @@ feature_row:
     alt:
     title: "<i class='fas fa-upload'></i> Load 3D object RDD"
     excerpt: "Distribute points, spheres, shells, boxes, and more using spark3D."
-    url: "/docs/introduction/"
+    url: "/docs/introduction/scala/"
     btn_class: "btn--primary"
-    btn_label: "Learn More"
+    btn_label: "Scala"
+    url2: "/docs/introduction/python/"
+    btn_class2: "btn--primary"
+    btn_label2: "Python"
   - image_path:
     alt:
     title: "<i class='fas fa-cubes'></i> Partition your space"
     excerpt: "Partition the three-dimensional space to speed-up your search."
-    url: "/docs/partitioning/"
+    url: "/docs/partitioning/scala/"
     btn_class: "btn--primary"
-    btn_label: "Learn More"
+    btn_label: "Scala"
+    url2: "/docs/partitioning/python/"
+    btn_class2: "btn--primary"
+    btn_label2: "Python"
   - image_path:
     alt:
     title: "<i class='fas fa-crosshairs'></i> Query, match, play!"
     excerpt: "Find objects based on conditions, cross-match data sets, and define your requests."
-    url: "/docs/query/"
+    url: "/docs/query/scala/"
     btn_class: "btn--primary"
-    btn_label: "Learn More"
+    btn_label: "Scala"
+    url2: "/docs/query/python/"
+    btn_class2: "btn--primary"
+    btn_label2: "Python"
 ---
 
 {% include feature_row id="intro" type="center" %}

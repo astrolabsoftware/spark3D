@@ -16,6 +16,7 @@
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
 // For implicits
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.math._
@@ -40,7 +41,6 @@ import com.astrolabsoftware.spark3d.utils.GridType._
 
 // Spark
 import org.apache.spark.rdd.RDD
-import org.apache.spark.rdd.PairRDDFunctions
 
 /**
   * Class to handle generic 3D RDD.
@@ -199,5 +199,32 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     dataBoundary.expandOutwards(0.001)
 
     dataBoundary
+  }
+
+  /**
+    * Return a RDD whose elements are the lists of center coordinates.
+    *
+    * @param rdd : (RDD[T])
+    *   Input RDD[T]
+    * @return (RDD[List[Double]]) RDD whose elements are the lists
+    *   of center coordinates.
+    */
+  def toCenterCoordinateRDD(rdd: RDD[T]): RDD[List[Double]] = {
+    rdd.map(x => x.center.getCoordinate)
+  }
+
+  /**
+    * Constructor of `toCenterCoordinateRDD` which is suitable for py4j,
+    * i.e. it replaces Scala Lists with Java Lists.
+    *
+    * Return a RDD whose elements are the lists of center coordinates.
+    *
+    * @param rdd : (RDD[T])
+    *   Input RDD[T]
+    * @return (RDD[java.util.List[Double]]) RDD whose elements are the (Java)
+    *   lists of center coordinates.
+    */
+  def toCenterCoordinateRDDPython(rdd: RDD[T]): RDD[java.util.List[Double]] = {
+    rdd.map(x => x.center.getCoordinate.asJava)
   }
 }

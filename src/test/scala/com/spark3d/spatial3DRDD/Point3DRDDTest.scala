@@ -26,6 +26,7 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import org.apache.spark.rdd.RDD
 
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
@@ -116,5 +117,23 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val pointRDD2_part = pointRDD2.spatialPartitioning(partitioner)
 
     assert(pointRDD1_part.partitioner == pointRDD2_part.partitioner)
+  }
+
+  test("Can you return a centerRDD from a Point3DRDD?") {
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    val centerRDD = pointRDD.toCenterCoordinateRDD(pointRDD.rawRDD)
+
+    assert(centerRDD.isInstanceOf[RDD[List[Double]]])
+  }
+
+  test("Can you return a centerRDD from a Point3DRDD? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    val centerRDD = pointRDD.toCenterCoordinateRDDPython(pointRDD.rawRDD)
+
+    assert(centerRDD.isInstanceOf[RDD[java.util.List[Double]]])
   }
 }

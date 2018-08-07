@@ -112,7 +112,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     * py4j does not handle generics, so we explicitly specify the types here.
     * See discussion here: https://github.com/bartdag/py4j/issues/328
     *
-    * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
+    * Apply any Spatial Partitioner to this.rawRDD[Point3D], and return a RDD[Point3D]
     * with the new partitioning.
     *
     * @param partitioner : (SpatialPartitioner)

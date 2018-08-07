@@ -16,6 +16,14 @@
 ## Script to launch the python test suite and measure the coverage.
 ## Must be launched as ./test_python.sh <SCALA_BINARY_VERSION>
 
+if [ -z $1 ]
+then
+    echo "You must pass the scala version for the test!"
+    echo "Syntax : ./test_python.sh <SCALA_BINARY_VERSION>"
+    echo "Example: ./test_python.sh 2.11.8"
+    exit
+fi
+
 # First build the assembly JAR
 sbt 'set test in assembly := {}' ++$1 assembly
 

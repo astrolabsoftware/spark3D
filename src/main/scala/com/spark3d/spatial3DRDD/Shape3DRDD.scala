@@ -54,6 +54,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   val isSpherical : Boolean
 
   var boundary: BoxEnvelope = null
+
   /**
     * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
     * with the new partitioning.

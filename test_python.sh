@@ -16,7 +16,7 @@
 ## Script to launch the python test suite and measure the coverage.
 ## Must be launched as ./test_python.sh <SCALA_BINARY_VERSION>
 
-#set -e
+set -e
 
 if [ -z $1 ]
 then
@@ -34,10 +34,10 @@ cd pyspark3d
 for i in *.py
 do
     coverage run -a --source=. $i
-    if [[ $? -ne 0 ]] ; then
-        echo "Errors in $i"
-        exit -1
-    fi
+    # if [[ $? -ne 0 ]] ; then
+    #     echo "Errors in $i"
+    #     exit -1
+    # fi
 done
 
 ## Print and store the report if local

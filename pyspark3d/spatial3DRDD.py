@@ -103,7 +103,21 @@ def Point3DRDD(
     >>> print(rdd.rawRDD().count())
     20000
 
+    Repartition the data of the RDD (ONION)
+    >>> gridtype = "LINEARONIONGRID"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
 
+    Repartition the data of the RDD (OCTREE)
+    >>> gridtype = "OCTREE"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Get a RDD with the coordinates of the Point3D
+    centers (e.g. useful for plot)
+    >>> rdd_centers = rdd.toCenterCoordinateRDDPython(rdd.rawRDD())
+    >>> print(round(list(rdd_centers.first())[0], 2))
+    0.55
 
     To see all the available methods:
     >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE
@@ -112,7 +126,9 @@ def Point3DRDD(
     'com$astrolabsoftware$spark3d$spatial3DRDD$Shape3DRDD$$mapElements$1',
     'equals', 'getClass', 'getDataEnvelope', 'hashCode', 'isSpherical',
     'notify', 'notifyAll', 'partition', 'rawRDD', 'spatialPartitioning',
-    'spatialPartitioning$default$2', 'toString', 'wait']
+    'spatialPartitioning$default$2', 'spatialPartitioningPython',
+    'spatialPartitioningPython$default$2', 'toCenterCoordinateRDD',
+    'toCenterCoordinateRDDPython', 'toString', 'wait']
 
     """
     scalapath = "com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD"
@@ -205,7 +221,9 @@ def SphereRDD(
     'com$astrolabsoftware$spark3d$spatial3DRDD$Shape3DRDD$$mapElements$1',
     'equals', 'getClass', 'getDataEnvelope', 'hashCode', 'isSpherical',
     'notify', 'notifyAll', 'partition', 'rawRDD', 'spatialPartitioning',
-    'spatialPartitioning$default$2', 'toString', 'wait']
+    'spatialPartitioning$default$2', 'spatialPartitioningPython',
+    'spatialPartitioningPython$default$2', 'toCenterCoordinateRDD',
+    'toCenterCoordinateRDDPython', 'toString', 'wait']
 
     """
     scalapath = "com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD"

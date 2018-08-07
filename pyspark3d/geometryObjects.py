@@ -69,9 +69,10 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     To see all the available methods:
     >>> print(sorted(p3d.__dir__())) # doctest: +NORMALIZE_WHITESPACE
     ['center', 'distanceTo', 'equals', 'getClass', 'getCoordinate',
-    'getEnvelope', 'getHash', 'getVolume', 'hasCenterCloseTo', 'hashCode',
-    'intersects', 'isEqual', 'isSpherical', 'notify', 'notifyAll', 'toHealpix',
-    'toHealpix$default$2', 'toString', 'wait', 'x', 'y', 'z']
+    'getCoordinatePython', 'getEnvelope', 'getHash', 'getVolume',
+    'hasCenterCloseTo', 'hashCode', 'intersects', 'isEqual', 'isSpherical',
+    'notify', 'notifyAll', 'toHealpix', 'toHealpix$default$2', 'toString',
+    'wait', 'x', 'y', 'z']
     """
     scalapath = "com.astrolabsoftware.spark3d.geometryObjects.Point3D"
     p3d = load_from_jvm(scalapath)
@@ -301,7 +302,7 @@ def BoxEnvelope(*args) -> JavaObject:
     Case 5: The null cube
     >>> box_case5 = BoxEnvelope()
     >>> print(box_case5.isNull())
-    True
+    False
 
     To see all the available methods:
     >>> print(sorted(box_case1.__dir__())) # doctest: +NORMALIZE_WHITESPACE
@@ -410,4 +411,5 @@ if __name__ == "__main__":
 
     # Run the test suite
     failure_count, test_count = doctest.testmod()
-    sys.exit(failure_count)
+    if failure_count:
+        sys.exit(-1)

@@ -66,6 +66,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   def spatialPartitioning(partitioner: SpatialPartitioner)(implicit c: ClassTag[T]) : RDD[T] = {
     partition(partitioner)
   }
+
   /**
     * Apply a spatial partitioning to this.rawRDD, and return a RDD[T]
     * with the new partitioning.
@@ -73,7 +74,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * By default, the outgoing level of parallelism is the same as the incoming
     * one (i.e. same number of partitions).
     *
-    * @param gridtype : (GridType)
+    * @param gridtype : (String)
     *   Type of partitioning to apply. See utils/GridType.
     * @param numPartitions : (Int)
     *   Number of partitions for the partitioned RDD. By default (-1), the
@@ -83,8 +84,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
     *
     */
-  def spatialPartitioning(gridtype : GridType, numPartitions : Int = -1)(implicit c: ClassTag[T]) : RDD[T] = {
-
+  def spatialPartitioning(gridtype : String, numPartitions : Int = -1)(implicit c: ClassTag[T]) : RDD[T] = {
     val numPartitionsRaw = if (numPartitions == -1) {
       // Same number of partitions as the rawRDD
       rawRDD.getNumPartitions
@@ -95,7 +95,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
     // Add here new cases.
     val partitioner = gridtype match {
-      case GridType.LINEARONIONGRID => {
+      case "LINEARONIONGRID" => {
         // Initialise our space
         val partitioning = new OnionPartitioning
         partitioning.LinearOnionPartitioning(
@@ -110,7 +110,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         // Build our partitioner
         new OnionPartitioner(grids)
       }
-      case GridType.OCTREE => {
+      case "OCTREE" => {
         // taking 20% of the data as a sample
         val dataCount = rawRDD.count
         val sampleSize = getSampleSize(dataCount, numPartitions)

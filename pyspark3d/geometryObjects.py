@@ -62,7 +62,23 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     >>> p3d.getVolume()
     0.0
 
-    Convert the (theta, phi) in Healpix pixel index:
+    Return the point coordinates
+    >>> p3d = Point3D(1.0, 1.0, 0.0, False)
+    >>> p3d.getCoordinatePython()
+    [1.0, 1.0, 0.0]
+
+    It will be a JavaList by default
+    >>> coord = p3d.getCoordinatePython()
+    >>> print(type(coord))
+    <class 'py4j.java_collections.JavaList'>
+
+    Make it a python list
+    >>> coord_python = list(coord)
+    >>> print(type(coord_python))
+    <class 'list'>
+
+    [Astro] Convert the (theta, phi) in Healpix pixel index:
+    >>> p3d = Point3D(1.0, np.pi, 0.0, True) # (z, theta, phi)
     >>> p3d.toHealpix(2048, True)
     50331644
 
@@ -302,7 +318,7 @@ def BoxEnvelope(*args) -> JavaObject:
     Case 5: The null cube
     >>> box_case5 = BoxEnvelope()
     >>> print(box_case5.isNull())
-    False
+    True
 
     To see all the available methods:
     >>> print(sorted(box_case1.__dir__())) # doctest: +NORMALIZE_WHITESPACE

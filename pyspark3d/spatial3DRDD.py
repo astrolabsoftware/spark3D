@@ -205,14 +205,37 @@ def SphereRDD(
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
 
+    Load the user configuration, and initialise the spark session.
     >>> dic = load_user_conf()
     >>> spark = get_spark_session(dicconf=dic)
+
+    Load the data
     >>> fn = "../src/test/resources/cartesian_spheres.fits"
     >>> rdd = SphereRDD(spark, fn, "x,y,z,radius",
     ...     False, "fits", {"hdu": "1"})
+
+    Check we have a SphereRDD
     >>> assert("spark3d.spatial3DRDD.SphereRDD" in rdd.toString())
+
+    Count the number of elements
     >>> print(rdd.rawRDD().count())
     20000
+
+    Repartition the data of the RDD (ONION)
+    >>> gridtype = "LINEARONIONGRID"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Repartition the data of the RDD (OCTREE)
+    >>> gridtype = "OCTREE"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Get a RDD with the coordinates of the Point3D
+    centers (e.g. useful for plot)
+    >>> rdd_centers = rdd.toCenterCoordinateRDDPython(rdd.rawRDD())
+    >>> print(round(list(rdd_centers.first())[0], 2))
+    0.77
 
     To see all the available methods:
     >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE

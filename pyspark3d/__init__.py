@@ -17,6 +17,8 @@ from pyspark.sql import SparkSession
 
 from typing import Any, List, Dict
 
+import sys
+
 from version import __version__
 from pyspark3d_conf import extra_jars, extra_packages, log_level
 
@@ -288,4 +290,5 @@ if __name__ == "__main__":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    sys.exit(failure_count)

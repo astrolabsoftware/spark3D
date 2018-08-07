@@ -19,6 +19,7 @@ from py4j.java_gateway import JavaObject
 from typing import Dict
 
 import os
+import sys
 import doctest
 import numpy as np
 
@@ -86,14 +87,23 @@ def Point3DRDD(
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
 
+    Load the user configuration, and initialise the spark session.
     >>> dic = load_user_conf()
     >>> spark = get_spark_session(dicconf=dic)
+
+    Load data
     >>> fn = "../src/test/resources/astro_obs.fits"
     >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
     ...     True, "fits", {"hdu": "1"})
+
+    Check we have a spatial3DRDD
     >>> assert("com.astrolabsoftware.spark3d.spatial3DRDD" in rdd.toString())
+
+    Count the number of elements
     >>> print(rdd.rawRDD().count())
     20000
+
+
 
     To see all the available methods:
     >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE
@@ -222,4 +232,5 @@ if __name__ == "__main__":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    sys.exit(failure_count)

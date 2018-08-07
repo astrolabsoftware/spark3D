@@ -18,6 +18,7 @@ from pyspark3d import load_user_conf
 from py4j.java_gateway import JavaObject
 
 import os
+import sys
 import doctest
 import numpy as np
 
@@ -408,4 +409,5 @@ if __name__ == "__main__":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    sys.exit(failure_count)

@@ -39,8 +39,11 @@ val center = new Point3D(0.9, 0.0, 0.0, spherical)
 val radius = 0.1
 val envelope = new ShellEnvelope(center, radius)
 
+// Instantiate a RangeQuery[data, envelope] object
+val rq = new RangeQuery[Point3D, ShellEnvelope]
+
 // Return the match
-val queryResult = RangeQuery.windowQuery(objects, envelope)
+val queryResult = rq.windowQuery(objects, envelope)
 ```
 
 Note that the input objects and the envelope can be anything among the `Shape3D`: points, shells (incl. sphere), boxes.

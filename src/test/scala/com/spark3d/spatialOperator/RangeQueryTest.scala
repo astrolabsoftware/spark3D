@@ -72,7 +72,8 @@ class RangeQueryTest extends FunSuite with BeforeAndAfterAll {
     val p = new Point3D(0.05, 0.05, 0.05, true)
     val window = new ShellEnvelope(p, 0.1)
 
-    val matches = RangeQuery.windowQuery(pRDD.rawRDD, window)
+    val rq = new RangeQuery[Point3D, ShellEnvelope]
+    val matches = rq.windowQuery(pRDD.rawRDD, window)
 
     assert(matches.count() == 182)
   }

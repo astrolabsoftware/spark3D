@@ -24,7 +24,7 @@ import numpy as np
 
 def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     """
-    Binding arount Point3D.scala. For full description,
+    Binding around Point3D.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/geometryObjects/Point3D.scala`.
 
     By default, the input coordinates are supposed euclidean,
@@ -97,7 +97,7 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
 
 def ShellEnvelope(*args) -> JavaObject:
     """
-    Binding arount ShellEnvelope.scala. For full description, see
+    Binding around ShellEnvelope.scala. For full description, see
     `$spark3d/src/main/scala/com/spark3d/geometryObjects/ShellEnvelope.scala`
 
     The Scala version makes use of several constructors (i.e. with different
@@ -258,7 +258,7 @@ def ShellEnvelope(*args) -> JavaObject:
 
 def BoxEnvelope(*args) -> JavaObject:
     """
-    Binding arount BoxEnvelope.scala. For full description,
+    Binding around BoxEnvelope.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/geometryObjects/BoxEnvelope.scala`
 
     The Scala version makes use of several constructors (i.e. with different

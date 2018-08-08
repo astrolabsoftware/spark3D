@@ -30,7 +30,7 @@ def Point3DRDD(
         spark: SparkSession, filename: str, colnames: str,
         isSpherical: bool, format: str, options: Dict={"": ""}) -> JavaObject:
     """
-    Binding arount Point3DRDD.scala. For full description,
+    Binding around Point3DRDD.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/spatial3DRDD/Point3DRDD.scala`
 
     Construct a Point3DRDD from a RDD[Point3D].
@@ -147,7 +147,7 @@ def SphereRDD(
         spark: SparkSession, filename: str, colnames: str,
         isSpherical: bool, format: str, options: Dict={"": ""}) -> JavaObject:
     """
-    Binding arount SphereRDD.scala. For full description,
+    Binding around SphereRDD.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/spatial3DRDD/SphereRDD.scala`
 
     Construct a SphereRDD from a RDD[ShellEnvelope].

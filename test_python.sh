@@ -40,10 +40,10 @@ do
     # fi
 done
 
-## Print and store the report if local
+## Print and store the report if machine related to julien
 ## Otherwise the result is sent to codecov (see .travis.yml)
 isLocal=`whoami`
-if [ $isLocal == "julien" ]
+if [[ $isLocal = *"julien"* ]]
 then
   coverage report
 

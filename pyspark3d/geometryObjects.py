@@ -427,5 +427,4 @@ if __name__ == "__main__":
 
     # Run the test suite
     failure_count, test_count = doctest.testmod()
-    if failure_count:
-        sys.exit(-1)
+    sys.exit(failure_count)

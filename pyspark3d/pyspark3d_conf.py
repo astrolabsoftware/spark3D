@@ -15,7 +15,8 @@ import os
 from pathlib import Path
 from version import __version__
 
-path_to_conf = Path().parent
+# For local tests
+path_to_conf = Path().cwd().as_uri()
 
 # This is the place where paths and environment variables should be defined
 # Note that this is only for the driver (loading JARS, conf, etc)

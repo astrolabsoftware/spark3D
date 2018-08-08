@@ -18,6 +18,7 @@ from pyspark3d import load_user_conf
 from py4j.java_gateway import JavaObject
 
 import os
+import sys
 import doctest
 import numpy as np
 
@@ -61,16 +62,33 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     >>> p3d.getVolume()
     0.0
 
-    Convert the (theta, phi) in Healpix pixel index:
+    Return the point coordinates
+    >>> p3d = Point3D(1.0, 1.0, 0.0, False)
+    >>> p3d.getCoordinatePython()
+    [1.0, 1.0, 0.0]
+
+    It will be a JavaList by default
+    >>> coord = p3d.getCoordinatePython()
+    >>> print(type(coord))
+    <class 'py4j.java_collections.JavaList'>
+
+    Make it a python list
+    >>> coord_python = list(coord)
+    >>> print(type(coord_python))
+    <class 'list'>
+
+    [Astro] Convert the (theta, phi) in Healpix pixel index:
+    >>> p3d = Point3D(1.0, np.pi, 0.0, True) # (z, theta, phi)
     >>> p3d.toHealpix(2048, True)
     50331644
 
     To see all the available methods:
     >>> print(sorted(p3d.__dir__())) # doctest: +NORMALIZE_WHITESPACE
     ['center', 'distanceTo', 'equals', 'getClass', 'getCoordinate',
-    'getEnvelope', 'getHash', 'getVolume', 'hasCenterCloseTo', 'hashCode',
-    'intersects', 'isEqual', 'isSpherical', 'notify', 'notifyAll', 'toHealpix',
-    'toHealpix$default$2', 'toString', 'wait', 'x', 'y', 'z']
+    'getCoordinatePython', 'getEnvelope', 'getHash', 'getVolume',
+    'hasCenterCloseTo', 'hashCode', 'intersects', 'isEqual', 'isSpherical',
+    'notify', 'notifyAll', 'toHealpix', 'toHealpix$default$2', 'toString',
+    'wait', 'x', 'y', 'z']
     """
     scalapath = "com.astrolabsoftware.spark3d.geometryObjects.Point3D"
     p3d = load_from_jvm(scalapath)
@@ -408,4 +426,5 @@ if __name__ == "__main__":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    sys.exit(failure_count)

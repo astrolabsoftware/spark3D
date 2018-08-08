@@ -68,6 +68,18 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     assert(sphereRDD_part.getNumPartitions == 64)
   }
 
+  test("FITS: Can you repartition a RDD with the octree space? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val sphereRDD = new SphereRDD(spark, fn_fits, "x,y,z,radius", false, "fits", options)
+
+    // Partition the space using the OCTREE
+    val sphereRDD_part = sphereRDD.spatialPartitioningPython(GridType.OCTREE, 100)
+
+    // number of partitions created will be less that or equal to the input number of partitions, and will always be
+    // in the powers of 8
+    assert(sphereRDD_part.getNumPartitions == 64)
+  }
+
   test("CSV: Can you repartition a RDD with the octree space?") {
     val options = Map("header" -> "true")
     val sphereRDD = new SphereRDD(spark, fn_csv_manual,"x,y,z,radius", false, "csv", options)
@@ -130,5 +142,19 @@ class SphereRDDTest extends FunSuite with BeforeAndAfterAll {
     val newRDD = new SphereRDD(pointRDD.rawRDD, pointRDD.isSpherical, StorageLevel.MEMORY_ONLY)
 
     assert(newRDD.isInstanceOf[Shape3DRDD[ShellEnvelope]])
+  }
+
+  test("Can you repartition a RDD[Shell] from the partitioner of another? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val sphereRDD1 = new SphereRDD(spark, fn_fits, "x,y,z,radius", false, "fits", options)
+    val sphereRDD2 = new SphereRDD(spark, fn_fits, "x,y,z,radius", false, "fits", options)
+
+    // Partition 1st RDD with 10 data shells using the LINEARONIONGRID
+    val sphereRDD1_part = sphereRDD1.spatialPartitioningPython(GridType.LINEARONIONGRID, 10)
+    // Partition 2nd RDD with partitioner of RDD1
+    val partitioner = sphereRDD1_part.partitioner.get.asInstanceOf[SpatialPartitioner]
+    val sphereRDD2_part = sphereRDD2.spatialPartitioningPython(partitioner)
+
+    assert(sphereRDD1_part.partitioner == sphereRDD2_part.partitioner)
   }
 }

@@ -16,6 +16,16 @@
 ## Script to launch the python test suite and measure the coverage.
 ## Must be launched as ./test_python.sh <SCALA_BINARY_VERSION>
 
+set -e
+
+if [ -z $1 ]
+then
+    echo "You must pass the scala version for the test!"
+    echo "Syntax : ./test_python.sh <SCALA_BINARY_VERSION>"
+    echo "Example: ./test_python.sh 2.11.8"
+    exit
+fi
+
 # First build the assembly JAR
 sbt 'set test in assembly := {}' ++$1 assembly
 
@@ -24,12 +34,16 @@ cd pyspark3d
 for i in *.py
 do
     coverage run -a --source=. $i
+    # if [[ $? -ne 0 ]] ; then
+    #     echo "Errors in $i"
+    #     exit -1
+    # fi
 done
 
-## Print and store the report if local
+## Print and store the report if machine related to julien
 ## Otherwise the result is sent to codecov (see .travis.yml)
 isLocal=`whoami`
-if [ $isLocal == "julien" ]
+if [[ $isLocal = *"julien"* ]]
 then
   coverage report
 

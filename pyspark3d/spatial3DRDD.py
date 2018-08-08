@@ -13,12 +13,16 @@
 # limitations under the License.
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-from pyspark3d import load_from_jvm
+
 from py4j.java_gateway import JavaObject
+
+from pyspark3d import load_from_jvm
+from pyspark3d_conf import path_to_conf
 
 from typing import Dict
 
 import os
+import sys
 import doctest
 import numpy as np
 
@@ -86,14 +90,37 @@ def Point3DRDD(
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
 
+    Load the user configuration, and initialise the spark session.
     >>> dic = load_user_conf()
     >>> spark = get_spark_session(dicconf=dic)
-    >>> fn = "../src/test/resources/astro_obs.fits"
+
+    Load data
+    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
     >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
     ...     True, "fits", {"hdu": "1"})
+
+    Check we have a spatial3DRDD
     >>> assert("com.astrolabsoftware.spark3d.spatial3DRDD" in rdd.toString())
+
+    Count the number of elements
     >>> print(rdd.rawRDD().count())
     20000
+
+    Repartition the data of the RDD (ONION)
+    >>> gridtype = "LINEARONIONGRID"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Repartition the data of the RDD (OCTREE)
+    >>> gridtype = "OCTREE"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Get a RDD with the coordinates of the Point3D
+    centers (e.g. useful for plot)
+    >>> rdd_centers = rdd.toCenterCoordinateRDDPython(rdd.rawRDD())
+    >>> print(round(list(rdd_centers.first())[0], 2))
+    0.55
 
     To see all the available methods:
     >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE
@@ -102,7 +129,9 @@ def Point3DRDD(
     'com$astrolabsoftware$spark3d$spatial3DRDD$Shape3DRDD$$mapElements$1',
     'equals', 'getClass', 'getDataEnvelope', 'hashCode', 'isSpherical',
     'notify', 'notifyAll', 'partition', 'rawRDD', 'spatialPartitioning',
-    'spatialPartitioning$default$2', 'toString', 'wait']
+    'spatialPartitioning$default$2', 'spatialPartitioningPython',
+    'spatialPartitioningPython$default$2', 'toCenterCoordinateRDD',
+    'toCenterCoordinateRDDPython', 'toString', 'wait']
 
     """
     scalapath = "com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD"
@@ -179,14 +208,38 @@ def SphereRDD(
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
 
+    Load the user configuration, and initialise the spark session.
     >>> dic = load_user_conf()
     >>> spark = get_spark_session(dicconf=dic)
-    >>> fn = "../src/test/resources/cartesian_spheres.fits"
+
+    Load the data
+    >>> fn = os.path.join(path_to_conf,
+    ...     "../src/test/resources/cartesian_spheres.fits")
     >>> rdd = SphereRDD(spark, fn, "x,y,z,radius",
     ...     False, "fits", {"hdu": "1"})
+
+    Check we have a SphereRDD
     >>> assert("spark3d.spatial3DRDD.SphereRDD" in rdd.toString())
+
+    Count the number of elements
     >>> print(rdd.rawRDD().count())
     20000
+
+    Repartition the data of the RDD (ONION)
+    >>> gridtype = "LINEARONIONGRID"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Repartition the data of the RDD (OCTREE)
+    >>> gridtype = "OCTREE"
+    >>> rdd_part = rdd.spatialPartitioningPython(gridtype,
+    ...     rdd.rawRDD().getNumPartitions())
+
+    Get a RDD with the coordinates of the Point3D
+    centers (e.g. useful for plot)
+    >>> rdd_centers = rdd.toCenterCoordinateRDDPython(rdd.rawRDD())
+    >>> print(round(list(rdd_centers.first())[0], 2))
+    0.77
 
     To see all the available methods:
     >>> print(sorted(rdd.__dir__())) # doctest: +NORMALIZE_WHITESPACE
@@ -195,7 +248,9 @@ def SphereRDD(
     'com$astrolabsoftware$spark3d$spatial3DRDD$Shape3DRDD$$mapElements$1',
     'equals', 'getClass', 'getDataEnvelope', 'hashCode', 'isSpherical',
     'notify', 'notifyAll', 'partition', 'rawRDD', 'spatialPartitioning',
-    'spatialPartitioning$default$2', 'toString', 'wait']
+    'spatialPartitioning$default$2', 'spatialPartitioningPython',
+    'spatialPartitioningPython$default$2', 'toCenterCoordinateRDD',
+    'toCenterCoordinateRDDPython', 'toString', 'wait']
 
     """
     scalapath = "com.astrolabsoftware.spark3d.spatial3DRDD.SphereRDD"
@@ -222,4 +277,5 @@ if __name__ == "__main__":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    sys.exit(failure_count)

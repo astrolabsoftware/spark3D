@@ -15,5 +15,14 @@
 
 # Clean and launch the test suite
 # Must be launched using ./test_scala.sh <SCALA_BINARY_VERSION>
+
+if [ -z $1 ]
+ then
+     echo "You must pass the scala version for the test!"
+     echo "Syntax : ./test_scala.sh <SCALA_BINARY_VERSION>"
+     echo "Example: ./test_scala.sh 2.11.8"
+     exit
+ fi
+
 sbt ++$1 clean
 sbt ++$1 coverage test coverageReport

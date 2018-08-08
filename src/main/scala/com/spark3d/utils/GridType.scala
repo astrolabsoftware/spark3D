@@ -16,16 +16,12 @@
 package com.astrolabsoftware.spark3d.utils
 
 /**
-  * Define a new enumeration with a type alias
-  * and work with the full set of enumerated values.
-  * The Java equivalent is enum.
-  *
+  * Register available GridType names used in Shape3DRDD
+  * to perform a RDD repartitioning.
   */
-object GridType extends Enumeration {
-
-  type GridType = Value
+object GridType {
 
   // Add new GridType name here once implementation done.
-  // Names should be comma separated: val ONIONGRID, TOTO = Value
-  val LINEARONIONGRID, OCTREE = Value
+  val LINEARONIONGRID = "LINEARONIONGRID"
+  val OCTREE = "OCTREE"
 }

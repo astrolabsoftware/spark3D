@@ -13,8 +13,11 @@
 # limitations under the License.
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-from pyspark3d import load_from_jvm
+
 from py4j.java_gateway import JavaObject
+
+from pyspark3d import load_from_jvm
+from pyspark3d_conf import path_to_conf
 
 from typing import Dict
 
@@ -92,7 +95,7 @@ def Point3DRDD(
     >>> spark = get_spark_session(dicconf=dic)
 
     Load data
-    >>> fn = "../src/test/resources/astro_obs.fits"
+    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
     >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
     ...     True, "fits", {"hdu": "1"})
 
@@ -210,7 +213,8 @@ def SphereRDD(
     >>> spark = get_spark_session(dicconf=dic)
 
     Load the data
-    >>> fn = "../src/test/resources/cartesian_spheres.fits"
+    >>> fn = os.path.join(path_to_conf,
+    ...     "../src/test/resources/cartesian_spheres.fits")
     >>> rdd = SphereRDD(spark, fn, "x,y,z,radius",
     ...     False, "fits", {"hdu": "1"})
 

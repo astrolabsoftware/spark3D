@@ -15,13 +15,20 @@
  */
 package com.astrolabsoftware.spark3d.spatialOperator
 
+import scala.reflect.ClassTag
+
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 
 import com.astrolabsoftware.spark3d.spatial3DRDD.Shape3DRDD
 
 import org.apache.spark.rdd.RDD
 
-class RangeQuery[A<:Shape3D, B<:Shape3D] {
+/**
+  * Handle range query, including window query.
+  * Note that window query is just a sub-case of CrossMatch, just one of the
+  * two data sets has only one (extended) element... ;-)
+  */
+object RangeQuery {
 
   /**
     * Perform window query, that is match between RDD elements and
@@ -35,18 +42,9 @@ class RangeQuery[A<:Shape3D, B<:Shape3D] {
     *   envelopeWindow
     *
     */
-  def windowQuery(
+  def windowQuery[A<:Shape3D : ClassTag, B<:Shape3D : ClassTag](
     rdd: RDD[A], envelopeWindow: B): RDD[A] = {
       // Just intersection -- need to implement full coverage
       rdd.filter(element => element.intersects(envelopeWindow))
   }
-}
-
-/**
-  * Handle range query, including window query.
-  * Note that window query is just a sub-case of CrossMatch, just one of the
-  * two data sets has only one (extended) element... ;-)
-  */
-object RangeQuery {
-  def apply[A<:Shape3D, B<:Shape3D]: RangeQuery[A, B] = new RangeQuery
 }

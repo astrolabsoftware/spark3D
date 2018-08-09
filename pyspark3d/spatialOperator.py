@@ -73,12 +73,19 @@ def windowQuery(rdd: JavaObject, envelope: JavaObject) -> JavaObject:
     ...     len(match.collect()), rdd.rawRDD().count()))
     1435/20000 objects found in the envelope
     """
-    scalapath = "com.astrolabsoftware.spark3d.spatialOperator.RangeQuery"
+    spark3droot = "com.astrolabsoftware.spark3d."
+    scalapath = spark3droot + "spatialOperator.RangeQuery"
     scalaclass = load_from_jvm(scalapath)
 
-    rq = scalaclass.apply()
+    classpath = spark3droot + "python.PythonClassTag.classTagFromObject"
+    classtag = load_from_jvm(classpath)
 
-    match = rq.windowQuery(rdd, envelope)
+    first_el = rdd.first()
+    match = scalaclass.windowQuery(
+        rdd,
+        envelope,
+        classtag(first_el),
+        classtag(envelope))
 
     return match
 

@@ -11,20 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pyspark import SparkContext
 from pyspark3d import load_from_jvm
-from pyspark3d import pyspark3d_conf
-from pyspark3d import load_user_conf
-from py4j.java_gateway import JavaObject
 
-import os
-import sys
-import doctest
-import numpy as np
+from py4j.java_gateway import JavaObject
 
 def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     """
-    Binding arount Point3D.scala. For full description,
+    Binding around Point3D.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/geometryObjects/Point3D.scala`.
 
     By default, the input coordinates are supposed euclidean,
@@ -97,7 +90,7 @@ def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
 
 def ShellEnvelope(*args) -> JavaObject:
     """
-    Binding arount ShellEnvelope.scala. For full description, see
+    Binding around ShellEnvelope.scala. For full description, see
     `$spark3d/src/main/scala/com/spark3d/geometryObjects/ShellEnvelope.scala`
 
     The Scala version makes use of several constructors (i.e. with different
@@ -258,7 +251,7 @@ def ShellEnvelope(*args) -> JavaObject:
 
 def BoxEnvelope(*args) -> JavaObject:
     """
-    Binding arount BoxEnvelope.scala. For full description,
+    Binding around BoxEnvelope.scala. For full description,
     see `$spark3d/src/main/scala/com/spark3d/geometryObjects/BoxEnvelope.scala`
 
     The Scala version makes use of several constructors (i.e. with different
@@ -416,6 +409,13 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import sys
+    import doctest
+    import numpy as np
+
+    from pyspark import SparkContext
+    from pyspark3d import pyspark3d_conf
+    from pyspark3d import load_user_conf
     # Activate the SparkContext for the test suite
     dic = load_user_conf()
     conf = pyspark3d_conf("local", "test", dic)

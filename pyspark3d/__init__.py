@@ -17,10 +17,11 @@ from pyspark.sql import SparkSession
 
 from typing import Any, List, Dict
 
-import sys
+from pyspark3d_conf import extra_jars
+from pyspark3d_conf import extra_packages
+from pyspark3d_conf import log_level
 
 from version import __version__
-from pyspark3d_conf import extra_jars, extra_packages, log_level
 
 ROOT_JVM = "_gateway.jvm"
 
@@ -276,7 +277,7 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
-    import os
+    import sys
     import doctest
     import numpy as np
 

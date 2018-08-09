@@ -152,7 +152,7 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   /**
     * Return if the input Point3D is equal this Point3D
     *
-    * @param p (Point3D)
+    * @param p : (Point3D)
     *   Point3D for which the equality is to be checked
     * @return (Boolean) true if the two Point3Ds are equal
     */

@@ -297,7 +297,6 @@ def CrossMatchCenter(
     ----------
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
-    >>> from pyspark3d.geometryObjects import Point3D
     >>> from pyspark3d_conf import path_to_conf
     >>> from pyspark3d.spatial3DRDD import Point3DRDD
 
@@ -394,7 +393,6 @@ def CrossMatchHealpixIndex(
     ----------
     >>> from pyspark3d import get_spark_session
     >>> from pyspark3d import load_user_conf
-    >>> from pyspark3d.geometryObjects import Point3D
     >>> from pyspark3d_conf import path_to_conf
     >>> from pyspark3d.spatial3DRDD import Point3DRDD
 

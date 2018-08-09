@@ -86,8 +86,39 @@ def windowQuery(rdd: JavaObject, envelope: JavaObject) -> JavaObject:
 
     return matchRDD
 
-def KNN(rdd, queryObject, k, unique):
+def KNN(
+        rdd: JavaObject, queryObject: JavaObject,
+        k: int, unique: bool = False) -> list:
     """
+    Binding around KNN (SpatialQuery.scala). For full description, see
+    `$spark3d/src/main/scala/com/spark3d/spatialOperator/SpatialQuery.scala`
+
+    Finds the K nearest neighbours of the query object within `rdd`.
+    The naive implementation here searches through all the the objects in the
+    RDD to get the KNN. The nearness of the objects here is decided on the
+    basis of the distance between their centers.
+    Note that `queryObject` and elements of `rdd` must have the same type
+    (either both Point3D, or both ShellEnvelope, or both BoxEnvelope).
+
+    Parameters
+    ----------
+    rdd : JavaObject (RDD[A<:Shape3D])
+        RDD[A] coming from the Java side. `A` can be Point3D, ShellEnvelope,
+        or BoxEnvelope.
+    envelope : JavaObject (A<:Shape3D)
+        Object to which the KNN are to be found. Can be Point3D,
+        ShellEnvelope, or BoxEnvelope, but should have the same type as the
+        elements of `rdd`.
+    k : int
+        Number of nearest neighbors requested
+    unique : bool, optional
+        If True, returns only distinct objects. Default is False.
+
+    Returns
+    ----------
+    match : List[JavaObject] (List[A<:Shape3D])
+        List of the KNN (of type A<:Shape3D).
+
     Examples
     ----------
     >>> from pyspark3d import get_spark_session
@@ -130,6 +161,94 @@ def KNN(rdd, queryObject, k, unique):
     classtag = load_from_jvm(classpath)
 
     match = scalaclass.KNN(rdd, queryObject, k, unique, classtag(queryObject))
+
+    return scala2python(match)
+
+def KNNEfficient(rdd: JavaObject, queryObject: JavaObject, k: int) -> list:
+    """
+    Binding around KNNEfficient (SpatialQuery.scala). For full description, see
+    `$spark3d/src/main/scala/com/spark3d/spatialOperator/SpatialQuery.scala`
+
+    More efficient implementation of the KNN query above.
+    First we seek the partitions in which the query object belongs and we
+    will look for the knn only in those partitions. After this if the limit k
+    is not satisfied, we keep looking similarly in the neighbors of the
+    containing partitions.
+
+    Note 1: elements of `rdd` and `queryObject` can have different types
+        among Shape3D (Point3D or ShellEnvelope or BoxEnvelope)
+
+    Note 2: KNNEfficient only works on repartitioned RDD (python version).
+        See example below.
+
+    Parameters
+    ----------
+    rdd : JavaObject (RDD[A<:Shape3D])
+        Repartitioned RDD[A] coming from the Java side.
+        `A` can be Point3D, ShellEnvelope, or BoxEnvelope.
+    envelope : JavaObject (B<:Shape3D)
+        Object to which the KNN are to be found. `B` can be Point3D,
+        ShellEnvelope, or BoxEnvelope, not necessarily the same type as the
+        elements of `rdd`.
+    k : int
+        Number of nearest neighbors requested
+
+    Returns
+    ----------
+    match : List[JavaObject] (List[A<:Shape3D])
+        List of the KNN (of type A<:Shape3D).
+
+    Examples
+    ----------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+    >>> from pyspark3d.geometryObjects import Point3D
+    >>> from pyspark3d_conf import path_to_conf
+    >>> from pyspark3d.spatial3DRDD import Point3DRDD
+
+    Load the user configuration, and initialise the spark session.
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+
+    Load the raw data (spherical coordinates)
+    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
+    >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+
+    Repartition the RDD
+    >>> rdd_part = rdd.spatialPartitioningPython("LINEARONIONGRID", 5)
+
+    Note that using rdd.spatialPartitioning("LINEARONIONGRID", 5, <classTag>)
+    would work as well.
+
+    Define your query point
+    >>> pt = Point3D(0.0, 0.0, 0.0, True)
+
+    Perform the query: look for the 5 closest neighbours from `pt`.
+    >>> match = KNNEfficient(rdd_part, pt, 5)
+
+    `match` is a list of Point3D. Take the coordinates and convert them
+    into cartesian coordinates:
+    >>> mod = "com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian"
+    >>> converter = load_from_jvm(mod)
+    >>> match_coord = [converter(m).getCoordinatePython() for m in match]
+
+    Print the distance to the query point (here 0, 0, 0)
+    >>> def normit(l: list) -> float: return np.sqrt(sum([e**2 for e in l]))
+    >>> print([int(normit(l)*1e6) for l in match_coord])
+    [72, 73, 150, 166, 206]
+    """
+    spark3droot = "com.astrolabsoftware.spark3d."
+    scalapath = spark3droot + "spatialOperator.SpatialQuery"
+    scalaclass = load_from_jvm(scalapath)
+
+    classpath = spark3droot + "python.PythonClassTag.classTagFromObject"
+    classtag = load_from_jvm(classpath)
+
+    el = rdd.first()
+    match = scalaclass.KNNEfficient(
+        rdd, queryObject, k,
+        classtag(el), classtag(queryObject))
 
     return scala2python(match)
 

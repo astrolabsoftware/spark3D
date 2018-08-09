@@ -17,8 +17,6 @@ from pyspark.sql import SparkSession
 
 from typing import Any, List, Dict
 
-import sys
-
 from version import __version__
 from pyspark3d_conf import extra_jars, extra_packages, log_level
 
@@ -276,7 +274,7 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
-    import os
+    import sys
     import doctest
     import numpy as np
 

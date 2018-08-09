@@ -11,17 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
 from py4j.java_gateway import JavaObject
 
 from pyspark3d import load_from_jvm
-
-import sys
-import os
-import doctest
-import numpy as np
+from pyspark3d.converters import scala2python
 
 def windowQuery(rdd: JavaObject, envelope: JavaObject) -> JavaObject:
     """
@@ -68,9 +65,9 @@ def windowQuery(rdd: JavaObject, envelope: JavaObject) -> JavaObject:
     >>> sh = ShellEnvelope(0.0, 0.0, 0.0, False, 0.0, 0.5)
 
     Perform the query
-    >>> match = windowQuery(rdd.rawRDD(), sh)
+    >>> matchRDD = windowQuery(rdd.rawRDD(), sh)
     >>> print("{}/{} objects found in the envelope".format(
-    ...     len(match.collect()), rdd.rawRDD().count()))
+    ...     len(matchRDD.collect()), rdd.rawRDD().count()))
     1435/20000 objects found in the envelope
     """
     spark3droot = "com.astrolabsoftware.spark3d."
@@ -81,13 +78,60 @@ def windowQuery(rdd: JavaObject, envelope: JavaObject) -> JavaObject:
     classtag = load_from_jvm(classpath)
 
     first_el = rdd.first()
-    match = scalaclass.windowQuery(
+    matchRDD = scalaclass.windowQuery(
         rdd,
         envelope,
         classtag(first_el),
         classtag(envelope))
 
-    return match
+    return matchRDD
+
+def KNN(rdd, queryObject, k, unique):
+    """
+    Examples
+    ----------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+    >>> from pyspark3d.geometryObjects import Point3D
+    >>> from pyspark3d_conf import path_to_conf
+    >>> from pyspark3d.spatial3DRDD import Point3DRDD
+
+    Load the user configuration, and initialise the spark session.
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+
+    Load the data (spherical coordinates)
+    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
+    >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+
+    Define your query point
+    >>> pt = Point3D(0.0, 0.0, 0.0, True)
+
+    Perform the query: look for the 5 closest neighbours from `pt`.
+    >>> match = KNN(rdd.rawRDD(), pt, 5, True)
+
+    `match` is a list of Point3D. Take the coordinates and convert them
+    into cartesian coordinates:
+    >>> mod = "com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian"
+    >>> converter = load_from_jvm(mod)
+    >>> match_coord = [converter(m).getCoordinatePython() for m in match]
+
+    Print the distance to the query point (here 0, 0, 0)
+    >>> def normit(l: list) -> float: return np.sqrt(sum([e**2 for e in l]))
+    >>> print([int(normit(l)*1e6) for l in match_coord])
+    [72, 73, 150, 166, 206]
+    """
+    spark3droot = "com.astrolabsoftware.spark3d."
+    scalapath = spark3droot + "spatialOperator.SpatialQuery"
+    scalaclass = load_from_jvm(scalapath)
+
+    classpath = spark3droot + "python.PythonClassTag.classTagFromObject"
+    classtag = load_from_jvm(classpath)
+
+    match = scalaclass.KNN(rdd, queryObject, k, unique, classtag(queryObject))
+
+    return scala2python(match)
 
 
 if __name__ == "__main__":
@@ -99,6 +143,10 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import sys
+    import doctest
+    import numpy as np
+
     # Numpy introduced non-backward compatible change from v1.14.
     if np.__version__ >= "1.14.0":
         np.set_printoptions(legacy="1.13")

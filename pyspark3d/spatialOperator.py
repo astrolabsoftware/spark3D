@@ -252,6 +252,99 @@ def KNNEfficient(rdd: JavaObject, queryObject: JavaObject, k: int) -> list:
 
     return scala2python(match)
 
+def CrossMatchCenter(
+        rddA: JavaObject, rddB: JavaObject,
+        epsilon: float, returnType: str) -> JavaObject:
+    """
+    Binding around CrossMatchCenter (CenterCrossMatch.scala).
+    For full description, see
+    `$spark3d/src/main/scala/com/spark3d/spatialOperator/CenterCrossMatch.scala`
+
+    Cross match 2 RDD based on the object centers.
+    *The two input RDD must have been partitioned the same way!*
+
+    You have to choice to return:
+      (1) Elements of (A, B) matching (returnType="AB")
+      (2) Elements of A matching B (returnType="A")
+      (3) Elements of B matching A (returnType="B")
+
+    Which one you should choose? That depends on what you need:
+    (1) gives you all elements but is slow.
+    (2) & (3) give you all elements only in one side but is faster.
+
+    Parameters
+    ----------
+    rddA : JavaObject (RDD[A<:Shape3D])
+        RDD whose elements are Shape3D or any extension (Point3D, ...)
+    rddB : JavaObject (RDD[B<:Shape3D])
+        RDD whose elements are Shape3D or any extension (Point3D, ...)
+    epsilon : float
+        Tolerance for the distance between 2 centers. Should have the same
+        units as the center coordinates.
+    returnType : str
+        Kind of crossmatch to perform:
+            - Elements of (A, B) matching (returnType="AB")
+            - Elements of A matching B (returnType="A")
+            - Elements of B matching A (returnType="B")
+
+    Returns
+    ----------
+    rdd : JavaObject
+        RDD whose elements depends on `returnType`:
+            - Elements of (A, B) matching (returnType="AB")
+            - Elements of A matching B (returnType="A")
+            - Elements of B matching A (returnType="B")
+
+    Examples
+    ----------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+    >>> from pyspark3d.geometryObjects import Point3D
+    >>> from pyspark3d_conf import path_to_conf
+    >>> from pyspark3d.spatial3DRDD import Point3DRDD
+
+    Load the user configuration, and initialise the spark session.
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+
+    Load the raw data (spherical coordinates)
+    >>> fn = os.path.join(path_to_conf,
+    ...     "../src/test/resources/astro_obs_{}_light.fits")
+    >>> rddA = Point3DRDD(spark, fn.format("A"), "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+    >>> rddB = Point3DRDD(spark, fn.format("B"), "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+
+    Apply the same partitioning to both RDD
+    >>> rddA_part = rddA.spatialPartitioningPython("LINEARONIONGRID", 100)
+    >>> rddB_part = rddB.spatialPartitioningPython(
+    ...     rddA_part.partitioner().get())
+
+    Cross match A and B centers and return elements of A matching with B
+    >>> matchRDDB = CrossMatchCenter(rddA_part, rddB_part, 0.004, "A")
+    >>> print("{}/{} elements in A match with elements of B!".format(
+    ...     matchRDDB.count(), rddB_part.count()))
+    19/1000 elements in A match with elements of B!
+    """
+    spark3droot = "com.astrolabsoftware.spark3d."
+    scalapath = spark3droot + "spatialOperator.CenterCrossMatch"
+    scalaclass = load_from_jvm(scalapath)
+
+    classpath = spark3droot + "python.PythonClassTag.classTagFromObject"
+    classtag = load_from_jvm(classpath)
+
+    elA = rddA.first()
+    elB = rddB.first()
+    matchRDD = scalaclass.CrossMatchCenter(
+        rddA,
+        rddB,
+        epsilon,
+        returnType,
+        classtag(elA),
+        classtag(elB))
+
+    return matchRDD
+
 
 if __name__ == "__main__":
     """

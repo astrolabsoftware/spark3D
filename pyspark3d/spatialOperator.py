@@ -345,6 +345,103 @@ def CrossMatchCenter(
 
     return matchRDD
 
+def CrossMatchHealpixIndex(
+        rddA: JavaObject, rddB: JavaObject,
+        nside: int, returnType: str) -> JavaObject:
+    """
+    Binding around CrossMatchHealpixIndex (PixelCrossMatch.scala).
+    For full description, see
+    `$spark3d/src/main/scala/com/spark3d/spatialOperator/PixelCrossMatch.scala`
+
+    Cross match 2 RDD based on the healpix index of geometry center.
+    The cross-match is done partition-by-partition, which means the two
+    RDD must have been partitioned by the same partitioner.
+
+    You have to choice to return:
+      (1) Elements of (A, B) matching (returnType="AB")
+      (2) Elements of A matching B (returnType="A")
+      (3) Elements of B matching A (returnType="B")
+      (4) Healpix pixel indices matching (returnType="healpix")
+
+    Which one you should choose? That depends on what you need:
+    (1) gives you all elements but is slow.
+    (2) & (3) give you all elements only in one side but is faster.
+    (4) gives you only healpix center but is even faster.
+
+    Parameters
+    ----------
+    rddA : JavaObject (RDD[A<:Shape3D])
+        RDD whose elements are Shape3D or any extension (Point3D, ...)
+    rddB : JavaObject (RDD[B<:Shape3D])
+        RDD whose elements are Shape3D or any extension (Point3D, ...)
+    nside : int
+        Resolution of the underlying healpix map used to convert angle
+        coordinates to healpix index.
+    returnType : str
+        Kind of crossmatch to perform:
+            - Elements of (A, B) matching (returnType="AB")
+            - Elements of A matching B (returnType="A")
+            - Elements of B matching A (returnType="B")
+
+    Returns
+    ----------
+    rdd : JavaObject
+        RDD whose elements depends on `returnType`:
+            - Elements of (A, B) matching (returnType="AB")
+            - Elements of A matching B (returnType="A")
+            - Elements of B matching A (returnType="B")
+            - Healpix pixel indices matching (returnType="healpix")
+
+    Examples
+    ----------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+    >>> from pyspark3d.geometryObjects import Point3D
+    >>> from pyspark3d_conf import path_to_conf
+    >>> from pyspark3d.spatial3DRDD import Point3DRDD
+
+    Load the user configuration, and initialise the spark session.
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+
+    Load the raw data (spherical coordinates)
+    >>> fn = os.path.join(path_to_conf,
+    ...     "../src/test/resources/astro_obs_{}_light.fits")
+    >>> rddA = Point3DRDD(spark, fn.format("A"), "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+    >>> rddB = Point3DRDD(spark, fn.format("B"), "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+
+    Apply the same partitioning to both RDD
+    >>> rddA_part = rddA.spatialPartitioningPython("LINEARONIONGRID", 100)
+    >>> rddB_part = rddB.spatialPartitioningPython(
+    ...     rddA_part.partitioner().get())
+
+    Cross match A and B centers and return elements of A matching with B
+    >>> matchRDDB = CrossMatchHealpixIndex(rddA_part, rddB_part, 512, "A")
+    >>> print("{}/{} elements in A match with elements of B!".format(
+    ...     matchRDDB.count(), rddB_part.count()))
+    15/1000 elements in A match with elements of B!
+    """
+    spark3droot = "com.astrolabsoftware.spark3d."
+    scalapath = spark3droot + "spatialOperator.PixelCrossMatch"
+    scalaclass = load_from_jvm(scalapath)
+
+    classpath = spark3droot + "python.PythonClassTag.classTagFromObject"
+    classtag = load_from_jvm(classpath)
+
+    elA = rddA.first()
+    elB = rddB.first()
+    matchRDD = scalaclass.CrossMatchHealpixIndex(
+        rddA,
+        rddB,
+        nside,
+        returnType,
+        classtag(elA),
+        classtag(elB))
+
+    return matchRDD
+
 
 if __name__ == "__main__":
     """

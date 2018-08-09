@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
 from py4j.java_gateway import JavaObject
@@ -19,12 +18,8 @@ from py4j.java_gateway import JavaObject
 from pyspark3d import load_from_jvm
 from pyspark3d_conf import path_to_conf
 
-from typing import Dict
-
 import os
-import sys
-import doctest
-import numpy as np
+from typing import Dict
 
 def Point3DRDD(
         spark: SparkSession, filename: str, colnames: str,
@@ -272,6 +267,10 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import sys
+    import doctest
+    import numpy as np
+
     # Numpy introduced non-backward compatible change from v1.14.
     if np.__version__ >= "1.14.0":
         np.set_printoptions(legacy="1.13")

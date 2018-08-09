@@ -11,16 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pyspark import SparkContext
 from pyspark3d import load_from_jvm
-from pyspark3d import pyspark3d_conf
-from pyspark3d import load_user_conf
-from py4j.java_gateway import JavaObject
 
-import os
-import sys
-import doctest
-import numpy as np
+from py4j.java_gateway import JavaObject
 
 def Point3D(x: float, y: float, z: float, isSpherical: bool) -> JavaObject:
     """
@@ -416,6 +409,13 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import sys
+    import doctest
+    import numpy as np
+
+    from pyspark import SparkContext
+    from pyspark3d import pyspark3d_conf
+    from pyspark3d import load_user_conf
     # Activate the SparkContext for the test suite
     dic = load_user_conf()
     conf = pyspark3d_conf("local", "test", dic)

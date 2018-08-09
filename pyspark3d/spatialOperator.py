@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-from pyspark import SparkContext
-from pyspark.sql import SparkSession
 
 from py4j.java_gateway import JavaObject
 

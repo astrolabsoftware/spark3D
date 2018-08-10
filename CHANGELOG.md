@@ -1,3 +1,8 @@
+## 0.2.1
+
+- pyspark3d contains all the features of spark3D ([partitioning](https://github.com/astrolabsoftware/spark3D/pull/89), [operators](https://github.com/astrolabsoftware/spark3D/pull/90))
+- Scala reflection support for python using py4j ([PR](https://github.com/astrolabsoftware/spark3D/pull/90))
+
 ## 0.2.0
 
 - Add support for Python: pyspark3d ([PR](https://github.com/astrolabsoftware/spark3D/pull/86)).

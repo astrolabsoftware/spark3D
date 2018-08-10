@@ -19,7 +19,7 @@ import xerial.sbt.Sonatype._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.2.0"
+     version      := "0.2.1"
    )),
    // Name of the application
    name := "spark3D",

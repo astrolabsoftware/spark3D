@@ -18,26 +18,26 @@
 
 set -e
 
-if [ -z $1 ]
+SCALA_BINARY_VERSION=$1
+if [ -z $SCALA_BINARY_VERSION ]
 then
-    echo "You must pass the scala version for the test!"
+    echo "You did not specify the scala version for the test!"
     echo "Syntax : ./test_python.sh <SCALA_BINARY_VERSION>"
     echo "Example: ./test_python.sh 2.11.8"
-    exit
+    echo " "
+    SCALA_BINARY_VERSION=`python -c "from pyspark3d import version; print(version.__scala_version_all__)"`
+    echo "Taking the default SCALA_BINARY_VERSION: $SCALA_BINARY_VERSION"
 fi
 
 # First build the assembly JAR
-sbt 'set test in assembly := {}' ++$1 assembly
+sbt ++$SCALA_BINARY_VERSION clean
+sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly
 
 # Then run the test suite
 cd pyspark3d
 for i in *.py
 do
     coverage run -a --source=. $i
-    # if [[ $? -ne 0 ]] ; then
-    #     echo "Errors in $i"
-    #     exit -1
-    # fi
 done
 
 ## Print and store the report if machine related to julien

@@ -1,4 +1,17 @@
 #!/usr/bin/env python
+# Copyright 2018 Julien Peloton
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # -*- coding: utf-8 -*-
 
 import os
@@ -30,24 +43,25 @@ ASSEMBLY_JAR = \
 
 
 class jar_build(build):
+    """ Class to handle spark3D JAR while installing pyspark3d """
     def run(self):
         """
-        Compile the companion jar file.
+        Override distutils.command.build.
+        Compile the companion library and produce a FAT jar.
         """
-
         if find_executable('sbt') is None:
             raise EnvironmentError("""
-
-The executable "sbt" cannot be found.
-
-Please install the "sbt" tool to build the companion jar file.
-""")
+            The executable "sbt" cannot be found.
+            Please install the "sbt" tool to build the companion jar file.
+            """)
 
         build.run(self)
         subprocess.check_call(
             "sbt ++{} assembly".format(SCALA_VERSION_ALL), shell=True)
 
+
 class jar_clean(clean):
+    """ Extends distutils.command.clean """
     def run(self):
         """
         Cleans the scala targets from the system.
@@ -57,7 +71,13 @@ class jar_clean(clean):
 
 
 class my_sdist(sdist):
+    """ Extends distutils.command.sdist """
     def initialize_options(self, *args, **kwargs):
+        """
+        During installation, open the MANIFEST file
+        and insert the path to the spark3D JAR required
+        to run pyspark3d.
+        """
         here = os.path.dirname(os.path.abspath(__file__))
         filename = os.path.join(here, "MANIFEST.in")
         with open(filename, 'w') as f:
@@ -82,7 +102,6 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
     ],
@@ -100,8 +119,5 @@ setup(
             'src'
         ]
     },
-    # data_files=[
-    #     ('share/py4jdbc', [ASSEMBLY_JAR])
-    # ],
     setup_requires=setup_requirements
 )

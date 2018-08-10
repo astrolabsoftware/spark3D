@@ -30,24 +30,25 @@ ASSEMBLY_JAR = \
 
 
 class jar_build(build):
+    """ Class to handle spark3D JAR while installing pyspark3d """
     def run(self):
         """
-        Compile the companion jar file.
+        Override distutils.command.build.
+        Compile the companion library and produce a FAT jar.
         """
-
         if find_executable('sbt') is None:
             raise EnvironmentError("""
-
-The executable "sbt" cannot be found.
-
-Please install the "sbt" tool to build the companion jar file.
-""")
+            The executable "sbt" cannot be found.
+            Please install the "sbt" tool to build the companion jar file.
+            """)
 
         build.run(self)
         subprocess.check_call(
             "sbt ++{} assembly".format(SCALA_VERSION_ALL), shell=True)
 
+
 class jar_clean(clean):
+    """ Extends distutils.command.clean """
     def run(self):
         """
         Cleans the scala targets from the system.
@@ -57,7 +58,13 @@ class jar_clean(clean):
 
 
 class my_sdist(sdist):
+    """ Extends distutils.command.sdist """
     def initialize_options(self, *args, **kwargs):
+        """
+        During installation, open the MANIFEST file
+        and insert the path to the spark3D JAR required
+        to run pyspark3d.
+        """
         here = os.path.dirname(os.path.abspath(__file__))
         filename = os.path.join(here, "MANIFEST.in")
         with open(filename, 'w') as f:

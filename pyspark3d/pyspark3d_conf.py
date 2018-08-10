@@ -13,7 +13,7 @@
 # limitations under the License.
 import os
 from pathlib import Path
-from version import __version__
+from version import __version__, __scala_version__
 
 # For local tests
 path_to_conf = Path().cwd().as_uri()
@@ -25,7 +25,7 @@ path_to_conf = Path().cwd().as_uri()
 version = __version__
 
 # Scala version used to compile spark3D
-scala_version = "2.11"
+scala_version = __scala_version__
 
 # Verbosity for Spark
 log_level = "WARN"

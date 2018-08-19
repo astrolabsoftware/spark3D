@@ -57,7 +57,7 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
 
     parents += new NonLeafNode(level)
 
-    val minLeafCount = ceil(children.size / maxNodeCapacity).toInt
+    val minLeafCount = max(ceil(children.size / maxNodeCapacity).toInt, 1)
 
     val sortedChildren = children.sortWith((x, y) =>
         x.envelope.center.x < y.envelope.center.x)

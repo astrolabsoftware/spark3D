@@ -25,7 +25,9 @@ class BaseRTree (private val maxN: Int){
 
   def build(): Unit = {
 
-    if (built) return false
+    if (built) {
+       return
+    }
 
     root = if (objectList.isEmpty) {
       new NonLeafNode(0)
@@ -58,12 +60,12 @@ class BaseRTree (private val maxN: Int){
     val sortedChildren = children.sortWith((x, y) =>
         x.asInstanceOf[Shape3D].center.x < y.asInstanceOf[Shape3D].center.x)
 
-    val parentSlices = verticalSlices(sortedChildren, ceil(sqrt(minLeafCount)).toInt);
-    createParentFromSlices(parentSlices, level)
+    val parentSlices = verticalSlices(sortedChildren, ceil(sqrt(minLeafCount)).toInt)
+    createParentFromChildSlices(parentSlices, level)
 
   }
 
-  def createParentFromSlices(parentSlices: List[List[AnyRef]], level: Int): List[AnyRef] = {
+  def createParentFromChildSlices(parentSlices: List[List[AnyRef]], level: Int): List[AnyRef] = {
     val parents = ListBuffer[AnyRef]()
     for (i <- parentSlices) {
       parents += createParentFromSlices(i, level)
@@ -76,7 +78,7 @@ class BaseRTree (private val maxN: Int){
     parents += new NonLeafNode(level)
     val it = parentSlices.iterator
     while (it.hasNext) {
-      val parent = it.next
+      val parent = it.next.asInstanceOf[Node]
       if (parents.last.children.size == maxNodeCapacity) {
         parents += new NonLeafNode(level)
       }
@@ -88,8 +90,8 @@ class BaseRTree (private val maxN: Int){
   def verticalSlices(children: List[AnyRef], sliceCount: Int): List[List[AnyRef]] = {
     val sliceCapacity = (ceil(children.size) / sliceCount.asInstanceOf[Double]).asInstanceOf[Int]
     val it = children.iterator
-    val slices = Array[ListBuffer[AnyRef]](sliceCount)
-    for (i <- Range(0 to sliceCount)) {
+    val slices = new Array[ListBuffer[AnyRef]](sliceCount)
+    for (i <- 0 to sliceCount) {
       slices(i) = ListBuffer[AnyRef]()
       var added = 0
       while (it.hasNext && added < sliceCapacity) {

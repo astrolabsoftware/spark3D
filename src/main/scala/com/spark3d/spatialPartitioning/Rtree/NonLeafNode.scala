@@ -1,9 +1,10 @@
 package com.spark3d.spatialPartitioning.Rtree
 
 import com.spark3d.geometry.Envelope
+import scala.collection.mutable.ListBuffer
 
 class NonLeafNode (var envelope: Envelope,
-                   var children: List[Node],
+                   var children: ListBuffer[Node],
                    val level: Int) extends Node(envelope){
 
   def this(level: Int) {

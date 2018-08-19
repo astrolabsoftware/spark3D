@@ -7,17 +7,17 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import scala.math._
 import scala.collection.mutable.ListBuffer
 
-class BaseRTree (private val maxN: Int){
+class BaseRTree (private val maxNodeCapacity: Int = 10){
 
   def this() {
     this(10)
   }
 
 
-  private var objectList: List[BoxEnvelope] = _
-  private var root: NonLeafNode = _
-  private var built: Boolean = false
-  private var maxNodeCapacity: Int = 10
+  var objectList: List[BoxEnvelope] = _
+  var root: NonLeafNode = _
+  var built: Boolean = false
+//  private var maxNodeCapacity: Int = 10
 
   def insert(objList: List[BoxEnvelope]): Unit = {
     objectList = objList
@@ -33,11 +33,13 @@ class BaseRTree (private val maxN: Int){
       new NonLeafNode(0)
     } else {
       //build the tree
-      buildUpperRTree(objectList, -1)
+      buildUpperRTree(objectList.map(x => new LeafNode(x.getEnvelope)), -1)
     }
+
+    built = true
   }
 
-  private def buildUpperRTree(levelNodes: List[AnyRef], level: Int): NonLeafNode = {
+  private def buildUpperRTree(levelNodes: List[Node], level: Int): NonLeafNode = {
 
     val levelParents = constructParents(levelNodes, level+1)
 
@@ -48,37 +50,37 @@ class BaseRTree (private val maxN: Int){
     buildUpperRTree(levelParents, level+1)
   }
 
-  private def constructParents(children: List[AnyRef], level: Int): List[AnyRef] = {
+  private def constructParents(children: List[Node], level: Int): List[Node] = {
 
 //    assert(children.foreach(x => x.isInstanceOf[Shape3D]))
-    var parents = ListBuffer[AnyRef]()
+    var parents = ListBuffer[Node]()
 
     parents += new NonLeafNode(level)
 
     val minLeafCount = ceil(children.size / maxNodeCapacity).toInt
 
     val sortedChildren = children.sortWith((x, y) =>
-        x.asInstanceOf[Shape3D].center.x < y.asInstanceOf[Shape3D].center.x)
+        x.envelope.center.x < y.envelope.center.x)
 
     val parentSlices = verticalSlices(sortedChildren, ceil(sqrt(minLeafCount)).toInt)
     createParentFromChildSlices(parentSlices, level)
 
   }
 
-  def createParentFromChildSlices(parentSlices: List[List[AnyRef]], level: Int): List[AnyRef] = {
-    val parents = ListBuffer[AnyRef]()
+  def createParentFromChildSlices(parentSlices: List[List[Node]], level: Int): List[Node] = {
+    val parents = ListBuffer[Node]()
     for (i <- parentSlices) {
-      parents += createParentFromSlices(i, level)
+      parents ++= createParentFromSlices(i, level)
     }
     parents.toList
   }
 
-  def createParentFromSlices(parentSlices: List[AnyRef], level: Int): List[AnyRef] = {
+  def createParentFromSlices(parentSlices: List[Node], level: Int): List[Node] = {
     val parents = ListBuffer[NonLeafNode]()
     parents += new NonLeafNode(level)
     val it = parentSlices.iterator
     while (it.hasNext) {
-      val parent = it.next.asInstanceOf[Node]
+      val parent = it.next
       if (parents.last.children.size == maxNodeCapacity) {
         parents += new NonLeafNode(level)
       }
@@ -87,12 +89,12 @@ class BaseRTree (private val maxN: Int){
     parents.toList
   }
 
-  def verticalSlices(children: List[AnyRef], sliceCount: Int): List[List[AnyRef]] = {
+  def verticalSlices(children: List[Node], sliceCount: Int): List[List[Node]] = {
     val sliceCapacity = (ceil(children.size) / sliceCount.asInstanceOf[Double]).asInstanceOf[Int]
     val it = children.iterator
-    val slices = new Array[ListBuffer[AnyRef]](sliceCount)
-    for (i <- 0 to sliceCount) {
-      slices(i) = ListBuffer[AnyRef]()
+    val slices = new Array[ListBuffer[Node]](sliceCount)
+    for (i <- 0 until sliceCount) {
+      slices(i) = ListBuffer[Node]()
       var added = 0
       while (it.hasNext && added < sliceCapacity) {
         val temp = it.next
@@ -101,18 +103,18 @@ class BaseRTree (private val maxN: Int){
       }
     }
 
-    slices.toList.map(x => x.toList).toList
+    slices.toList.map(x => x.toList)
   }
 
-  def getLeafNodes(): List[AnyRef] = {
-    val leafNodes = ListBuffer[AnyRef]()
+  def getLeafNodes(): List[Node] = {
+    val leafNodes = ListBuffer[Node]()
     getLeafNodes(root, leafNodes)
     leafNodes.toList
   }
 
-  def getLeafNodes(node: Node, leafNodes: ListBuffer[AnyRef]): Unit = {
+  def getLeafNodes(node: Node, leafNodes: ListBuffer[Node]): Unit = {
 
-    val leafNodes = ListBuffer[AnyRef]()
+    val leafNodes = ListBuffer[Node]()
 
     var isLeaf = false
 
@@ -123,7 +125,7 @@ class BaseRTree (private val maxN: Int){
     })
 
     if (isLeaf) {
-      leafNodes += root.envelope
+      leafNodes += root
       return
     } else {
       for (child <- root.children) {

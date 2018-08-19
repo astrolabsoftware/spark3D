@@ -16,6 +16,7 @@
 
 package com.astrolabsoftware.spark3d.spatialOperator
 
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.utils.GeometryObjectComparator
 import com.astrolabsoftware.spark3d.utils.Utils.takeOrdered
@@ -24,38 +25,56 @@ import com.astrolabsoftware.spark3d.spatialPartitioning._
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.{HashSet, ListBuffer}
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.util.control.Breaks._
 
 object SpatialQuery {
 
   /**
-    * Finds the K nearest neighbors of the query object. The naive implementation here searches
-    * through all the the objects in the RDD to get the KNN. The nearness of the objects here
+    * Finds the K nearest neighbors of the query object.
+    * The naive implementation here searches through all the the objects in
+    * the RDD to get the KNN. The nearness of the objects here
     * is decided on the basis of the distance between their centers.
     *
-    * @param queryObject object to which the knn are to be found
-    * @param rdd RDD of a Shape3D (Shape3DRDD)
-    * @param k number of nearest neighbors are to be found
-    * @return knn
+    * @param rdd : RDD[T]
+    *   RDD of T (T<:Shape3D)
+    * @param queryObject : (T<:Shape3D)
+    *   Object to which the KNN are to be found
+    * @param k : (Int)
+    *   Number of nearest neighbors requested
+    * @param unique : (Boolean)
+          If True, returns only distinct objects. Default is false.
+    * @return (List[T]) List of the KNN T<:Shape3D.
+    *
     */
-  def KNN[T <: Shape3D: ClassTag](queryObject: T, rdd: RDD[T], k: Int, unique: Boolean = false): List[T] = {
-    val knn = takeOrdered[T](rdd, k, queryObject, unique)(new GeometryObjectComparator[T](queryObject.center))
+  def KNN[T <: Shape3D: ClassTag](
+      rdd: RDD[T], queryObject: T,
+      k: Int, unique: Boolean = false): List[T] = {
+    val knn = takeOrdered[T](rdd, k, queryObject, unique)(
+      new GeometryObjectComparator[T](queryObject.center)
+    )
     knn.toList
   }
 
   /**
-    * Much more efficient implementation of the KNN query above. First we seek the partitions in
-    * which the query object belongs and we will look for the knn only in those partitions. After
-    * this if the limit k is not satisfied, we keep looking similarly in the neighbors of the
-    * containing partitions.
+    * More efficient implementation of the KNN query above.
+    * First we seek the partitions in which the query object belongs and we
+    * will look for the knn only in those partitions. After
+    * this if the limit k is not satisfied, we keep looking similarly in
+    * the neighbors of the containing partitions.
     *
-    * @param queryObject object to which the knn are to be found
-    * @param rdd RDD of a Shape3D (Shape3DRDD)
-    * @param k number of nearest neighbors are to be found
-    * @return knn
+    * @param rdd : RDD[T]
+    *   RDD of T (T<:Shape3D)
+    * @param queryObject : (T<:Shape3D)
+    *   Object to which the KNN are to be found
+    * @param k : (Int)
+    *   Number of nearest neighbors requested
+    * @return (List[T]) List of the KNN T<:Shape3D.
+    *
     */
-  def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](queryObject: A, rdd: RDD[B], k: Int): List[B] = {
+  def KNNEfficient[A <: Shape3D: ClassTag, B <:Shape3D: ClassTag](
+      rdd: RDD[A], queryObject: B, k: Int): List[A] = {
 
     val partitioner = rdd.partitioner.get.asInstanceOf[SpatialPartitioner]
     val containingPartitions = partitioner.getPartitionNodes(queryObject)
@@ -66,7 +85,9 @@ object SpatialQuery {
       }
     )
 
-    val knn_1 = matchedContainingSubRDD.takeOrdered(k)(new GeometryObjectComparator[B](queryObject.center))
+    val knn_1 = matchedContainingSubRDD.takeOrdered(k)(
+      new GeometryObjectComparator[A](queryObject.center)
+    )
 
     if (knn_1.size >= k) {
       return knn_1.toList
@@ -85,7 +106,9 @@ object SpatialQuery {
       }
     )
 
-    val knn_2 = matchedNeighborSubRDD.takeOrdered(k-knn_1.size)(new GeometryObjectComparator[B](queryObject.center))
+    val knn_2 = matchedNeighborSubRDD.takeOrdered(k-knn_1.size)(
+      new GeometryObjectComparator[A](queryObject.center)
+    )
 
     var knn_f = knn_1 ++ knn_2
     if (knn_f.size >= k) {
@@ -96,7 +119,8 @@ object SpatialQuery {
 
     breakable {
       for (neighborPartition <- neighborPartitions) {
-        val secondaryNeighborPartitions = partitioner.getSecondaryNeighborNodes(neighborPartition._2, neighborPartition._1)
+        val secondaryNeighborPartitions = partitioner.getSecondaryNeighborNodes(
+          neighborPartition._2, neighborPartition._1)
             .filter(x => !visitedPartitions.contains(x._1))
         val secondaryNeighborPartitionsIndex = secondaryNeighborPartitions.map(x => x._1)
 
@@ -110,7 +134,9 @@ object SpatialQuery {
         )
 
 
-        val knn_t = matchedNeighborSubRDD.takeOrdered(k-knn_f.size)(new GeometryObjectComparator[B](queryObject.center))
+        val knn_t = matchedNeighborSubRDD.takeOrdered(k-knn_f.size)(
+          new GeometryObjectComparator[A](queryObject.center)
+        )
 
         knn_f = knn_f ++ knn_t
 

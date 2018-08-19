@@ -39,11 +39,12 @@ Several goals have to be undertaken in this project:
   + ways to define a metric (ie. distance between objects)
   + selection capability of objects or objects within a region
 - work with as many input file format as possible (CSV, ROOT, FITS, HDF5 and so on)
+- Expose several API: Scala and Python at least!
 - package the developments into an open-source library.
 
 ## Current structure
 
-<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.1.5.png"/>
+<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.2.1.png"/>
 </p>
 
 ## Support

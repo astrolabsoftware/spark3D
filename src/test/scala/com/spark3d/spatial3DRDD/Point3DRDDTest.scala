@@ -26,6 +26,7 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import org.apache.spark.rdd.RDD
 
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
@@ -79,6 +80,20 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     assert(partitions.size == 1 && partitions(0) == 20000)
   }
 
+  test("Can you repartition a RDD with the onion space? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    // Partition the space using the LINEARONIONGRID
+    val pointRDD_part = pointRDD.spatialPartitioningPython(GridType.LINEARONIONGRID)
+
+    // Collect the size of each partition
+    val partitions = pointRDD_part.mapPartitions(
+      iter => Array(iter.size).iterator, true).collect()
+
+    assert(partitions.size == 1 && partitions(0) == 20000)
+  }
+
   test("Can you repartition a RDD with the onion space with more partitions?") {
     val options = Map("hdu" -> "1")
     val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
@@ -116,5 +131,37 @@ class Point3DRDDTest extends FunSuite with BeforeAndAfterAll {
     val pointRDD2_part = pointRDD2.spatialPartitioning(partitioner)
 
     assert(pointRDD1_part.partitioner == pointRDD2_part.partitioner)
+  }
+
+  test("Can you repartition a RDD from the partitioner of another? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val pointRDD1 = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+    val pointRDD2 = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    // Partition 1st RDD with 10 data shells using the LINEARONIONGRID
+    val pointRDD1_part = pointRDD1.spatialPartitioningPython(GridType.LINEARONIONGRID, 10)
+    // Partition 2nd RDD with partitioner of RDD1
+    val partitioner = pointRDD1_part.partitioner.get.asInstanceOf[SpatialPartitioner]
+    val pointRDD2_part = pointRDD2.spatialPartitioningPython(partitioner)
+
+    assert(pointRDD1_part.partitioner == pointRDD2_part.partitioner)
+  }
+
+  test("Can you return a centerRDD from a Point3DRDD?") {
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    val centerRDD = pointRDD.toCenterCoordinateRDD(pointRDD.rawRDD)
+
+    assert(centerRDD.isInstanceOf[RDD[List[Double]]])
+  }
+
+  test("Can you return a centerRDD from a Point3DRDD? (Python interface)") {
+    val options = Map("hdu" -> "1")
+    val pointRDD = new Point3DRDD(spark, fn_fits, "Z_COSMO,RA,DEC", true, "fits", options)
+
+    val centerRDD = pointRDD.toCenterCoordinateRDDPython(pointRDD.rawRDD)
+
+    assert(centerRDD.isInstanceOf[RDD[java.util.List[Double]]])
   }
 }

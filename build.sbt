@@ -19,7 +19,7 @@ import xerial.sbt.Sonatype._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.1.5"
+     version      := "0.2.1"
    )),
    // Name of the application
    name := "spark3D",
@@ -37,7 +37,7 @@ lazy val root = (project in file(".")).
    // Exclude runner class for the coverage
    coverageExcludedPackages := "<empty>;com.astrolabsoftware.spark3d.examples*",
    // Excluding Scala library JARs that are included in the binary Scala distribution
-   // assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
+   assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
    // Shading to avoid conflicts with pre-installed nom.tam.fits library
    // Uncomment if you have such conflicts.
    // assemblyShadeRules in assembly := Seq(ShadeRule.rename("nom.**" -> "new_nom.@1").inAll),

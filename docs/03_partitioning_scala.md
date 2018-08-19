@@ -1,5 +1,5 @@
 ---
-permalink: /docs/partitioning/
+permalink: /docs/partitioning/scala/
 layout: splash
 title: "Tutorial: Partition your space"
 date: 2018-06-18 22:31:13 +0200
@@ -55,6 +55,8 @@ val pointRDD_partitioned = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID
 |:---------:|:---------:
 | ![raw]({{ "/assets/images/myOnionFigRaw.png" | absolute_url }}) | ![repartitioning]({{ "/assets/images/myOnionFig.png" | absolute_url }})
 
+Color code indicates the partitions (all objects with the same color belong to the same partition).
+
 ### Octree Partitioning
 
 In the following example, we load `ShellEnvelope` data (spheres), and we re-partition it with the octree partitioning
@@ -93,6 +95,8 @@ However keep in mind that if a large `nPart` decreases the cost of performing fu
 | Raw data set | Re-partitioned data set
 |:---------:|:---------:
 | ![raw]({{ "/assets/images/rawData_noOctree.png" | absolute_url }}) | ![repartitioning]({{ "/assets/images/rawData_withOctree.png" | absolute_url }})
+
+Color code indicates the partitions (all objects with the same color belong to the same partition).
 
 ## Current benchmark
 

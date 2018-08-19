@@ -13,9 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## SBT Version
-SBT_VERSION=2.11.8
-
 # Clean and launch the test suite
-sbt ++${SBT_VERSION} clean
-sbt ++${SBT_VERSION} coverage test coverageReport
+# Must be launched using ./test_scala.sh <SCALA_BINARY_VERSION>
+
+SCALA_BINARY_VERSION=$1
+if [ -z $SCALA_BINARY_VERSION ]
+then
+    echo "You did not specify the scala version for the test!"
+    echo "Syntax : ./test_scala.sh <SCALA_BINARY_VERSION>"
+    echo "Example: ./test_scala.sh 2.11.8"
+    echo " "
+    SCALA_BINARY_VERSION=`python -c "from pyspark3d import version; print(version.__scala_version_all__)"`
+    echo "Taking the default SCALA_BINARY_VERSION: $SCALA_BINARY_VERSION"
+fi
+
+sbt ++$SCALA_BINARY_VERSION clean
+sbt ++$SCALA_BINARY_VERSION coverage test coverageReport

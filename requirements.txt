@@ -1,0 +1,4 @@
+numpy>=1.14
+coverage>=4.2
+pyspark
+coveralls

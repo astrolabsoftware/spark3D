@@ -15,8 +15,11 @@
  */
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
+import java.util.HashMap
+
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.spatial3DRDD.Loader._
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.SparkSession
@@ -28,7 +31,12 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
     override val isSpherical: Boolean, storageLevel: StorageLevel) extends Shape3DRDD[ShellEnvelope] {
 
   /**
-    * Construct a RDD[ShellEnvelope] from CSV, JSON or TXT data.
+    * Construct a RDD[ShellEnvelope] from whatever data source registered in Spark.
+    * For more information about available official connectors:
+    * `https://spark-packages.org/?q=tags%3A%22Data%20Sources%22`
+    *
+    * We currently include: CSV, JSON, TXT, FITS, ROOT, HDF5, Avro, Parquet...
+    *
     * {{{
     *   // Here is an example with a CSV file containing
     *   // 3 cartesian coordinates + 1 radius columns labeled x,y,z,radius.
@@ -82,9 +90,68 @@ class SphereRDD(rdd : RDD[ShellEnvelope],
     )
   }
 
+  /**
+    * Constructor of `SphereRDD` which is suitable for py4j.
+    * It calls `SphereRDDFromV2PythonHelper` instead of `SphereRDDFromV2`.
+    * All args are the same but `options` which is a `java.util.HashMap`, and
+    * `storageLevel` which is removed and set to StorageLevel.MEMORY_ONLY
+    * (user cannot set the storage level in pyspark3d for the moment).
+    *
+    */
+  def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
+      format: String, options: HashMap[String, String]) {
+    this(
+      SphereRDDFromV2PythonHelper(
+        spark, filename, colnames, isSpherical, format, options
+      ), isSpherical, StorageLevel.MEMORY_ONLY
+    )
+  }
+
   // Raw partitioned RDD
   override val rawRDD = rdd
   rawRDD.persist(storageLevel)
+
+  /**
+    * Constructor of `spatialPartitioning` which is suitable for py4j.
+    * py4j does not handle generics, so we explicitly specify the types here.
+    * See discussion here: https://github.com/bartdag/py4j/issues/328
+    *
+    * Apply any Spatial Partitioner to this.rawRDD[ShellEnvelope],
+    * and return a RDD[ShellEnvelope] with the new partitioning.
+    *
+    * @param partitioner : (SpatialPartitioner)
+    *   Spatial partitioner as defined in utils.GridType
+    * @return (RDD[ShellEnvelope]) RDD whose elements are ShellEnvelope
+    *
+    */
+  def spatialPartitioningPython(partitioner: SpatialPartitioner) : RDD[ShellEnvelope] = {
+    this.partition(partitioner).asInstanceOf[RDD[ShellEnvelope]]
+  }
+
+  /**
+    * Constructor of `spatialPartitioning` which is suitable for py4j.
+    * py4j does not handle generics, so we explicitly specify the types here.
+    * See discussion here: https://github.com/bartdag/py4j/issues/328
+    *
+    * Apply a spatial partitioning to this.rawRDD, and return a RDD[ShellEnvelope]
+    * with the new partitioning.
+    * The list of available partitioning can be found in utils/GridType.
+    * By default, the outgoing level of parallelism is the same as the incoming
+    * one (i.e. same number of partitions).
+    *
+    * @param gridtype : (String)
+    *   Type of partitioning to apply. See utils/GridType.
+    * @param numPartitions : (Int)
+    *   Number of partitions for the partitioned RDD. By default (-1), the
+    *   number of partitions is that of the raw RDD. You can force it to be
+    *   different by setting manually this parameter.
+    *   Be aware of shuffling though...
+    * @return (RDD[ShellEnvelope]) RDD whose elements are ShellEnvelope.
+    *
+    */
+  def spatialPartitioningPython(gridtype: String, numPartitions: Int = -1): RDD[ShellEnvelope] = {
+    this.spatialPartitioning(gridtype, numPartitions).asInstanceOf[RDD[ShellEnvelope]]
+  }
 }
 
 /**

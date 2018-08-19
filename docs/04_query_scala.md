@@ -1,5 +1,5 @@
 ---
-permalink: /docs/query/
+permalink: /docs/query/scala/
 layout: splash
 title: "Tutorial: Query, cross-match, play!"
 date: 2018-06-18 22:31:13 +0200
@@ -39,7 +39,7 @@ val center = new Point3D(0.9, 0.0, 0.0, spherical)
 val radius = 0.1
 val envelope = new ShellEnvelope(center, radius)
 
-// Return the match
+// Perform the match
 val queryResult = RangeQuery.windowQuery(objects, envelope)
 ```
 
@@ -155,7 +155,15 @@ For more details on the cross-match, see the following [notebook](https://github
 
 ## Neighbour search
 
-Brute force KNN:
+
+### Simple KNN
+
+Finds the K nearest neighbours of a query object within a `rdd`.
+The naive implementation here searches through all the the objects in the
+RDD to get the KNN. The nearness of the objects here is decided on the
+basis of the distance between their centers.
+Note that `queryObject` and elements of `rdd` must have the same type
+(either both Point3D, or both ShellEnvelope, or both BoxEnvelope).
 
 ```scala
 // Load the data
@@ -165,10 +173,37 @@ val pRDD = new Point3DRDD(spark, fn, columns, isSpherical, "csv", options)
 val queryObject = new Point3D(0.0, 0.0, 0.0, false)
 
 // Find the `nNeighbours` closest neighbours
-val knn = SpatialQuery.KNN(queryObject, pRDD.rawRDD, nNeighbours)
+// Note that the last argument controls whether we want to eliminate duplicates.
+val knn = SpatialQuery.KNN(pRDD.rawRDD, queryObject, nNeighbours, unique)
 ```
 
-To come: partitioning + indexing!
+### More efficient KNN
+
+More efficient implementation of the KNN query above.
+First we seek the partitions in which the query object belongs and we
+will look for the knn only in those partitions. After this if the limit k
+is not satisfied, we keep looking similarly in the neighbors of the
+containing partitions.
+
+Note 1: elements of `rdd` and `queryObject` can have different types
+among Shape3D (Point3D or ShellEnvelope or BoxEnvelope) (unlike KNN above).
+
+Note 2: KNNEfficient only works on repartitioned RDD (python version).
+
+```scala
+// Load the data
+val pRDD = new Point3DRDD(spark, fn, columns, isSpherical, "csv", options)
+
+// Repartition the data
+pRDD_part = pRDD.spatialPartitioning(GridType.LINEARONIONGRID, 100)
+
+// Centre object for the query
+val queryObject = new Point3D(0.0, 0.0, 0.0, false)
+
+// Find the `nNeighbours` closest neighbours
+// Automatically discards duplicates
+val knn = SpatialQuery.KNNEfficient(pRDD_part, queryObject, nNeighbours)
+```
 
 ## Benchmarks
 

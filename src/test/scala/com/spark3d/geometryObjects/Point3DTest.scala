@@ -15,6 +15,8 @@
  */
 package com.astrolabsoftware.spark3d.geometryObjects
 
+import scala.collection.JavaConverters._
+
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
@@ -56,10 +58,15 @@ class Point3DTest extends FunSuite with BeforeAndAfterAll {
     assert(p1.distanceTo(p2) == 1.0)
   }
 
-  // Test method to compute the distance between 2 points.
   test("Return correctly the coordinates of a point?") {
     val p1 = new Point3D(0.0, 1.0, 0.0, true)
     assert(p1.getCoordinate == List(0.0, 1.0, 0.0))
+  }
+
+  // Python interface
+  test("Return correctly the coordinates of a point (Python interface)?") {
+    val p1 = new Point3D(0.0, 1.0, 0.0, true)
+    assert(p1.getCoordinatePython == List(0.0, 1.0, 0.0).asJava)
   }
 
   // Test method to test whether two points intersect

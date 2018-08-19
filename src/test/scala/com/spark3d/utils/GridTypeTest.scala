@@ -24,8 +24,9 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
   */
 class GridTypeTest extends FunSuite with BeforeAndAfterAll {
 
-  // Just test the Sphere class constructor.
-  test("Do you know how many spatial partitionings are implemented?") {
-    assert(GridType.maxId == 2)
+  // Completely dumb test... Must change that...
+  test("Do you know the names of the implemented grids?") {
+    assert(GridType.LINEARONIONGRID == "LINEARONIONGRID")
+    assert(GridType.OCTREE == "OCTREE")
   }
 }

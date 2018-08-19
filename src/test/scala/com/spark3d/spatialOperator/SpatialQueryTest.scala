@@ -60,16 +60,16 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     val queryObject = new Point3D(0.2, 0.2, 0.2, false)
     // using Octree partitioning
     val pointRDDPart = pointRDD.spatialPartitioning(GridType.OCTREE, 100)
-    val knn = SpatialQuery.KNN(queryObject, pointRDDPart, 5000, true)
-    val knnEff = SpatialQuery.KNNEfficient(queryObject, pointRDDPart, 5000)
+    val knn = SpatialQuery.KNN(pointRDDPart, queryObject, 5000, true)
+    val knnEff = SpatialQuery.KNNEfficient(pointRDDPart, queryObject, 5000)
 
     assert(knn.map(x=>x.center.getCoordinate).distinct.size == 5000)
 //    assert(knnEff.map(x=>x.center.getCoordinate).distinct.size == 5000)
 
     // using Onion partitioning
     val pointRDDPart2 = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 100)
-    val knn2 = SpatialQuery.KNN(queryObject, pointRDDPart2, 5000)
-    val knnEff2 = SpatialQuery.KNNEfficient(queryObject, pointRDDPart2, 5000)
+    val knn2 = SpatialQuery.KNN(pointRDDPart2, queryObject, 5000)
+    val knnEff2 = SpatialQuery.KNNEfficient(pointRDDPart2, queryObject, 5000)
 
 //        assert(knn2.map(x=>x.center.getCoordinate).distinct.size == 5000)
 //        assert(knnEff2.map(x=>x.center.getCoordinate).distinct.size == 5000)
@@ -82,8 +82,8 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 10)
     val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
 
-    val knn = SpatialQuery.KNN(queryObject, sphereRDD_part, 3, true)
-    val knn2 = SpatialQuery.KNNEfficient(queryObject, sphereRDD_part, 3)
+    val knn = SpatialQuery.KNN(sphereRDD_part, queryObject, 3, true)
+    val knn2 = SpatialQuery.KNNEfficient(sphereRDD_part, queryObject, 3)
     assert(knn.size == 3)
 
     assert(knn(0).center.isEqual(new ShellEnvelope(2.0,2.0,2.0,false,2.0).center))
@@ -93,5 +93,18 @@ class SpatialQueryTest extends FunSuite with BeforeAndAfterAll {
     //    assert(knn2(0).center.isEqual(new ShellEnvelope(2.0,2.0,2.0,false,2.0).center))
     //    assert(knn2(1).center.isEqual(new ShellEnvelope(1.0,1.0,3.0,false,0.8).center))
     //    assert(knn2(2).center.isEqual(new ShellEnvelope(1.0,3.0,0.7,false,0.8).center))
+  }
+
+  test("Do you have the correct behaviour if K=0?") {
+
+    val options = Map("header" -> "true")
+    val sphereRDD = new SphereRDD(spark, csv_man,"x,y,z,radius", false, "csv", options)
+    val sphereRDD_part = sphereRDD.spatialPartitioning(GridType.OCTREE, 10)
+    val queryObject =  new ShellEnvelope(1.0,3.0,3.0,false,0.8)
+
+    val knn = SpatialQuery.KNN(sphereRDD_part, queryObject, 0, false)
+    val knnUnique = SpatialQuery.KNN(sphereRDD_part, queryObject, 0, true)
+    assert(knn.size == 0)
+    assert(knnUnique.size == 0)
   }
 }

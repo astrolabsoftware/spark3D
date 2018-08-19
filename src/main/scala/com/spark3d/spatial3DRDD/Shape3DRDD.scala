@@ -16,6 +16,7 @@
 package com.astrolabsoftware.spark3d.spatial3DRDD
 
 // For implicits
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.math._
@@ -40,7 +41,6 @@ import com.astrolabsoftware.spark3d.utils.GridType._
 
 // Spark
 import org.apache.spark.rdd.RDD
-import org.apache.spark.rdd.PairRDDFunctions
 
 /**
   * Class to handle generic 3D RDD.
@@ -54,6 +54,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   val isSpherical : Boolean
 
   var boundary: BoxEnvelope = null
+
   /**
     * Apply any Spatial Partitioner to this.rawRDD[T], and return a RDD[T]
     * with the new partitioning.
@@ -66,6 +67,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
   def spatialPartitioning(partitioner: SpatialPartitioner)(implicit c: ClassTag[T]) : RDD[T] = {
     partition(partitioner)
   }
+
   /**
     * Apply a spatial partitioning to this.rawRDD, and return a RDD[T]
     * with the new partitioning.
@@ -73,7 +75,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * By default, the outgoing level of parallelism is the same as the incoming
     * one (i.e. same number of partitions).
     *
-    * @param gridtype : (GridType)
+    * @param gridtype : (String)
     *   Type of partitioning to apply. See utils/GridType.
     * @param numPartitions : (Int)
     *   Number of partitions for the partitioned RDD. By default (-1), the
@@ -83,8 +85,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
     *
     */
-  def spatialPartitioning(gridtype : GridType, numPartitions : Int = -1)(implicit c: ClassTag[T]) : RDD[T] = {
-
+  def spatialPartitioning(gridtype : String, numPartitions : Int = -1)(implicit c: ClassTag[T]) : RDD[T] = {
     val numPartitionsRaw = if (numPartitions == -1) {
       // Same number of partitions as the rawRDD
       rawRDD.getNumPartitions
@@ -95,7 +96,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
     // Add here new cases.
     val partitioner = gridtype match {
-      case GridType.LINEARONIONGRID => {
+      case "LINEARONIONGRID" => {
         // Initialise our space
         val partitioning = new OnionPartitioning
         partitioning.LinearOnionPartitioning(
@@ -110,7 +111,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         // Build our partitioner
         new OnionPartitioner(grids)
       }
-      case GridType.OCTREE => {
+      case "OCTREE" => {
         // taking 20% of the data as a sample
         val dataCount = rawRDD.count
         val sampleSize = getSampleSize(dataCount, numPartitions)
@@ -199,5 +200,32 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
     dataBoundary.expandOutwards(0.001)
 
     dataBoundary
+  }
+
+  /**
+    * Return a RDD whose elements are the lists of center coordinates.
+    *
+    * @param rdd : (RDD[T])
+    *   Input RDD[T]
+    * @return (RDD[List[Double]]) RDD whose elements are the lists
+    *   of center coordinates.
+    */
+  def toCenterCoordinateRDD(rdd: RDD[T]): RDD[List[Double]] = {
+    rdd.map(x => x.center.getCoordinate)
+  }
+
+  /**
+    * Constructor of `toCenterCoordinateRDD` which is suitable for py4j,
+    * i.e. it replaces Scala Lists with Java Lists.
+    *
+    * Return a RDD whose elements are the lists of center coordinates.
+    *
+    * @param rdd : (RDD[T])
+    *   Input RDD[T]
+    * @return (RDD[java.util.List[Double]]) RDD whose elements are the (Java)
+    *   lists of center coordinates.
+    */
+  def toCenterCoordinateRDDPython(rdd: RDD[T]): RDD[java.util.List[Double]] = {
+    rdd.map(x => x.center.getCoordinate.asJava)
   }
 }

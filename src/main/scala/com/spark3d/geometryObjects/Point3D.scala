@@ -15,6 +15,8 @@
  */
 package com.astrolabsoftware.spark3d.geometryObjects
 
+import scala.collection.JavaConverters._
+
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
 import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
 
@@ -136,9 +138,21 @@ class Point3D(val x: Double, val y: Double, val z: Double,
   }
 
   /**
+    * Python interface for getCoordinate.
+    * py4j automatically converts Java List into readable python list,
+    * but struggle with Scala List.
+    * Return the coordinates (x, y, z) of the point.
+    *
+    * @return (java.util.List[Double]) The list of coordinates.
+    */
+  def getCoordinatePython: java.util.List[Double] = {
+    List(this.x, this.y, this.z).asJava
+  }
+
+  /**
     * Return if the input Point3D is equal this Point3D
     *
-    * @param p (Point3D)
+    * @param p : (Point3D)
     *   Point3D for which the equality is to be checked
     * @return (Boolean) true if the two Point3Ds are equal
     */

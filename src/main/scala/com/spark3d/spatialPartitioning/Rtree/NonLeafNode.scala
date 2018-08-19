@@ -1,13 +1,19 @@
 package com.spark3d.spatialPartitioning.Rtree
 
-import com.spark3d.geometry.Envelope
+import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
+
 import scala.collection.mutable.ListBuffer
 
-class NonLeafNode (var envelope: Envelope,
-                   var children: ListBuffer[Node],
-                   val level: Int) extends Node(envelope){
+class NonLeafNode (var children: ListBuffer[Node],
+                   val level: Int) extends Node {
 
   def this(level: Int) {
-    this(null, null, level)
+    this(ListBuffer[Node](), level)
   }
+
+  override def envelope: BoxEnvelope = {
+//    ToDo: Implement the envelope property for the internal node (viz, non-leaf nodes)
+    children.last.envelope
+  }
+
 }

@@ -1,7 +1,12 @@
 package com.spark3d.spatialPartitioning.Rtree
 
-import com.spark3d.geometry.Envelope
+import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 
-class Node (envelope: Envelope) extends Serializable {
+import scala.collection.mutable.ListBuffer
 
+abstract class Node extends Serializable {
+
+  def envelope: BoxEnvelope
+
+  def children: ListBuffer[Node]
 }

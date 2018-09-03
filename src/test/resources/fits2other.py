@@ -37,7 +37,7 @@ def addargs(parser):
     parser.add_argument(
         '-out', dest='out',
         required=True,
-        help='Choose between csv, txt or json')
+        help='Choose between parquet, csv, txt or json')
 
 def load_fits_file(fn, hdu):
     """
@@ -68,11 +68,11 @@ def load_fits_file(fn, hdu):
 
 if __name__ == "__main__":
     """
-    Convert a FITS file to a CSV, TXT or JSON file.
+    Convert a FITS file to a parquet, CSV, TXT or JSON file.
     """
     parser = argparse.ArgumentParser(
         description="""
-        Convert a FITS file to a CSV, TXT or JSON file.
+        Convert a FITS file to a parquet, CSV, TXT or JSON file.
         """)
     addargs(parser)
     args = parser.parse_args(None)
@@ -97,17 +97,28 @@ if __name__ == "__main__":
 
         ## Save data as JSON -- use records to get similar structure as CSV
         ## Not sure this the best though...
-        dataFrame.to_json(outname, orient="records",
-                          lines=True, double_precision=15)
+        dataFrame.to_json(
+            outname, orient="records",
+            lines=True, double_precision=15)
     elif args.out == "txt":
         ## Switch the extension of the input file.
         outname = args.inputfits.split(".")[0] + ".txt"
 
         ## Save data as CSV
         dataFrame.to_csv(outname, index=False, sep=' ')
+    elif args.out == "parquet":
+        ## Need to force the list conversion, as FITS_REC messes up everything
+        dataFrame = pd.DataFrame(dataFits.tolist(), columns=dataFits.names)
+        ## Switch the extension of the input file.
+        outname = args.inputfits.split(".")[0] + ".parquet"
+
+        ## Save data as parquet -- By default we use the snappy compression
+        ## and pyarrow for the engine.
+        dataFrame.to_parquet(
+            outname, engine="pyarrow", compression="snappy")
     else:
         print("""
               Cannot understand the output: {}.
-              Available output: csv, json.
+              Available output: csv, json, txt, parquet.
               """.format(args.out))
         sys.exit()

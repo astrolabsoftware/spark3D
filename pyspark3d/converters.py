@@ -15,6 +15,10 @@ from py4j.java_gateway import JavaObject
 from py4j.java_collections import JavaList
 
 from pyspark3d import load_from_jvm
+from pyspark3d import get_spark_context
+
+from pyspark import RDD
+from pyspark.mllib.common import _java2py
 
 def scala2java(scala_list: JavaObject) -> JavaList:
     """
@@ -142,6 +146,94 @@ def scala2python(scala_list: JavaObject) -> list:
 
     return java2python(scala2java(scala_list))
 
+def toCoordRDD(
+        srdd: JavaObject, gridtype: str="", numPartitions: int=None) -> RDD:
+    """Convert a RDD of Shape3D objects from spark3D into a PythonRDD of the
+    coordinates of the Shape3D objects.
+
+    The element of a RDD coming from the Scala/Java world won't be usable in
+    Python as they aren't defined in general (unless you wrote explicitly the
+    converter). For example, a RDD[Point3D] is understood in Python, but
+    you won't be able to manipulate its elements (Java objects).
+    The idea is then to manipulate the full RDD in Scala, but interface just
+    the coordinates in the end, e.g. for visualisation.
+
+    By default, `toCoord` will act on the raw RDD. You can also repartition the
+    RDD before the conversion.
+
+    Parameters
+    ----------
+    srdd : JavaObject
+        Point3DRDD or SphereRDD instance (spatial3DRDD).
+    gridtype : str, optional
+        Type of the repartitioning to apply: LINEARONIONGRID, OCTREE. Default
+        is no repartitioning (gridtype="").
+    numPartitions : int, optional
+        Number of partitions after repartitioning.
+
+
+    Returns
+    -------
+    RDD
+        PythonRDD whose elements are object centers. If gridtype is specified,
+        the RDD has been repartitioned.
+
+    Examples
+    -------
+    >>> from pyspark3d import get_spark_session
+    >>> from pyspark3d import load_user_conf
+    >>> from pyspark3d_conf import path_to_conf
+    >>> from pyspark3d.spatial3DRDD import Point3DRDD
+
+    Load the user configuration, and initialise the spark session.
+    >>> dic = load_user_conf()
+    >>> spark = get_spark_session(dicconf=dic)
+
+    Load data
+    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
+    >>> p3d = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
+    ...     True, "fits", {"hdu": "1"})
+
+    No repartitioning & no change of partition number
+    >>> pyrdd = toCoordRDD(p3d)
+    >>> print(round(pyrdd.first()[0], 2))
+    0.55
+
+    No repartitioning but increase the number of partitions
+    >>> pyrdd = toCoordRDD(p3d, numPartitions=100)
+    >>> print(round(pyrdd.first()[0], 2))
+    0.55
+
+    OCTREE repartitioning, and increase the number of partitions
+    >>> pyrdd = toCoordRDD(p3d, "OCTREE", 100)
+    >>> print(round(pyrdd.first()[0], 2))
+    0.92
+
+    """
+    pysc = get_spark_context()
+
+    if numPartitions is None:
+        npart = srdd.rawRDD().getNumPartitions()
+    else:
+        npart = numPartitions
+
+    if gridtype != "":
+        rdd = srdd.spatialPartitioningPython(gridtype, npart)
+    else:
+        rdd = srdd.rawRDD()
+        ## Need to find how to apply repartitioning to this RDD... Maybe
+        ## after the pythonisation? That means including the return inside
+        ## the if!
+        # if numPartitions is None:
+        #     rdd = srdd.rawRDD()
+        # else:
+        #     spark3droot = "com.astrolabsoftware.spark3d."
+        #     classpath = spark3droot+"python.PythonClassTag.classTagFromObject"
+        #     classtag = load_from_jvm(classpath)
+        #     rdd = srdd.rawRDD().repartition(npart, classtag(npart))
+
+    return _java2py(pysc, srdd.toCenterCoordinateRDDPython(rdd))
+
 
 if __name__ == "__main__":
     """
@@ -152,6 +244,7 @@ if __name__ == "__main__":
     If the tests are OK, the script should exit gracefuly, otherwise the
     failure(s) will be printed out.
     """
+    import os
     import sys
     import doctest
     import numpy as np

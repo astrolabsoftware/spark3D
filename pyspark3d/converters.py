@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
     # Activate the SparkContext for the test suite
     dic = load_user_conf()
-    conf = pyspark3d_conf("local", "test", dic)
+    conf = pyspark3d_conf("local[*]", "test", dic)
     sc = SparkContext.getOrCreate(conf=conf)
 
     # Numpy introduced non-backward compatible change from v1.14.

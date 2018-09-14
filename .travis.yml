@@ -30,7 +30,6 @@ before_install:
         export PYSPARK_PYTHON=python2;
       else
         export CONDA_URL="repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
-        # export PYSPARK_PYTHON=python3;
       fi
   # Run the base image (Ubuntu 16.04) and set the env
   - docker run -e "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"

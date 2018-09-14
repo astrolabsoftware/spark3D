@@ -45,7 +45,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - deps='pip coverage py4j'
+  - deps='pip coverage py4j numpy'
   - conda create -p $HOME/py --yes $deps "python=3.6"
   - export PATH=$HOME/py/bin:$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
   - pip install --upgrade codecov

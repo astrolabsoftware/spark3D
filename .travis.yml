@@ -30,7 +30,7 @@ before_install:
         export PYSPARK_PYTHON=python2;
       else
         export CONDA_URL="repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
-        export PYSPARK_PYTHON=python3;
+        # export PYSPARK_PYTHON=python3;
       fi
   # Run the base image (Ubuntu 16.04) and set the env
   - docker run -e "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
@@ -38,7 +38,6 @@ before_install:
                -e SPARK_BUILD
                -e SCALA_BINARY_VERSION
                -e PYTHON_VERSION
-               -e PYSPARK_PYTHON
                -e CONDA_URL
                -d --name ubuntu-test -v $HOME ubuntu:16.04 tail -f /dev/null
   # Copy our file to the image
@@ -96,7 +95,7 @@ script:
       source $HOME/miniconda/bin/activate test-environment;
       cd $HOME/spark3D;
       export PYSPARK_PYTHON=`which python3`;
-      export PATH=/root/.local/bin:$PATH:$PYSPARK_PYTHON:$PYTHONPATH;
+      export PATH=/root/.local/bin:$PATH:$PYTHONPATH;
       export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
       echo $PATH;
       echo $PYTHONPATH;

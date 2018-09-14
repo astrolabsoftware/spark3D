@@ -30,8 +30,7 @@ before_install:
         export PYSPARK_PYTHON=python2;
       else
         export CONDA_URL="repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
-        export PYSPARK_PYTHON=`which python3`;
-        echo $PYSPARK_PYTHON;
+        export PYSPARK_PYTHON=python3;
       fi
   # Run the base image (Ubuntu 16.04) and set the env
   - docker run -e "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
@@ -103,5 +102,6 @@ script:
       echo $PYTHONPATH;
       echo $PYSPARK_PYTHON;
       echo $SPARK_HOME;
+      echo `which pyspark`;
       ./test_python.sh $SCALA_BINARY_VERSION;
       bash <(curl -s https://codecov.io/bash) -cF python"

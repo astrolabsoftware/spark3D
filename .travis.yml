@@ -53,7 +53,7 @@ install:
 script:
   - export S3DHOME="/home/travis/build/astrolabsoftware/spark3D"
   - export SCALA_BINARY_VERSION="2.11.8"
-  - export PYTHONPATH="$S3DHOME:$S3DHOME/pyspark3d:$PYTHONPATH"
+  - export PYTHONPATH="$SPARK_HOME/python:$S3DHOME:$S3DHOME/pyspark3d:$PYTHONPATH"
   - ./test_scala.sh $SCALA_BINARY_VERSION
   - bash <(curl -s https://codecov.io/bash) -cF scala
   - ./test_python.sh $SCALA_BINARY_VERSION

@@ -13,7 +13,7 @@
 # limitations under the License.
 import os
 
-from typing import Iterator, Any, Callable
+from typing import Iterator, Any, Callable, Generator
 
 from py4j.java_gateway import JavaObject
 
@@ -36,7 +36,7 @@ class CollapseFunctions():
 
     """
 
-    def mean(self, partition: Iterator) -> (list, int):
+    def mean(self, partition: Iterator) -> Generator:
         """Compute the centroid of the partition.
         It can be viewed as a k-means for k=1.
 
@@ -47,7 +47,7 @@ class CollapseFunctions():
 
         Returns
         -------
-        (list, int)
+        Generator of (list, int)
             Yield tuple with the centroid and the total number of points
             in the partition. If the partition is empty, return (None, 0).
 
@@ -56,11 +56,16 @@ class CollapseFunctions():
         List of coordinates (can be 2D, 3D, ..., nD)
         >>> mylist = [[1., 2.], [3., 4.], [5., 6.], [7., 8.], [9., 10.]]
 
+        Considering only 1 partition
+        >>> cf = CollapseFunctions()
+        >>> myit = iter(mylist)
+        >>> list(cf.mean(myit))
+        [(array([ 5.,  6.]), 5)]
+
         Distribute over 2 partitions
         >>> rdd = sc.parallelize(mylist, 2)
 
         Compute the centroid for each partition
-        >>> cf = CollapseFunctions()
         >>> data = rdd.mapPartitions(
         ...     lambda partition: cf.mean(partition)).collect()
         >>> print(data)
@@ -79,8 +84,8 @@ class CollapseFunctions():
         """
         import numpy as np
 
-        # Loop over elements of the partition
-        xyz = [item for item in partition]
+        # Unwrap the iterator
+        xyz = [*partition]
         size = len(xyz)
 
         # Compute the centroid only if the partition is not empty
@@ -91,7 +96,7 @@ class CollapseFunctions():
 
         yield (mean, size)
 
-    def kmeans(self, partition: Iterator, k: int=1) -> (list, int):
+    def kmeans(self, partition: Iterator, k: int=1) -> Generator:
         """Performs k-means on a the elements of the partition.
         The case k=1 corresponds to the function `mean` above.
 
@@ -104,7 +109,7 @@ class CollapseFunctions():
 
         Returns
         -------
-        (list, int)
+        Generator of (list, int)
             The list of centroids, and the total number of points in the
             partition. If the partition is empty, return ([None], 0).
 
@@ -116,11 +121,16 @@ class CollapseFunctions():
         ...     [9., 10., 7.], [1., 2., 7.], [3., 4., 6.],
         ...     [5., 6., 9.], [7., 8., 6.], [9., 10., 10.]]
 
+        Considering only 1 partition
+        >>> cf = CollapseFunctions()
+        >>> myit = iter(mylist[0: 2])
+        >>> list(cf.kmeans(myit, 1))
+        [(array([[ 2. ,  3. ,  2.5]]), 2)]
+
         Distribute over 2 partitions
         >>> rdd = sc.parallelize(mylist, 2)
 
         Compute the centroid for each partition
-        >>> cf = CollapseFunctions()
         >>> data = rdd.mapPartitions(
         ...     lambda partition: cf.kmeans(partition, 1)).collect()
         >>> print(data) # doctest: +NORMALIZE_WHITESPACE
@@ -142,8 +152,8 @@ class CollapseFunctions():
         """
         from scipy.cluster.vq import kmeans
 
-        # Loop over elements of the partition
-        xyz = [item for item in partition]
+        # Unwrap the iterator
+        xyz = [*partition]
         size = len(xyz)
 
         if len(xyz) > k - 1:
@@ -155,8 +165,8 @@ class CollapseFunctions():
 
 
 def collapse_rdd_data(
-        rdd: RDD, collapse_function: Callable[[Iterator, Any], tuple],
-        *args: Any):
+        rdd: RDD, collapse_function: Callable[[Iterator, Any], Generator],
+        *args: Any) -> RDD:
     """Apply a collapse function to reduce the size of the data
     set. The function is applied for each partition (mapPartitions).
 
@@ -198,19 +208,21 @@ def collapse_rdd_data(
     return rdd.mapPartitions(
         lambda partition: collapse_function(partition, *args))
 
-def scatter3d_mpl(x, y, z, radius=None):
-    """3D scatter plot from matplotlib
+def scatter3d_mpl(x: list, y: list, z: list, radius: list=None):
+    """3D scatter plot from matplotlib.
+    Invoke show() or save the figure to get the result.
 
     Parameters
     ----------
-    partitioned_rdd : RDD
-        RDD[T] where T can be Point3D, ShellEnvelope, BoxEnvelope.
-
-    Examples
-    -------
-    Examples should be written in doctest format, and
-    should illustrate how to use the function/class.
-    >>>
+    x: list of float
+        X coordinate
+    y: list of float
+        Y coordinate
+    z: list of float
+        Z coordinate
+    radius: int/float or list of int/float, optional
+        If given, the size of the markers. Can be a single number
+        of a list of sizes (of the same length as the coordinates)
 
     """
     import pylab as pl
@@ -226,8 +238,11 @@ def scatter3d_mpl(x, y, z, radius=None):
         assert len(radius) == len(x), "Wrong size!"
         rad = radius
 
-    ax.scatter(x, y, z, s=rad)
-    pl.show()
+    ax.scatter(x, y, z, c=z, s=rad)
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
 
 
 if __name__ == "__main__":

@@ -148,13 +148,13 @@ def scala2python(scala_list: JavaObject) -> list:
 
 def toCoordRDD(
         srdd: JavaObject, gridtype: str="", numPartitions: int=None) -> RDD:
-    """Convert a RDD of Shape3D objects from spark3D into a PythonRDD of the
-    coordinates of the Shape3D objects.
+    """Convert a RDD of Shape3D objects from spark3D into a PythonRDD whose
+    elements are the coordinates of the Shape3D objects.
 
     The element of a RDD coming from the Scala/Java world won't be usable in
-    Python as they aren't defined in general (unless you wrote explicitly the
+    general in Python as they aren't defined (unless you wrote explicitly the
     converter). For example, a RDD[Point3D] is understood in Python, but
-    you won't be able to manipulate its elements (Java objects).
+    you won't be able to manipulate its elements (Point3D are Java objects).
     The idea is then to manipulate the full RDD in Scala, but interface just
     the coordinates in the end, e.g. for visualisation.
 
@@ -170,7 +170,6 @@ def toCoordRDD(
         is no repartitioning (gridtype="").
     numPartitions : int, optional
         Number of partitions after repartitioning.
-
 
     Returns
     -------
@@ -202,36 +201,39 @@ def toCoordRDD(
     No repartitioning but increase the number of partitions
     >>> pyrdd = toCoordRDD(p3d, numPartitions=100)
     >>> print(round(pyrdd.first()[0], 2))
-    0.55
+    0.06
+    >>> print(pyrdd.getNumPartitions())
+    100
 
     OCTREE repartitioning, and increase the number of partitions
     >>> pyrdd = toCoordRDD(p3d, "OCTREE", 100)
     >>> print(round(pyrdd.first()[0], 2))
     0.92
 
+    For Octree, the number of partition is always a power of 8.
+    In this case, 8**2 is the closest.
+    >>> print(pyrdd.getNumPartitions())
+    64
+
     """
     pysc = get_spark_context()
 
+    # Get the desired final number of partitions
     if numPartitions is None:
         npart = srdd.rawRDD().getNumPartitions()
     else:
         npart = numPartitions
 
+    # Repartition if needed
     if gridtype != "":
         rdd = srdd.spatialPartitioningPython(gridtype, npart)
     else:
-        rdd = srdd.rawRDD()
-        ## Need to find how to apply repartitioning to this RDD... Maybe
-        ## after the pythonisation? That means including the return inside
-        ## the if!
-        # if numPartitions is None:
-        #     rdd = srdd.rawRDD()
-        # else:
-        #     spark3droot = "com.astrolabsoftware.spark3d."
-        #     classpath = spark3droot+"python.PythonClassTag.classTagFromObject"
-        #     classtag = load_from_jvm(classpath)
-        #     rdd = srdd.rawRDD().repartition(npart, classtag(npart))
-
+        if numPartitions is None:
+            rdd = srdd.rawRDD()
+        else:
+            rdd = srdd.rawRDD()
+            return _java2py(
+                pysc, srdd.toCenterCoordinateRDDPython(rdd)).repartition(npart)
     return _java2py(pysc, srdd.toCenterCoordinateRDDPython(rdd))
 
 

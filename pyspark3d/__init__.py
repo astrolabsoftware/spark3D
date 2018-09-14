@@ -156,7 +156,7 @@ def get_spark_session(
     <class 'pyspark.sql.session.SparkSession'>
     """
     # Grab the user conf
-    conf = pyspark3d_conf("local", "test", dicconf)
+    conf = pyspark3d_conf(master, appname, dicconf)
 
     # Instantiate a spark session
     spark = SparkSession\

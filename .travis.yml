@@ -96,6 +96,7 @@ script:
   - docker exec $ci_env -t ubuntu-test bash -c "
       source $HOME/miniconda/bin/activate test-environment;
       cd $HOME/spark3D;
+      export PYSPARK_PYTHON=`which python3`;
       export PATH=/root/.local/bin:$PATH:$PYSPARK_PYTHON:$PYTHONPATH;
       export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
       ./test_python.sh $SCALA_BINARY_VERSION;

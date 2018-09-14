@@ -47,7 +47,7 @@ install:
   - conda info -a
   - deps='pip coverage py4j'
   - conda create -p $HOME/py --yes $deps "python=3.6"
-  - export PATH=$HOME/py/bin:$PATH
+  - export PATH=$HOME/py/bin:$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
   - pip install --upgrade codecov
 
 script:

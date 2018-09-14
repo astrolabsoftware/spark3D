@@ -97,5 +97,7 @@ script:
       cd $HOME/spark3D;
       export PATH=/root/.local/bin:$PATH;
       export PYTHONPATH=$HOME/spark3D:$PYTHONPATH;
+      export PYSPARK_PYTHON=`which python3`;
+      export PATH=$PYSPARK_PYTHON:$PATH;
       ./test_python.sh $SCALA_BINARY_VERSION;
       bash <(curl -s https://codecov.io/bash) -cF python"

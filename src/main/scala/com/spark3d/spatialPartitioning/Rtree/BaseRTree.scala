@@ -1,5 +1,19 @@
+/*
+ * Copyright 2018 Mayur Bhosale
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.spark3d.spatialPartitioning.Rtree
-
 
 import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
@@ -7,22 +21,35 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import scala.math._
 import scala.collection.mutable.ListBuffer
 
+/**
+  * Rtree indexes the objects based on their minimum bounding rectangle. At its leaf level,
+  * each of the rectangles will bound a single object. In the next level of the tree, nearby
+  * objects would be grouped together and get represented by their own minimum bounding rectangle.
+  * All the bounding boxes except the root node maintain certain minimum fill
+  * (number of objects contained) to improve the performance.
+  *
+  * @param maxNodeCapacity maximum number of elements per node
+  */
 class BaseRTree (private val maxNodeCapacity: Int = 10){
 
   def this() {
     this(10)
   }
 
-
   var objectList: List[BoxEnvelope] = _
   var root: NonLeafNode = _
   var built: Boolean = false
-//  private var maxNodeCapacity: Int = 10
 
+  /**
+    * Insert the object inside the RTree
+    */
   def insert(objList: List[BoxEnvelope]): Unit = {
     objectList = objList
   }
 
+  /**
+    * Build the RTree in bottom-up manner.
+    */
   def build(): Unit = {
 
     if (built) {
@@ -39,6 +66,13 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     built = true
   }
 
+  /**
+    * Progressively builds the level of the RTree from the children nodes. Once a level is built,
+    * the newly created parents are considered as the children and a level is built on top of it.
+    *
+    * @param levelNodes children for which the level is to be built
+    * @param level height from the bottom of the level to be built
+    */
   private def buildUpperRTree(levelNodes: List[Node], level: Int): NonLeafNode = {
 
     val levelParents = constructParents(levelNodes, level+1)
@@ -50,9 +84,16 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     buildUpperRTree(levelParents, level+1)
   }
 
+  /** Creates a level of the RTree by mapping the childeren to the appropriate parent. First,
+    * children are soeted based in their X-coordinate and accordingly put in a child bucket while
+    * abiding to the max capacity constraint.
+    *
+    * @param children children for which the level is to be built
+    * @param level height from the bottom of the level to be built
+    * @return
+    */
   private def constructParents(children: List[Node], level: Int): List[Node] = {
 
-//    assert(children.foreach(x => x.isInstanceOf[Shape3D]))
     var parents = ListBuffer[Node]()
 
     parents += new NonLeafNode(level)
@@ -67,18 +108,30 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
 
   }
 
-  def createParentFromChildSlices(parentSlices: List[List[Node]], level: Int): List[Node] = {
+  /**
+    * Maps children inside each slice from the list slices to a parent.
+    *
+    * @param slices slices created based on the x-coordinate
+    * @param level height from the bottom of the level to be built
+    */
+  def createParentFromChildSlices(slices: List[List[Node]], level: Int): List[Node] = {
     val parents = ListBuffer[Node]()
-    for (i <- parentSlices) {
-      parents ++= createParentFromSlices(i, level)
+    for (i <- slices) {
+      parents ++= createParentFromSlice(i, level)
     }
     parents.toList
   }
 
-  def createParentFromSlices(parentSlices: List[Node], level: Int): List[Node] = {
+  /**
+    * Maps children inside one slice to a parent.
+    *
+    * @param slice individual slice created based on the x-coordinate
+    * @param level height from the bottom of the level to be built
+    */
+  def createParentFromSlice(slice: List[Node], level: Int): List[Node] = {
     val parents = ListBuffer[NonLeafNode]()
     parents += new NonLeafNode(level)
-    val it = parentSlices.iterator
+    val it = slice.iterator
     while (it.hasNext) {
       val parent = it.next
       if (parents.last.children.size == maxNodeCapacity) {
@@ -89,6 +142,12 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     parents.toList
   }
 
+  /**
+    * Separates the input objects/children into bucket/slices bound by maximum capacity.
+    *
+    * @param children children to be divided into slices
+    * @param sliceCount number of slices into which children are to be divided
+    */
   def verticalSlices(children: List[Node], sliceCount: Int): List[List[Node]] = {
     val sliceCapacity = (ceil(children.size) / sliceCount.asInstanceOf[Double]).asInstanceOf[Int]
     val it = children.iterator
@@ -106,13 +165,16 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     slices.toList.map(x => x.toList)
   }
 
+  /**
+    * Returns the leaf nodes of the Rtree.
+    */
   def getLeafNodes(): List[Node] = {
     val leafNodes = ListBuffer[Node]()
     getLeafNodes(root, leafNodes)
     leafNodes.toList
   }
 
-  def getLeafNodes(node: Node, leafNodes: ListBuffer[Node]): Unit = {
+  private def getLeafNodes(node: Node, leafNodes: ListBuffer[Node]): Unit = {
 
     val leafNodes = ListBuffer[Node]()
 

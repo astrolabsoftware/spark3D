@@ -50,7 +50,7 @@ You can also encapsulate the external dependencies in the spark3D jar by constru
 toto:~$ sbt ++${SCALA_VERSION} assembly
 ```
 
-By doing so, you will be able to use spark3D in your program without specifying its external dependencies. Note that since healpix has no Maven coordinates, you still have to specify the jar when running your application (see the `lib/` folder).
+By doing so, you will be able to use spark3D in your program without specifying its external dependencies.
 
 ## Running the test suite
 
@@ -158,7 +158,7 @@ make sure spark3D is also in your PYTHONPATH:
 ```bash
 # in ~/.bash_profile for example
 ...
-export PYTHONPATH=/path/to/spark3D:$PYTHONPATH
+export PYTHONPATH=/path/to/spark3D:/path/to/spark3D/pyspark3d:$PYTHONPATH
 ...
 ```
 
@@ -183,12 +183,12 @@ fi
 
 ## Using with pyspark
 
-First produce a FAT JAR of the spark3D library (see above), and then launch a shell for example by specifying the external dependencies:
+First produce a FAT JAR of the spark3D library (see above),
+and then launch a pyspark shell:
 
 ```bash
 toto:~$ PYSPARK_DRIVER_PYTHON=ipython pyspark \
-  --jars /path/to/target/scala-2.11/spark3D-assembly-0.2.1.jar \
-  --packages com.github.astrolabsoftware:spark-fits_2.11:0.6.0
+  --jars /path/to/target/scala-2.11/spark3D-assembly-0.2.1.jar
 ```
 
 You should be able to import objects:

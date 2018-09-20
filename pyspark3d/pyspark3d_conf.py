@@ -13,7 +13,7 @@
 # limitations under the License.
 import os
 from pathlib import Path
-from version import __version__, __scala_version__
+from pyspark3d.version import __version__, __scala_version__
 
 # For local tests
 path_to_conf = Path().cwd().as_uri()
@@ -32,10 +32,10 @@ log_level = "WARN"
 
 # External JARS to be added to both driver and executors
 # Should contain the FAT JAR of spark3D.
+where_is_my_jar = os.path.abspath(os.path.dirname(__file__))
 extra_jars = [
     os.path.join(
-        path_to_conf, "../target/scala-{}/spark3D-assembly-{}.jar".format(
-            scala_version, version))
+        where_is_my_jar, "spark3D-assembly-{}.jar".format(version))
 ]
 
 # External packages specified using their Maven coordinates

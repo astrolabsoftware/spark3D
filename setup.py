@@ -23,7 +23,7 @@ from distutils.command.clean import clean
 from distutils.command.sdist import sdist
 from distutils.spawn import find_executable
 
-requirements = ["numpy>=1.14", "pyspark"]
+requirements = ["numpy>=1.14", "pyspark", "scipy"]
 setup_requirements = ["wheel"]
 test_requirements = ["coverage>=4.2", "coveralls"]
 
@@ -38,7 +38,11 @@ SCALA_VERSION = __scala_version__
 SCALA_VERSION_ALL = __scala_version_all__
 
 ASSEMBLY_JAR = \
-    "pyspark3d/scala/target/scala-2.11/spark3d-assembly-{}.jar".format(
+    "target/scala-2.11/spark3D-assembly-{}.jar".format(
+        __version__)
+# Move the JAR inside the package
+ASSEMBLY_JAR_S = \
+    "pyspark3d/spark3D-assembly-{}.jar".format(
         __version__)
 
 
@@ -57,7 +61,12 @@ class jar_build(build):
 
         build.run(self)
         subprocess.check_call(
-            "sbt ++{} assembly".format(SCALA_VERSION_ALL), shell=True)
+            "sbt 'set test in assembly := {{}}' ++{} assembly".format(
+                SCALA_VERSION_ALL), shell=True)
+
+        subprocess.check_call(
+            "cp {} {}".format(
+                ASSEMBLY_JAR, ASSEMBLY_JAR_S), shell=True)
 
 
 class jar_clean(clean):
@@ -82,7 +91,7 @@ class my_sdist(sdist):
         filename = os.path.join(here, "MANIFEST.in")
         with open(filename, 'w') as f:
             incld = "include {}\n"
-            f.write(incld.format(ASSEMBLY_JAR))
+            f.write(incld.format(ASSEMBLY_JAR_S))
         return super().initialize_options(*args, **kwargs)
 
 
@@ -111,13 +120,16 @@ setup(
         'clean': jar_clean,
         'sdist': my_sdist,
     },
-    package_data={
-        '.': [
-            'build.sbt',
-            'LICENCE',
-            'project',
-            'src'
-        ]
-    },
+    # package_data={
+    #     '.': [
+    #         'build.sbt',
+    #         'LICENCE',
+    #         'project',
+    #         'src',
+    #         ASSEMBLY_JAR
+    #     ]
+    # },
+    # package_data={'target/scala-2.11': ['{}'.format(ASSEMBLY_JAR_S)]},
+    include_package_data=True,
     setup_requires=setup_requirements
 )

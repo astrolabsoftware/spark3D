@@ -16,7 +16,7 @@ from pyspark.sql import SparkSession
 from py4j.java_gateway import JavaObject
 
 from pyspark3d import load_from_jvm
-from pyspark3d_conf import path_to_conf
+from pyspark3d.pyspark3d_conf import path_to_conf
 
 import os
 from typing import Dict

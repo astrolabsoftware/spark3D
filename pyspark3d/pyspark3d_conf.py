@@ -32,11 +32,26 @@ log_level = "WARN"
 
 # External JARS to be added to both driver and executors
 # Should contain the FAT JAR of spark3D.
-where_is_my_jar = os.path.abspath(os.path.dirname(__file__))
-extra_jars = [
-    os.path.join(
-        where_is_my_jar, "spark3D-assembly-{}.jar".format(version))
-]
+here = os.path.abspath(os.path.dirname(__file__))
+
+# If the package has been installed with pip, the JAR
+# is released with the py files
+from_pip = os.path.join(here, "spark3D-assembly-{}.jar".format(version))
+
+# If the package is built from sources, then the JAR
+# is in the spark3D target/scala-{version} folder.
+from_source = os.path.join(
+    here, "../target/scala-{}/spark3D-assembly-{}.jar".format(
+        scala_version, version))
+
+if os.path.isfile(from_pip):
+    extra_jar = from_pip
+elif os.path.isfile(from_source):
+    extra_jar = from_source
+else:
+    extra_jar = ""
+
+extra_jars = [extra_jar]
 
 # External packages specified using their Maven coordinates
 extra_packages = [

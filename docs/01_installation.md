@@ -105,22 +105,39 @@ objects in the Java Virtual Machine, and then Python programs running in a Pytho
 pyspark3d is tested on Python 3.5 and later.
 **Note: pyspark3d will not run for python 3.4 and earlier (incl. 2.X).** The reason is
 that we make use of [type hints](https://www.python.org/dev/peps/pep-0484/):
+
 ```
 PEP 484, the typing module, a new standard for type annotations.
 ```
 
 In addition, pyspark3d requires:
 
-- `pyspark` (python)
-- `spark-fits` (scala)
+- `pyspark`
+- `numpy`
+- `scipy`
 
 You can find all python dependencies in the `requirements.txt` file at the root of the project.
+It needs also `coverage` and `coveralls` if you want to run the test suite.
+
+Note that `pyspark3d` depends on [spark-fits](https://github.com/astrolabsoftware/spark-fits),
+but this dependency is included in the assembly JARS (see below).
 
 ## Including spark3D in your project
 
 In case you are completely lost, have a look at the `.travis.yml` file at the
 root of the project. It will give you a hint on how to install the project
 on ubuntu 16.04.
+
+### Using pip
+
+Just run
+
+```bash
+pip install pyspark3d
+```
+
+Note that we release the assembly JAR with it.
+
 
 ### Manual
 
@@ -135,31 +152,8 @@ toto:~$ cd /path/to/spark3D
 toto:~$ sbt ++${SCALA_VERSION} assembly
 ```
 
-Edit the `pyspark3d_conf.py` with the newly created JAR:
-
-```python
-# in pyspark3d_conf.py
-
-...
-
-# spark3D version
-version = __version__
-
-# Scala version used to compile spark3D
-scala_version = __scala_version__
-
-...
-
-# External JARS to be added to both driver and executors
-# Should contain the FAT JAR of spark3D.
-extra_jars = [
-    os.path.join(
-        path_to_conf, "../target/scala-{}/spark3D-assembly-{}.jar".format(
-            scala_version, version))
-]
-```
-
-Make sure spark3D is also in your PYTHONPATH:
+Edit the `pyspark3d_conf.py` with the newly created JAR, and
+make sure spark3D is also in your PYTHONPATH:
 
 ```bash
 # in ~/.bash_profile for example
@@ -167,10 +161,6 @@ Make sure spark3D is also in your PYTHONPATH:
 export PYTHONPATH=/path/to/spark3D:$PYTHONPATH
 ...
 ```
-
-### Using pip
-
-To come.
 
 ## Running the test suite
 

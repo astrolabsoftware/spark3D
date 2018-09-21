@@ -15,6 +15,12 @@ import os
 from pathlib import Path
 from pyspark3d.version import __version__, __scala_version__
 
+# In principle, users do not need to load all this stuff below.
+# It is mainly used in 2 contexts:
+#   - Running the test suite
+#   - Using spark3D within a standard ipython or notebook session
+# In those two cases, you need to load the JAR+deps within the session.
+
 # For local tests
 path_to_conf = Path().cwd().as_uri()
 

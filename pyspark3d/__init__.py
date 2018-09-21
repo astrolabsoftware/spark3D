@@ -15,6 +15,7 @@ from pyspark import SparkConf
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
+import inspect
 from typing import Any, List, Dict
 
 from pyspark3d.pyspark3d_conf import extra_jars
@@ -24,6 +25,11 @@ from pyspark3d.pyspark3d_conf import log_level
 from pyspark3d.version import __version__
 
 ROOT_JVM = "_gateway.jvm"
+MSG = """WARNING: You should not use {} outside the test suite or in a regular
+pyspark session, or in batch mode.
+"""
+global TEST
+TEST = False
 
 def get_spark_context() -> SparkContext:
     """
@@ -96,6 +102,10 @@ def load_from_jvm(scala_package: str) -> Any:
     """
     Load a Scala package (instance of a JVM object) from Python.
 
+    Note: If the object returned by `load_from_jvm` is a JavaPackage while you
+    were expecting a JavaClass, that means it has not been found in the JVM.
+    Most likely you forgot to include the spark3D JAR in the classpath.
+
     Parameters
     ----------
     scala_package : str
@@ -131,12 +141,32 @@ def get_spark_session(
         appname: str="test",
         dicconf={}) -> SparkSession:
     """
-    Return a SparkSession.
+    Return a SparkSession with extra configuration parameters.
+
+    Note
+    ----------
+    this routine is mainly used in 2 contexts:
+      - Running the test suite
+      - Using spark3D within a standard ipython or notebook session
+    In those two cases, you need to load the JAR+deps within the session.
+
+    In a regular pyspark session, or in batch mode, you should not use it.
+    Instead, link spark3D when starting the session:
+
+    pyspark --jars /path/to/spar3djar --master ...
+
+    spark-submit --jars /path/to/spar3djar --master ...
+
+    If you installed pyspark3d via pip, the JAR is released with the
+    python source files. To find its location:
+    `python -c "import pyspark3d; print(pyspark3d.__file__)"`
 
     Parameters
     ----------
     master : str
         Execution mode: local[*], spark://..., yarn, etc
+        If you are already in a Spark Session (pyspark shell), this won't have
+        any effect.
     appname : str
         Name for the application
     dicconf : dictionary
@@ -155,6 +185,9 @@ def get_spark_session(
     >>> print(type(spark))
     <class 'pyspark.sql.session.SparkSession'>
     """
+    if not TEST:
+        print(MSG.format(inspect.currentframe().f_code.co_name))
+
     # Grab the user conf
     conf = pyspark3d_conf(master, appname, dicconf)
 
@@ -167,10 +200,36 @@ def get_spark_session(
 
     return spark
 
-def load_user_conf() -> Dict:
+def load_user_conf(sparkSession: SparkSession=None) -> Dict:
     """
     Load pre-defined user Spark configuration stored in pyspark3d_conf.py
     to be passed to the SparkConf.
+    If a spark Session is already running, you can pass it to transfer the
+    conf parameters.
+
+    Note
+    ----------
+    this routine is mainly used in 2 contexts:
+      - Running the test suite
+      - Using spark3D within a standard ipython or notebook session
+    In those two cases, you need to load the JAR+deps within the session.
+
+    In a regular pyspark session, or in batch mode, you should not use it.
+    Instead, link spark3D when starting the session:
+
+    pyspark --jars /path/to/spar3djar --master ...
+
+    spark-submit --jars /path/to/spar3djar --master ...
+
+    If you installed pyspark3d via pip, the JAR is released with the
+    python source files. To find its location:
+    `python -c "import pyspark3d; print(pyspark3d.__file__)"`
+
+    Parameters
+    ----------
+    sparkSession : SparkSession, optional
+        If set, the returned dictionary contains the
+        parameters from this spark Session. Default is None.
 
     Returns
     ---------
@@ -179,16 +238,38 @@ def load_user_conf() -> Dict:
 
     Examples
     ---------
+    From scratch
     >>> dic = load_user_conf()
     >>> assert("spark.jars" in dic)
+
+    From a previous session
+    >>> spark = SparkSession.builder.appName("toto").getOrCreate()
+    >>> dic = load_user_conf(spark)
+    >>> print(dic["spark.app.name"])
+    toto
+    >>> assert("spark.jars" in dic)
     """
+    if not TEST:
+        print(MSG.format(inspect.currentframe().f_code.co_name))
+
     extra_jars_with_commas = ",".join(extra_jars)
     extra_packages_with_commas = ",".join(extra_packages)
 
-    dic = {
-        "spark.jars": extra_jars_with_commas,
-        "spark.jars.packages": extra_packages_with_commas
-        }
+    if sparkSession is not None:
+        oldconf = sparkSession.sparkContext.getConf().getAll()
+        dic = {}
+        for item in oldconf:
+            k, v = item
+            if k == "spark.jars":
+                v += "," + extra_jars_with_commas
+            if k == "spark.jars.packages":
+                v += "," + extra_packages_with_commas
+            dic[k] = v
+    else:
+        dic = {
+            "spark.jars": extra_jars_with_commas,
+            "spark.jars.packages": extra_packages_with_commas
+            }
 
     return dic
 
@@ -199,6 +280,24 @@ def pyspark3d_conf(
     In case you have a doubt about a missing package, just run:
     `conf.toDebugString().split("\n")`
     to see what is registered in the conf.
+
+    Note
+    ----------
+    this routine is mainly used in 2 contexts:
+      - Running the test suite
+      - Using spark3D within a standard ipython or notebook session
+    In those two cases, you need to load the JAR+deps within the session.
+
+    In a regular pyspark session, or in batch mode, you should not use it.
+    Instead, link spark3D when starting the session:
+
+    pyspark --jars /path/to/spar3djar --master ...
+
+    spark-submit --jars /path/to/spar3djar --master ...
+
+    If you installed pyspark3d via pip, the JAR is released with the
+    python source files. To find its location:
+    `python -c "import pyspark3d; print(pyspark3d.__file__)"`
 
     Parameters
     ----------
@@ -225,6 +324,9 @@ def pyspark3d_conf(
     >>> conf.get("spark.master")
     'local[*]'
     """
+    if not TEST:
+        print(MSG.format(inspect.currentframe().f_code.co_name))
+
     conf = SparkConf()
     conf.setMaster(master)
     conf.setAppName(AppName)
@@ -250,7 +352,11 @@ def set_spark_log_level(log_level_manual=None):
     # should be verbose or whatever Spark default has been set
     >>> rdd_verb = pysc.parallelize([1, 2, 3, 4]).collect()
 
-    # force to be silent
+    # Default is OFF
+    >>> set_spark_log_level()
+    >>> rdd_silent = pysc.parallelize([1, 2, 3, 4]).collect()
+
+    # Explicitly force to be silent
     >>> set_spark_log_level("OFF")
     >>> rdd_silent = pysc.parallelize([1, 2, 3, 4]).collect()
     """
@@ -280,6 +386,9 @@ if __name__ == "__main__":
     import sys
     import doctest
     import numpy as np
+
+    # Switch to test mode
+    TEST = True
 
     # Activate the SparkContext for the test suite
     dic = load_user_conf()

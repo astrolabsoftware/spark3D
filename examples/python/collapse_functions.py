@@ -17,8 +17,6 @@ import numpy as np
 import pylab as pl
 
 from pyspark3d import set_spark_log_level
-from pyspark3d import load_user_conf
-from pyspark3d import get_spark_session
 from pyspark3d.spatial3DRDD import Point3DRDD
 from pyspark3d.visualisation import scatter3d_mpl
 from pyspark3d.visualisation import CollapseFunctions
@@ -73,9 +71,10 @@ if __name__ == "__main__":
     addargs(parser)
     args = parser.parse_args(None)
 
-    # Load user conf and Spark session
-    dic = load_user_conf()
-    spark = get_spark_session(dicconf=dic)
+    # Initialise Spark Session
+    spark = SparkSession.builder\
+        .appName("collapse")\
+        .getOrCreate()
 
     # Set logs to be quiet
     set_spark_log_level()

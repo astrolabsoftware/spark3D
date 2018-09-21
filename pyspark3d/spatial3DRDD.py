@@ -82,13 +82,6 @@ def Point3DRDD(
 
     Examples
     ----------
-    >>> from pyspark3d import get_spark_session
-    >>> from pyspark3d import load_user_conf
-
-    Load the user configuration, and initialise the spark session.
-    >>> dic = load_user_conf()
-    >>> spark = get_spark_session(dicconf=dic)
-
     Load data
     >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
     >>> rdd = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
@@ -200,13 +193,6 @@ def SphereRDD(
 
     Examples
     ----------
-    >>> from pyspark3d import get_spark_session
-    >>> from pyspark3d import load_user_conf
-
-    Load the user configuration, and initialise the spark session.
-    >>> dic = load_user_conf()
-    >>> spark = get_spark_session(dicconf=dic)
-
     Load the data
     >>> fn = os.path.join(path_to_conf,
     ...     "../src/test/resources/cartesian_spheres.fits")
@@ -275,6 +261,14 @@ if __name__ == "__main__":
     if np.__version__ >= "1.14.0":
         np.set_printoptions(legacy="1.13")
 
+    from pyspark3d import get_spark_session
+    from pyspark3d import load_user_conf
+
+    # Load the spark3D JAR+deps, and initialise the spark session.
+    # In a pyspark shell, you do not need this.
+    dic = load_user_conf()
+    spark = get_spark_session(dicconf=dic)
+
     # Run the test suite
-    failure_count, test_count = doctest.testmod()
+    failure_count, test_count = doctest.testmod(extraglobs={"spark": spark})
     sys.exit(failure_count)

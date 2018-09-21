@@ -16,8 +16,6 @@ from pyspark.sql import SparkSession
 import numpy as np
 
 from pyspark3d import set_spark_log_level
-from pyspark3d import load_user_conf
-from pyspark3d import get_spark_session
 from pyspark3d.spatial3DRDD import SphereRDD
 
 import argparse
@@ -68,9 +66,10 @@ if __name__ == "__main__":
     addargs(parser)
     args = parser.parse_args(None)
 
-    # Load user conf and Spark session
-    dic = load_user_conf()
-    spark = get_spark_session(dicconf=dic)
+    # Initialise Spark Session
+    spark = SparkSession.builder\
+        .appName("collapse")\
+        .getOrCreate()
 
     # Set logs to be quiet
     set_spark_log_level()
@@ -102,7 +101,7 @@ if __name__ == "__main__":
         fig = pl.figure()
         ax = Axes3D(fig)
 
-        # Convert data for plot
+        # Convert data for plot -- Maybe use toCoordRDD instead...
         # List[all partitions] of List[all Point3D per partition]
         data_glom = rdd_part.glom().collect()
 

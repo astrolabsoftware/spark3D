@@ -14,16 +14,16 @@ The spark3D library contains a number of methods and tools to manipulate 3D RDD.
 A Envelope query takes as input a `RDD[Shape3D]` and an envelope, and returns all objects in the RDD intersecting the envelope (contained in and crossing the envelope):
 
 ```python
-from pyspark3d import get_spark_session
-from pyspark3d import load_user_conf
-
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.geometryObjects import ShellEnvelope
 from pyspark3d.spatial3DRDD import SphereRDD
 from pyspark3d.spatialOperator import windowQuery
 
-# Load the user configuration, and initialise the spark session.
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the data
 fn = "src/test/resources/cartesian_spheres.fits"
@@ -46,14 +46,14 @@ Note that the input objects and the envelope can be anything among the `Shape3D`
 A cross-match takes as input two data sets, and return objects matching based on the center distance, or pixel index of objects. Note that performing a cross-match between a data set of N elements and another of M elements is a priori a NxM operation - so it can be very costly! Let's load two `Point3D` data sets:
 
 ```python
-from pyspark3d import get_spark_session
-from pyspark3d import load_user_conf
-
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.spatial3DRDD import Point3DRDD
 
-# Load the user configuration, and initialise the spark session.
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the raw data (spherical coordinates)
 fn = "src/test/resources/astro_obs_{}_light.fits"
@@ -147,16 +147,16 @@ Note that `queryObject` and elements of `rdd` must have the same type
 (either both Point3D, or both ShellEnvelope, or both BoxEnvelope).
 
 ```python
-from pyspark3d import get_spark_session
-from pyspark3d import load_user_conf
-
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.geometryObjects import Point3D
 from pyspark3d.spatial3DRDD import Point3DRDD
 from pyspark3d.spatialOperator import KNN
 
-# Load the user configuration, and initialise the spark session.
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the data (spherical coordinates)
 fn = "src/test/resources/astro_obs.fits"
@@ -213,16 +213,16 @@ among Shape3D (Point3D or ShellEnvelope or BoxEnvelope) (unlike KNN above).
 Note 2: KNNEfficient only works on repartitioned RDD (python version).
 
 ```python
-from pyspark3d import get_spark_session
-from pyspark3d import load_user_conf
-
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.geometryObjects import Point3D
 from pyspark3d.spatial3DRDD import Point3DRDD
 from pyspark3d.spatialOperator import KNN
 
-# Load the user configuration, and initialise the spark session.
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the data (spherical coordinates)
 fn = "src/test/resources/astro_obs.fits"

@@ -179,14 +179,8 @@ def toCoordRDD(
 
     Examples
     -------
-    >>> from pyspark3d import get_spark_session
-    >>> from pyspark3d import load_user_conf
     >>> from pyspark3d_conf import path_to_conf
     >>> from pyspark3d.spatial3DRDD import Point3DRDD
-
-    Load the user configuration, and initialise the spark session.
-    >>> dic = load_user_conf()
-    >>> spark = get_spark_session(dicconf=dic)
 
     Load data
     >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
@@ -254,16 +248,21 @@ if __name__ == "__main__":
     from pyspark import SparkContext
     from pyspark3d import pyspark3d_conf
     from pyspark3d import load_user_conf
+    from pyspark3d import get_spark_session
 
     # Activate the SparkContext for the test suite
     dic = load_user_conf()
     conf = pyspark3d_conf("local[*]", "test", dic)
     sc = SparkContext.getOrCreate(conf=conf)
 
+    # Load the spark3D JAR+deps, and initialise the spark session.
+    # In a pyspark shell, you do not need this.
+    spark = get_spark_session(dicconf=dic)
+
     # Numpy introduced non-backward compatible change from v1.14.
     if np.__version__ >= "1.14.0":
         np.set_printoptions(legacy="1.13")
 
     # Run the test suite
-    failure_count, test_count = doctest.testmod()
+    failure_count, test_count = doctest.testmod(extraglobs={"spark": spark})
     sys.exit(failure_count)

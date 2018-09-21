@@ -25,12 +25,14 @@ There are currently 2 partitioning implemented in the library:
 In the following example, we load `Point3D` data, and we re-partition it with the onion partitioning
 
 ```python
-from pyspark3d import load_user_conf, get_spark_session
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.spatial3DRDD import Point3DRDD
 
-# Load user config and the Spark session
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the data
 fn = "src/test/resources/astro_obs.fits"
@@ -54,12 +56,14 @@ Color code indicates the partitions (all objects with the same color belong to t
 In the following example, we load `ShellEnvelope` data (spheres), and we re-partition it with the octree partitioning
 
 ```python
-from pyspark3d import load_user_conf, get_spark_session
+# Launch this example: spark-submit --master ... --packages spark3D_id
+from pyspark.sql import SparkSession
 from pyspark3d.spatial3DRDD import SphereRDD
 
-# Load user config and the Spark session
-dic = load_user_conf()
-spark = get_spark_session(dicconf=dic)
+# Initialise Spark Session
+spark = SparkSession.builder\
+    .appName("collapse")\
+    .getOrCreate()
 
 # Load the data
 fn = "src/test/resources/cartesian_spheres.fits"

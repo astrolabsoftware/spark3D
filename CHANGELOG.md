@@ -1,3 +1,12 @@
+## 0.2.2
+
+- Add the conversion from FITS file (single HDU) to parquet ([PR](https://github.com/astrolabsoftware/spark3D/pull/92))
+- Tools to perform live 3D RDD visualisation (in progress) ([PR](https://github.com/astrolabsoftware/spark3D/pull/93))
+- Several updates to the Travis CI  ([PR](https://github.com/astrolabsoftware/spark3D/pull/96))
+- Add example dealing with collapse function in pyspark ([PR](https://github.com/astrolabsoftware/spark3D/pull/97))
+- Deploy pyspark3d with pip ([PR](https://github.com/astrolabsoftware/spark3D/pull/98))
+- Clarify the use of get_spark_session and load_user_conf (for tests only!) ([PR](https://github.com/astrolabsoftware/spark3D/pull/99))
+
 ## 0.2.1
 
 - pyspark3d contains all the features of spark3D ([partitioning](https://github.com/astrolabsoftware/spark3D/pull/89), [operators](https://github.com/astrolabsoftware/spark3D/pull/90))

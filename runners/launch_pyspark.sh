@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run `sbt 'set test in assembly := {}' ++2.11.8 assembly` to get the JAR
-JARS=../target/scala-2.11/spark3D-assembly-0.2.1.jar
+JARS=../target/scala-2.11/spark3D-assembly-0.2.2.jar
 
 # Octree - no part
  spark-submit --jars $JARS \

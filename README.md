@@ -11,9 +11,9 @@
 - [07/2018] **New location**: spark3D is an official project of [AstroLab Software](https://astrolabsoftware.github.io/)!
 - [07/2018] **Release**: version 0.1.3, 0.1.4, 0.1.5
 - [08/2018] **Release**: version 0.2.0, 0.2.1 (pyspark3d)
-- [09/2018] **Release**: version 0.2.2 (pip installation)
+- [09/2018] **Release**: version 0.2.2
 
-<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.2.1.png"/>
+<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.2.2.png"/>
 </p>
 
 ## Installation and tutorials
@@ -23,7 +23,7 @@
 You can link spark3D to your project (either spark-shell or spark-submit) by specifying the coordinates:
 
 ```
-spark-submit --packages "com.github.astrolabsoftware:spark3d_2.11:0.2.1"
+spark-submit --packages "com.github.astrolabsoftware:spark3d_2.11:0.2.2"
 ```
 
 ### Python

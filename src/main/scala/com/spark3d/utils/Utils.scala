@@ -44,8 +44,8 @@ object Utils {
     }
 
     val r = math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z)
-    val theta = math.acos(p.z / r)
-    val phi = math.atan(p.y / p.x)
+    val theta = math.atan2(math.sqrt(p.x*p.x + p.y*p.y), p.z)
+    val phi = math.atan2(p.y, p.x)
 
     // Return the new point in spherical coordinates
     new Point3D(r, theta, phi, true)

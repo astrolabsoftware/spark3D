@@ -90,8 +90,9 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     * Constructor of `Point3DRDD` which is suitable for py4j.
     * It calls `Point3DRDDFromV2PythonHelper` instead of `Point3DRDDFromV2`.
     * All args are the same but `options` which is a `java.util.HashMap`, and
-    * `storageLevel` which is removed and set to StorageLevel.MEMORY_ONLY
-    * (user cannot set the storage level in pyspark3d for the moment).
+    * `storageLevel` which is removed and set to StorageLevel.NONE automatically
+    * User cannot set the storage level in pyspark3d when loading for the moment,
+    * but it can be done afterwards.
     *
     */
   def this(spark : SparkSession, filename : String, colnames : String, isSpherical: Boolean,
@@ -99,7 +100,7 @@ class Point3DRDD(rdd : RDD[Point3D], override val isSpherical: Boolean, storageL
     this(
       Point3DRDDFromV2PythonHelper(
         spark, filename, colnames, isSpherical, format, options
-      ), isSpherical, StorageLevel.MEMORY_ONLY
+      ), isSpherical, StorageLevel.NONE
     )
   }
 

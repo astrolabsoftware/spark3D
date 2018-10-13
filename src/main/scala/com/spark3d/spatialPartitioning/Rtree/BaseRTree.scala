@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spark3d.spatialPartitioning.Rtree
+package com.astrolabsoftware.spark3d.spatialPartitioning.Rtree
 
 import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
-import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
@@ -168,31 +167,21 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
   /**
     * Returns the leaf nodes of the Rtree.
     */
-  def getLeafNodes(): List[Node] = {
-    val leafNodes = ListBuffer[Node]()
+  def getLeafNodes(): List[BoxEnvelope] = {
+    val leafNodes = ListBuffer[BoxEnvelope]()
     getLeafNodes(root, leafNodes)
     leafNodes.toList
   }
 
-  private def getLeafNodes(node: Node, leafNodes: ListBuffer[Node]): Unit = {
+  private def getLeafNodes(node: Node, leafNodes: ListBuffer[BoxEnvelope]): Unit = {
 
-    val leafNodes = ListBuffer[Node]()
-
-    var isLeaf = false
-
-    root.children.map(x => {
-      if (x.isInstanceOf[LeafNode]){
-        isLeaf = true
-      }
-    })
-
-    if (isLeaf) {
-      leafNodes += root
+    if (node.isInstanceOf[LeafNode]) {
+      leafNodes += node.envelope
       return
-    } else {
-      for (child <- root.children) {
-        getLeafNodes(child, leafNodes)
-      }
+    }
+
+    for (child <- node.children) {
+      getLeafNodes(child, leafNodes)
     }
   }
 }

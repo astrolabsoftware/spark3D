@@ -19,6 +19,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Queue
 
 /**
   * Rtree indexes the objects based on their minimum bounding rectangle. At its leaf level,
@@ -172,6 +173,56 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     getLeafNodes(root, leafNodes)
     leafNodes.toList
   }
+  /**
+    * Perform a Breadth First Search Traversal (BFS) of the tree.
+    *
+    * @param func anonymous function to decide if the desired action should be performed on the this
+    *             node or not
+    * @param data a ListBuffer in which the desired data should be placed when the funct() == true
+    * @param actionID -3 => get the bounding box of the node if the node and the query object
+    *                         intersect
+    *                 -2 => collect data in the all nodes
+    *                 -1 => get the bounding box of the node
+    *                 x, where x > 0 => assign partitionID to the leaf node
+    */
+  private def bfsTraverse(func: Node => Boolean, data: ListBuffer[BoxEnvelope],
+                          actionID: Int, obj: BoxEnvelope): Unit = {
+
+    // create a queue
+    val que = new Queue[Node]
+    // insert the root node
+    que += this.root
+    var partitionID = actionID
+    while (!que.isEmpty) {
+      val current = que.dequeue
+      if (func(current)) {
+        if (actionID == -3) {
+          if (current.envelope.intersects(obj) ||
+            obj.intersects(current.envelope)) {
+            data += current.envelope
+          }
+        } else if (actionID == -2) {
+          // get all the elements in the tree
+          data ++= current.children.map(x => x.envelope)
+        } else if (actionID == -1) {
+          // add this to the leaf node
+          data += current.envelope
+        } else {
+          // assign the partitionID for this node
+          current.envelope.indexID = partitionID
+          partitionID += 1
+        }
+      }
+
+      if (!current.isInstanceOf[LeafNode]) {
+        // add children to the queue
+        for (child <- current.children) {
+          que += child
+        }
+      }
+    }
+  }
+
 
   private def getLeafNodes(node: Node, leafNodes: ListBuffer[BoxEnvelope]): Unit = {
 
@@ -183,5 +234,21 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     for (child <- node.children) {
       getLeafNodes(child, leafNodes)
     }
+  }
+
+  def assignPartitionIDs(): Unit = {
+    val traverseFunct: Node => Boolean = {
+      node => node.isInstanceOf[LeafNode]
+    }
+    bfsTraverse(traverseFunct, null, 0, null)
+  }
+
+  def getMatchedLeafNodes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+    val matchedLeaves = new ListBuffer[BoxEnvelope]
+    val traverseFunct: Node => Boolean = {
+      node => node.isInstanceOf[LeafNode]
+    }
+    bfsTraverse(traverseFunct, matchedLeaves, -3, obj)
+    matchedLeaves
   }
 }

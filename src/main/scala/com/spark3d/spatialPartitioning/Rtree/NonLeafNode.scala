@@ -1,4 +1,4 @@
-package com.spark3d.spatialPartitioning.Rtree
+package com.astrolabsoftware.spark3d.spatialPartitioning.Rtree
 
 import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 

@@ -1,4 +1,4 @@
-package com.spark3d.spatialPartitioning.Rtree
+package com.astrolabsoftware.spark3d.spatialPartitioning.Rtree
 
 class RTreePartitioner {
 

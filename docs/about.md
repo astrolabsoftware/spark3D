@@ -38,8 +38,9 @@ Several goals have to be undertaken in this project:
   + indexing mechanisms
   + ways to define a metric (ie. distance between objects)
   + selection capability of objects or objects within a region
+  + ways to visualise 3D data
 - work with as many input file format as possible (CSV, ROOT, FITS, HDF5 and so on)
-- Expose several API: Scala and Python at least!
+- expose several API: Scala and Python at least!
 - package the developments into an open-source library.
 
 ## Current structure

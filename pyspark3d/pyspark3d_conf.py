@@ -13,7 +13,13 @@
 # limitations under the License.
 import os
 from pathlib import Path
-from version import __version__, __scala_version__
+from pyspark3d.version import __version__, __scala_version__
+
+# In principle, users do not need to load all this stuff below.
+# It is mainly used in 2 contexts:
+#   - Running the test suite
+#   - Using spark3D within a standard ipython or notebook session
+# In those two cases, you need to load the JAR+deps within the session.
 
 # For local tests
 path_to_conf = Path().cwd().as_uri()
@@ -32,11 +38,26 @@ log_level = "WARN"
 
 # External JARS to be added to both driver and executors
 # Should contain the FAT JAR of spark3D.
-extra_jars = [
-    os.path.join(
-        path_to_conf, "../target/scala-{}/spark3D-assembly-{}.jar".format(
-            scala_version, version))
-]
+here = os.path.abspath(os.path.dirname(__file__))
+
+# If the package has been installed with pip, the JAR
+# is released with the py files
+from_pip = os.path.join(here, "spark3D-assembly-{}.jar".format(version))
+
+# If the package is built from sources, then the JAR
+# is in the spark3D target/scala-{version} folder.
+from_source = os.path.join(
+    here, "../target/scala-{}/spark3D-assembly-{}.jar".format(
+        scala_version, version))
+
+if os.path.isfile(from_pip):
+    extra_jar = from_pip
+elif os.path.isfile(from_source):
+    extra_jar = from_source
+else:
+    extra_jar = ""
+
+extra_jars = [extra_jar]
 
 # External packages specified using their Maven coordinates
 extra_packages = [

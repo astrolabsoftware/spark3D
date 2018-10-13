@@ -16,8 +16,6 @@ from pyspark.sql import SparkSession
 import numpy as np
 
 from pyspark3d import set_spark_log_level
-from pyspark3d import load_user_conf
-from pyspark3d import get_spark_session
 from pyspark3d import load_from_jvm
 from pyspark3d.spatial3DRDD import Point3DRDD
 
@@ -69,9 +67,10 @@ if __name__ == "__main__":
     addargs(parser)
     args = parser.parse_args(None)
 
-    # Load user conf and Spark session
-    dic = load_user_conf()
-    spark = get_spark_session(dicconf=dic)
+    # Initialise Spark Session
+    spark = SparkSession.builder\
+        .appName("collapse")\
+        .getOrCreate()
 
     # Set logs to be quiet
     set_spark_log_level()
@@ -109,6 +108,7 @@ if __name__ == "__main__":
         converter = load_from_jvm(mod)
 
         # Convert data for plot -- List of List of Point3D
+        # Maybe use toCoordRDD instead...
         data_glom = rdd_part.glom().collect()
 
         # Take only a few points (400 per partition) to speed-up

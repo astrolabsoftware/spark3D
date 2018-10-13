@@ -14,9 +14,14 @@
 from pyspark.sql import SparkSession
 
 import numpy as np
+import pylab as pl
 
 from pyspark3d import set_spark_log_level
-from pyspark3d.spatial3DRDD import SphereRDD
+from pyspark3d.spatial3DRDD import Point3DRDD
+from pyspark3d.visualisation import scatter3d_mpl
+from pyspark3d.visualisation import CollapseFunctions
+from pyspark3d.visualisation import collapse_rdd_data
+from pyspark3d.converters import toCoordRDD
 
 import argparse
 
@@ -76,64 +81,24 @@ if __name__ == "__main__":
 
     # Load raw data
     fn = args.inputpath
-    rdd = SphereRDD(
-        spark, fn, "x,y,z,radius", False, "fits", {"hdu": args.hdu})
+    p3d = Point3DRDD(
+        spark, fn, "x,y,z", False, "fits", {"hdu": args.hdu})
 
-    # Perform the re-partitioning
+    # Perform the re-partitioning, and convert to Python RDD
     npart = args.npart
     gridtype = args.part
+    crdd = toCoordRDD(p3d, gridtype, npart).cache()
 
-    if gridtype is not None:
-        rdd_part = rdd.spatialPartitioningPython(gridtype, npart)
-    else:
-        rdd_part = rdd.rawRDD().toJavaRDD().repartition(npart)
+    # Collapse the data using a simple mean of each partition
+    cf = CollapseFunctions()
+    data = collapse_rdd_data(crdd, cf.mean).collect()
 
-    if not args.plot:
-        count = rdd_part.count()
-        print("{} elements".format(count))
-    else:
-        # Plot the result
-        # Collect the data on driver -- just for visualisation purpose, do not
-        # do that with full data set or you will destroy your driver!!
-        import pylab as pl
-        from mpl_toolkits.mplot3d import Axes3D
+    x = [p[0][0] for p in data if p[0] is not None]
+    y = [p[0][1] for p in data if p[0] is not None]
+    z = [p[0][2] for p in data if p[0] is not None]
+    rad = np.array([p[1] for p in data if p[0] is not None])
 
-        fig = pl.figure()
-        ax = Axes3D(fig)
+    scatter3d_mpl(x, y, z, rad / np.max(rad) * 500)
 
-        # Convert data for plot -- Maybe use toCoordRDD instead...
-        # List[all partitions] of List[all Point3D per partition]
-        data_glom = rdd_part.glom().collect()
-
-        # Take only a few points (400 per partition) to speed-up
-        # For each Sphere (el), takes the center and grab its coordinates and
-        # make it a python list (it is JavaList by default)
-        data_all = [
-            np.array(
-                [list(
-                    el.center().getCoordinatePython())
-                 for el in part[0:400]]).T
-            for part in data_glom]
-
-        # Collect the radius sizes
-        radius = [
-            np.array(
-                [el.outerRadius()
-                 for el in part[0:400]])
-            for part in data_glom]
-
-        # Plot partition-by-partition
-        for i in range(len(data_all)):
-            s = radius[i] * 3000
-            ax.scatter(data_all[i][0], data_all[i][1], data_all[i][2], s=s)
-
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
-
-        # Save the result on disk
-        if gridtype is not None:
-            pl.savefig("octree_part_python.png")
-        else:
-            pl.savefig("octree_nopart_python.png")
-        pl.show()
+    pl.savefig("test_collapse_function_mean.png")
+    pl.show()

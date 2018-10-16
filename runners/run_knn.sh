@@ -38,7 +38,7 @@ nNeighbours=5000
 
 ## Dependencies
 jars="lib/jhealpix.jar"
-packages="com.github.astrolabsoftware:spark-fits_2.11:0.6.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
+packages="com.github.astrolabsoftware:spark-fits_2.11:0.7.0,com.github.haifengl:smile-core:1.5.1,com.github.haifengl:smile-plot:1.5.1,com.github.haifengl:smile-math:1.5.1,com.github.haifengl:smile-scala_2.11:1.5.1"
 
 # Run it!
 spark-submit \

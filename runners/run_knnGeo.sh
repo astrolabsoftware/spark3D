@@ -32,7 +32,7 @@ nNeighbours=500
 
 ## Dependencies
 jars="lib/jhealpix.jar"
-packages="com.github.astrolabsoftware:spark-fits_2.11:0.6.0,org.datasyslab:geospark:1.1.3"
+packages="com.github.astrolabsoftware:spark-fits_2.11:0.7.0,org.datasyslab:geospark:1.1.3"
 
 # Run it!
 spark-submit \

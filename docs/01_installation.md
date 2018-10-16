@@ -70,7 +70,7 @@ First produce a jar of the spark3D library, and then launch a spark-shell by spe
 
 ```bash
 toto:~$ JARS="target/scala-2.11/spark3d_2.11-0.2.2.jar,lib/jhealpix.jar"
-toto:~$ PACKAGES="com.github.astrolabsoftware:spark-fits_2.11:0.6.0"
+toto:~$ PACKAGES="com.github.astrolabsoftware:spark-fits_2.11:0.7.0"
 toto:~$ spark-shell --jars $JARS --packages $PACKAGES
 ```
 

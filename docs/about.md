@@ -45,7 +45,7 @@ Several goals have to be undertaken in this project:
 
 ## Current structure
 
-<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.2.1.png"/>
+<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_lib_0.2.2.png"/>
 </p>
 
 ## Support

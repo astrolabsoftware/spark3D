@@ -55,6 +55,12 @@ def addargs(parser):
 
     ## Arguments
     parser.add_argument(
+        '--cartesian', dest='cartesian',
+        action="store_true",
+        help='Coordinate system')
+
+    ## Arguments
+    parser.add_argument(
         '--plot', dest='plot',
         action="store_true",
         help='Number of partition')
@@ -81,8 +87,9 @@ if __name__ == "__main__":
 
     # Load raw data
     fn = args.inputpath
-    p3d = Point3DRDD(
-        spark, fn, "x,y,z", False, "fits", {"hdu": args.hdu})
+    #p3d = Point3DRDD(
+    #    spark, fn, "x,y,z", False, "fits", {"hdu": args.hdu})
+    p3d = Point3DRDD(spark, fn, "Z_COSMO,RA,Dec", False, "fits", {"hdu": args.hdu})
 
     # Perform the re-partitioning, and convert to Python RDD
     npart = args.npart
@@ -93,9 +100,18 @@ if __name__ == "__main__":
     cf = CollapseFunctions()
     data = collapse_rdd_data(crdd, cf.mean).collect()
 
-    x = [p[0][0] for p in data if p[0] is not None]
-    y = [p[0][1] for p in data if p[0] is not None]
-    z = [p[0][2] for p in data if p[0] is not None]
+    if args.cartesian:
+        x = [p[0][0] for p in data if p[0] is not None]
+        y = [p[0][1] for p in data if p[0] is not None]
+        z = [p[0][2] for p in data if p[0] is not None]
+    else:
+        r = [p[0][0] for p in data if p[0] is not None]
+        theta = [p[0][1] for p in data if p[0] is not None]
+        phi = [p[0][2] for p in data if p[0] is not None]
+
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
     rad = np.array([p[1] for p in data if p[0] is not None])
 
     scatter3d_mpl(x, y, z, rad / np.max(rad) * 500)

@@ -20,6 +20,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 import scala.math._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Queue
+import scala.collection.mutable.Set
 
 /**
   * Rtree indexes the objects based on their minimum bounding rectangle. At its leaf level,
@@ -116,8 +117,16 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     */
   def createParentFromChildSlices(slices: List[List[Node]], level: Int): List[Node] = {
     val parents = ListBuffer[Node]()
-    for (i <- slices) {
-      parents ++= createParentFromSlice(i, level)
+    parents += new NonLeafNode(level)
+    for (slice <- slices) {
+      if (parents.last.children.size + slice.size > maxNodeCapacity) {
+        parents += new NonLeafNode(level)
+      }
+      // Attach parents to child nodes
+      parents.last.children ++= slice
+      slice.map(x => {
+        x.parent = parents.last
+      })
     }
     parents.toList
   }
@@ -166,13 +175,15 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
   }
 
   /**
-    * Returns the leaf nodes of the Rtree.
+    * We are mapping a level above the leaf nodes to a partition.
     */
-  def getLeafNodes(): List[BoxEnvelope] = {
-    val leafNodes = ListBuffer[BoxEnvelope]()
+  def getGrids(): List[BoxEnvelope] = {
+    val leafNodes = ListBuffer[Node]()
     getLeafNodes(root, leafNodes)
-    leafNodes.toList
+    val grids = leafNodes.foldLeft(Set[Node]())(_ += _.parent).map(_.envelope)
+    grids.toList
   }
+
   /**
     * Perform a Breadth First Search Traversal (BFS) of the tree.
     *
@@ -224,18 +235,21 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
   }
 
 
-  private def getLeafNodes(node: Node, leafNodes: ListBuffer[BoxEnvelope]): Unit = {
+  private def getLeafNodes(node: Node, leafNodes: ListBuffer[Node]): Unit = {
 
     if (node.isInstanceOf[LeafNode]) {
-      leafNodes += node.envelope
+      leafNodes += node
       return
     }
 
     for (child <- node.children) {
-      getLeafNodes(child, leafNodes)
+        getLeafNodes(child, leafNodes)
     }
   }
 
+  /**
+    * Assigns partition IDs to all leaf nodes for a tree rooted at this node.
+    */
   def assignPartitionIDs(): Unit = {
     val traverseFunct: Node => Boolean = {
       node => node.isInstanceOf[LeafNode]
@@ -243,6 +257,13 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     bfsTraverse(traverseFunct, null, 0, null)
   }
 
+  /**
+    * Get all the containing Envelopes of the leaf nodes, which intersect, contain or are contained
+    * by the input BoxEnvelope
+    *
+    * @param obj Input object to be checked for the match
+    * @return list of Envelopes of the leafNodes which match the conditions
+    */
   def getMatchedLeafNodes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
     val matchedLeaves = new ListBuffer[BoxEnvelope]
     val traverseFunct: Node => Boolean = {

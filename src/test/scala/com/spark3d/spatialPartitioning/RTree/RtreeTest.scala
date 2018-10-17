@@ -70,12 +70,8 @@ class RtreeTest extends FunSuite with BeforeAndAfterAll {
     assert(containsElement(leaf_node_set_1, element3))
 
 
-    val leaves = valid_tree.getLeafNodes
-    assert(leaves.size == 4)
-    assert(containsElement(leaves, element1))
-    assert(containsElement(leaves, element2))
-    assert(containsElement(leaves, element3))
-    assert(containsElement(leaves, element4))
+    val leaves = valid_tree.getGrids
+    assert(leaves.size == 2)
 
   }
 }

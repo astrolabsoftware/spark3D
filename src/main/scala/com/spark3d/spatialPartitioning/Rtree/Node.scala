@@ -4,7 +4,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 
 import scala.collection.mutable.ListBuffer
 
-abstract class Node extends Serializable {
+abstract class Node (var parent: Node = null) extends Serializable {
 
   def envelope: BoxEnvelope
 

@@ -21,7 +21,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import  com.astrolabsoftware.spark3d.spatialPartitioning._
 import scala.collection.mutable.{HashSet, ListBuffer}
 
-class OctreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
+class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
 
   /**
     * Get the number of partitions in this partitioning

@@ -22,7 +22,7 @@ class RTreePartitioning (private val rtree: BaseRTree)
   extends Serializable {
 
   /**
-    * @return the octree used for partitioning
+    * @return the rtree used for partitioning
     */
   def getPartitionTree(): BaseRTree = {
     rtree
@@ -32,7 +32,7 @@ class RTreePartitioning (private val rtree: BaseRTree)
     * @return Leaf nodes of the partitioning tree
     */
   def getGrids(): List[BoxEnvelope] = {
-    rtree.getLeafNodes
+    rtree.getGrids
   }
 }
 
@@ -40,6 +40,7 @@ object RTreePartitioning {
 
   def apply(data: List[BoxEnvelope], tree: BaseRTree): RTreePartitioning = {
     tree.insert(data)
+    tree.build
     tree.assignPartitionIDs
     new RTreePartitioning(tree)
   }

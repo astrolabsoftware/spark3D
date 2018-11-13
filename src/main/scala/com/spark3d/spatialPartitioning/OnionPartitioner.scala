@@ -23,6 +23,7 @@ import scala.collection.mutable.{HashSet, ListBuffer}
 import com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope
 import com.astrolabsoftware.spark3d.spatialPartitioning
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 
 /**
@@ -101,6 +102,54 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
 
     // Return an iterator
     result.iterator
+  }
+
+  /**
+    * Associate geometrical objects (Point3D, Sphere, etc) to
+    * grid elements (partition) of the onion space. The association is done
+    * according to the position of the center of the object (we do not deal
+    * properly with extended objects yet).
+    * TODO: Implement a different condition for extended objects?
+    *
+    * @param spatialObject : (T<:Shape3D)
+    *   Shape3D instance (or any extension) representing objects to put on
+    *   the grid.
+    * @return (Iterator[Tuple2[Int, T]]) Iterable over a Tuple
+    *   of (Int, T) where Int is the partition index, and T the input object.
+    *
+    */
+  def placeObjectFromCols(x: Double, y: Double, z: Double) : Int = {
+
+    // Grab the center of the geometrical objects
+    // make a point3d
+    // find the partition # according the the grid
+    // return the partition #
+    val center = new Point3D(x, y, z, true)
+    var containFlag : Boolean = false
+    val notIncludedID = grids.size - 1
+    val result = HashSet.empty[Int]
+
+
+    // Associate the object with one shell
+    breakable {
+      for (pos <- 0 to grids.size - 1) {
+        val shell = grids(pos)
+
+        if (shell.isPointInShell(center)) {
+          result += pos
+          containFlag = true
+          break
+        }
+      }
+    }
+
+    // Useless if Point3D
+    if (!containFlag) {
+      result += notIncludedID
+    }
+
+    // Return an iterator
+    result.toList(0)
   }
 
   /**

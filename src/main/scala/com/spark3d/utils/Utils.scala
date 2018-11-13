@@ -171,6 +171,6 @@ object Utils {
     val ordering = new GuavaOrdering[T] {
       override def compare(l: T, r: T): Int = ord.compare(l, r)
     }
-    ordering.leastOf(input.asJava, num).iterator.asScala
+    ordering.leastOf(input.toIterable.asJava, num).iterator.asScala
   }
 }

@@ -18,16 +18,16 @@
 
 ## Rationale
 
-spark3D should be viewed as an extension of the Apache Spark framework, and more specifically the Spark SQL module, focusing on the manipulation of three*-dimensional data set.
+spark3D should be viewed as an extension of the Apache Spark framework, and more specifically the Spark SQL module, focusing on the manipulation of three*-dimensional data sets.
 
-Why would you use spark3d? Hum, good question. If you often need to repartition large spatial 3D data sets, or perform spatial queries (neighbour search, window queries, cross-match, clustering, ...), spark3d is for you. It contains optimised classes and methods to do so, and spare you the implementation time! In addition, a big advantage of all those extensions is to efficiently perform visualisation of large data sets by quickly building representation of your data set (see more [here]()).
+Why would you use spark3D? Hum, good question. If you often need to repartition large spatial 3D data sets, or perform spatial queries (neighbour search, window queries, cross-match, clustering, ...), spark3D is for you. It contains optimised classes and methods to do so, and spare you the implementation time! In addition, a big advantage of all those extensions is to efficiently perform visualisation of large data sets by quickly building representation of your data set (see more [here]()).
 
-spark3d exposes two API: Scala (spark3d) and Python (pyspark3d). The core developments are done in Scala, and interfaced with Python using the great [py4j](https://www.py4j.org/) package. This means pyspark3d might not contain all the features present in the spark3d.
+spark3D exposes two API: Scala (spark3D) and Python (pyspark3d). The core developments are done in Scala, and interfaced with Python using the great [py4j](https://www.py4j.org/) package. This means pyspark3d might not contain all the features present in the spark3D.
 In addition, due to different in Scala and Python, there might be subtle difference in the two APIs (e.g. a big difference is those damned beautiful Scala implicits!).
 
-Last but not least: while we try to stick to the latest Apache Spark developments, spark3d started with the RDD API and slowly migrated to use the DataFrame API. This process left a huge imprint on the code structure, and low-level layers in spark3d often still use RDD to manipulate the data. Do not be surprised if things are moving, the package is under an active development but we try to keep the user interface as stable as possible!
+Last but not least: while we try to stick to the latest Apache Spark developments, spark3D started with the RDD API and slowly migrated to use the DataFrame API. This process left a huge imprint on the code structure, and low-level layers in spark3D often still use RDD to manipulate the data. Do not be surprised if things are moving, the package is under an active development but we try to keep the user interface as stable as possible!
 
-Of course spark3d is by no means complete, and you are welcome to suggest changes, report bugs or inconsistent implementations, and contribute directly to the package!
+Of course spark3D is by no means complete, and you are welcome to suggest changes, report bugs or inconsistent implementations, and contribute directly to the package!
 
 Cheers,
 Julien

@@ -16,6 +16,7 @@
 package com.astrolabsoftware.spark3d.spatialPartitioning
 
 import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.mutable.{HashSet, ListBuffer}
@@ -51,6 +52,29 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
       result += new Tuple2(partition.indexID, spatialObject)
     }
     result.toIterator
+  }
+
+  /**
+    * Gets the iterator on tuple leaf nodes (partitions) which intersects, contains or are contained
+    * by the input object.
+    *
+    * @param spatialObject : (T<:Shape3D)
+    *   Shape3D instance (or any extension) representing objects to put on
+    *   the grid.
+    * @return (Iterator[Tuple2[Int, T]) Iterable over a Tuple
+    *         *   of (Int, T) where Int is the partition index, and T the input object.
+    *
+    */
+  override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
+
+    val spatialObject = new Point3D(c0, c1, c2, isSpherical)
+    val result = HashSet.empty[Int]
+    var matchedPartitions = new ListBuffer[BoxEnvelope]
+    matchedPartitions ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
+    for(partition <- matchedPartitions) {
+      result += partition.indexID
+    }
+    result.toList(0)
   }
 
   /**

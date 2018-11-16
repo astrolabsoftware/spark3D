@@ -111,20 +111,19 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     * properly with extended objects yet).
     * TODO: Implement a different condition for extended objects?
     *
-    * @param spatialObject : (T<:Shape3D)
-    *   Shape3D instance (or any extension) representing objects to put on
-    *   the grid.
-    * @return (Iterator[Tuple2[Int, T]]) Iterable over a Tuple
-    *   of (Int, T) where Int is the partition index, and T the input object.
+    * @param c0 : Double
+    *   First point coordinates
+    * @param c1 : Double
+    *   Second point coordinates
+    * @param c2 : Double
+    *   Third point coordinates
+    * @param isSpherical : Boolean
+    *   true is the coordinate system is spherical, false is cartesian.
+    * @return Int: Partition ID in the {{grids}}.
     *
     */
-  def placeObjectFromCols(x: Double, y: Double, z: Double) : Int = {
-
-    // Grab the center of the geometrical objects
-    // make a point3d
-    // find the partition # according the the grid
-    // return the partition #
-    val center = new Point3D(x, y, z, true)
+  override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
+    val center = new Point3D(c0, c1, c2, isSpherical)
     var containFlag : Boolean = false
     val notIncludedID = grids.size - 1
     val result = HashSet.empty[Int]

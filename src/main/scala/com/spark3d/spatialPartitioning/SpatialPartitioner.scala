@@ -48,6 +48,9 @@ abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner wit
     */
   def placeObject[T<:Shape3D](spatialObject : T) : Iterator[Tuple2[Int, T]] = ???
 
+  def placePoints(x: Double, y: Double, z: Double, isSpherical: Boolean) : Int = ???
+  def placeSpheres(x: Double, y: Double, z: Double, r: Double, isSpherical: Boolean) : Int = ???
+
   /**
     * Method to return the index of a partition
     *

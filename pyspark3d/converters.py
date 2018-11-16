@@ -166,7 +166,7 @@ def toCoordRDD(
     srdd : JavaObject
         Point3DRDD or SphereRDD instance (spatial3DRDD).
     gridtype : str, optional
-        Type of the repartitioning to apply: LINEARONIONGRID, OCTREE. Default
+        Type of the repartitioning to apply: onion, octree. Default
         is no repartitioning (gridtype="").
     numPartitions : int, optional
         Number of partitions after repartitioning.
@@ -200,7 +200,7 @@ def toCoordRDD(
     100
 
     OCTREE repartitioning, and increase the number of partitions
-    >>> pyrdd = toCoordRDD(p3d, "OCTREE", 100)
+    >>> pyrdd = toCoordRDD(p3d, "octree", 100)
     >>> print(round(pyrdd.first()[0], 2))
     0.92
 

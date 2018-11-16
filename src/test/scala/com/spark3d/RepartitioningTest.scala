@@ -62,7 +62,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
 
   // Test files
   val fn_point = "src/test/resources/astro_obs.csv"
-  val fn_sphere = "src/test/resources/cartesian_spheres.fits"
+  val fn_sphere = "src/test/resources/cartesian_spheres_manual.csv"
 
   // ugly trick - need a val to make imports
   // This is needed to perform mapPartitions on DataFrame with Row type.
@@ -266,6 +266,8 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
 
   // test("Can you repartition a DataFrame containing cartesian spheres?") {
   //
+  //   val spark2 = spark
+  //   import spark2.implicits._
   //   val df = spark.read.format("fits")
   //     .option("hdu", 1)
   //     .load(fn_sphere)
@@ -274,11 +276,16 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
   //     "geometry" -> "spheres",
   //     "colnames" -> "x,y,z,radius",
   //     "coordSys" -> "cartesian",
-  //     "gridtype" -> "onion")
+  //     "gridtype" -> "octree")
   //
   //   val dfp3 = df.addSPartitioning(options, 10).partitionBy("partition_id")
   //
-  //   assert(dfp3.rdd.getNumPartitions == 10)
-  //   assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1) == 2000)
+  //   val partitions = dfp3.mapPartitions(
+  //     iter => Array(iter.size).iterator, true).collect()
+  //
+  //   // data consists of 16 spheres. 15 spheres (their BoxEnvelopes) belong to only leaf node and 1
+  //   // sphere belongs to all of the leaf nodes (viz 8)
+  //   assert(partitions.toList.foldLeft(0)(_+_) == 23)
+  //   assert(dfp3.rdd.getNumPartitions == 8)
   // }
 }

@@ -105,9 +105,8 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
   }
 
   /**
-    * Associate geometrical objects (Point3D, Sphere, etc) to
-    * grid elements (partition) of the onion space. The association is done
-    * according to the position of the center of the object (we do not deal
+    * Associate coordinates (as Point3D) to grid elements (partition) of the onion space.
+    * The association is done according to the position of the center of the object (we do not deal
     * properly with extended objects yet).
     * TODO: Implement a different condition for extended objects?
     *
@@ -150,6 +149,54 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     // Return an iterator
     result.toList(0)
   }
+
+  // /**
+  //   * Associate coordinates (as ShellEnvelope) to grid elements (partition) of the onion space.
+  //   * The association is done according to the position of the center of the object (we do not deal
+  //   * properly with extended objects yet).
+  //   * TODO: Implement a different condition for extended objects?
+  //   *
+  //   * @param c0 : Double
+  //   *   First point coordinates
+  //   * @param c1 : Double
+  //   *   Second point coordinates
+  //   * @param c2 : Double
+  //   *   Third point coordinates
+  //   * @param r : Double
+  //   *   Radius of the sphere object.
+  //   * @param isSpherical : Boolean
+  //   *   true is the coordinate system is spherical, false is cartesian.
+  //   * @return Int: Partition ID in the {{grids}}.
+  //   *
+  //   */
+  // override def placeSpheres(c0: Double, c1: Double, c2: Double, r: Double, isSpherical: Boolean) : Int = {
+  //   val center = new ShellEnvelope(c0, c1, c2, isSpherical, r).center
+  //   var containFlag : Boolean = false
+  //   val notIncludedID = grids.size - 1
+  //   val result = HashSet.empty[Int]
+  //
+  //
+  //   // Associate the object with one shell
+  //   breakable {
+  //     for (pos <- 0 to grids.size - 1) {
+  //       val shell = grids(pos)
+  //
+  //       if (shell.isPointInShell(center)) {
+  //         result += pos
+  //         containFlag = true
+  //         break
+  //       }
+  //     }
+  //   }
+  //
+  //   // Useless if Point3D
+  //   if (!containFlag) {
+  //     result += notIncludedID
+  //   }
+  //
+  //   // Return an iterator
+  //   result.toList(0)
+  // }
 
   /**
     * Gets the partitions which contain the input object.

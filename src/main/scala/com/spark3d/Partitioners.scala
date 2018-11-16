@@ -76,6 +76,10 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical, x.getDouble(3))
       )
     }
+    case _ => throw new AssertionError("""
+      Geometry not understood! You must choose between:
+      points or spheres
+      """)
   }
 
 

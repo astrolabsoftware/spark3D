@@ -71,6 +71,9 @@ object Repartitioning {
         """)
     }
 
+    // Geometry of objects
+    val geometry = options("geometry")
+
     // Branch out: keep current partitioning or apply a custom one.
     val dfout = options("gridtype") match {
       // Return current DF with default partition ID
@@ -80,9 +83,6 @@ object Repartitioning {
 
       // Other implemented repartitioners
       case grid @ ("onion" | "octree") => {
-        // Geometry of objects
-        val geometry : String = options("geometry")
-
         // Definition of the coordinate system. Spherical or cartesian
         val isSpherical : Boolean = options("coordSys") match {
           case "spherical" => true
@@ -130,7 +130,7 @@ object Repartitioning {
           }
           case _ => throw new AssertionError("""
             Geometry not understood! You must choose between:
-            points, spheres, boxes
+            points or spheres
             """)
         }
         dfExt

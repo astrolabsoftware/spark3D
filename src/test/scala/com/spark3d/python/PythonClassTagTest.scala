@@ -22,6 +22,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 import com.astrolabsoftware.spark3d.spatial3DRDD._
 import com.astrolabsoftware.spark3d.python.PythonClassTag.classTagFromObject
+import com.astrolabsoftware.spark3d.python.PythonClassTag.javaHashMaptoscalaMap
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
@@ -91,6 +92,15 @@ class PythonClassTagTest extends FunSuite with BeforeAndAfterAll {
     val ctSphere = classTagFromObject(sphere)
 
     assert(ctSphere.toString() == "com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope")
+
+  }
+
+  test("Can you convert a java HashMap to scala Map?") {
+    var javaHasMap = new java.util.HashMap[String, String]
+    javaHasMap.put("toto", "titi")
+    val scalaMap = javaHashMaptoscalaMap(javaHasMap)
+
+    assert(scalaMap.isInstanceOf[Map[String, String]])
 
   }
 }

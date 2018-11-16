@@ -37,18 +37,24 @@ import com.astrolabsoftware.spark3d.utils.Utils.getSampleSize
   */
 class Partitioners(df : DataFrame, options: Map[String, String]) extends Serializable {
 
+  // Definition of the coordinate system. Spherical or cartesian
   val isSpherical : Boolean = options("coordSys") match {
     case "spherical" => true
-    case _ => false
+    case "cartesian" => false
+    case _ => throw new AssertionError("""
+      Coordinate system not understood! You must choose between:
+      spherical, cartesian
+      """)
   }
 
   val colnames : Array[String] = options("colnames").split(",")
 
   val gridtype = options("gridtype")
 
-  // Select the 3 columns (x, y, z)
-  // and cast to double in case.
+  //
   val rawRDD = options("geometry") match {
+
+    // Select the 3 columns (x, y, z) and cast to double
     case "points" => {
       df.select(
         col(colnames(0)).cast("double"),
@@ -58,6 +64,8 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         x.getDouble(0), x.getDouble(1), x.getDouble(2), isSpherical)
       )
     }
+
+    // Select the 4 columns (x, y, z, R) and cast to double
     case "spheres" => {
       df.select(
         col(colnames(0)).cast("double"),
@@ -72,35 +80,39 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
 
 
   /**
-    * Apply a spatial partitioning to this.rawRDD, and return a RDD[T]
-    * with the new partitioning.
+    * Define a spatial partitioning for rawRDD, and return the partitioner.
     * The list of available partitioning can be found in utils/GridType.
     * By default, the outgoing level of parallelism is the same as the incoming
     * one (i.e. same number of partitions).
     *
-    * @param gridtype : (String)
-    *   Type of partitioning to apply. See utils/GridType.
+    * This is typically here that you would add a new entry for new partitioners.
+    *
     * @param numPartitions : (Int)
     *   Number of partitions for the partitioned RDD. By default (-1), the
     *   number of partitions is that of the raw RDD. You can force it to be
     *   different by setting manually this parameter.
-    *   Be aware of shuffling though...
-    * @return (RDD[T]) RDD whose elements are T (Point3D, Sphere, etc...)
+    *   Be aware of shuffling though...!
+    * @return the partitioner (SpatialPartitioner)
     *
     */
   def get(numPartitions : Int = -1) : SpatialPartitioner = {
 
-    val numPartitionsRaw = if (numPartitions == -1) {
-      // Same number of partitions as the rawRDD
-      rawRDD.getNumPartitions
-    } else {
-      // Force new partition number
-      numPartitions
+    // Change the number of partitions if wanted
+    val numPartitionsRaw = numPartitions match {
+      case -1 => rawRDD.getNumPartitions
+      case x if x > 0 => numPartitions
+      case _ => throw new AssertionError(s"""
+        The number of partitions must be strictly greater than zero!
+        Otherwise leave it unset to take the number of partitions
+        of the input DataFrame.
+        (You put: $numPartitions)
+        """)
     }
 
     // Add here new cases.
     val partitioner = gridtype match {
-      case "LINEARONIONGRID" => {
+      case "onion" => {
+
         // Initialise our space
         val partitioning = new OnionPartitioning
         partitioning.LinearOnionPartitioning(
@@ -115,10 +127,10 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         // Build our partitioner
         new OnionPartitioner(grids)
       }
-      case "OCTREE" => {
+      case "octree" => {
         // taking 20% of the data as a sample
         val dataCount = rawRDD.count
-        val sampleSize = getSampleSize(dataCount, numPartitions)
+        val sampleSize = getSampleSize(dataCount, numPartitionsRaw)
         val samples = rawRDD.takeSample(false, sampleSize,
             new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.getEnvelope)
         // see https://github.com/JulienPeloton/spark3D/issues/37
@@ -136,7 +148,9 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         val partitioning = OctreePartitioning.apply(samples, octree)
         val grids = partitioning.getGrids
         new OctreePartitioner(octree, grids)
-    }
+      }
+
+      // Other cases not handled. RTree in prep.
       case _ => throw new AssertionError("""
         Unknown grid type! See utils.GridType for available grids.""")
     }
@@ -145,6 +159,12 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
     partitioner
   }
 
+  /**
+    * Try to estimate the enclosing box for the data set.
+    * This is currently used to initialise the octree partitioning.
+    *
+    * @return dataBoundary (instance of BoxEnvelope)
+    */
   def getDataEnvelope(): BoxEnvelope = {
     val seqOp: (BoxEnvelope, BoxEnvelope) => BoxEnvelope = {
       (x, y) => {

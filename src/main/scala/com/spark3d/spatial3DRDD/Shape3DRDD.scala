@@ -96,7 +96,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
 
     // Add here new cases.
     val partitioner = gridtype match {
-      case "LINEARONIONGRID" => {
+      case "onion" => {
         // Initialise our space
         val partitioning = new OnionPartitioning
         partitioning.LinearOnionPartitioning(
@@ -111,7 +111,7 @@ abstract class Shape3DRDD[T<:Shape3D] extends Serializable {
         // Build our partitioner
         new OnionPartitioner(grids)
       }
-      case "OCTREE" => {
+      case "octree" => {
         // taking 20% of the data as a sample
         val dataCount = rawRDD.count
         val sampleSize = getSampleSize(dataCount, numPartitions)

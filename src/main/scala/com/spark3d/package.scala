@@ -59,7 +59,7 @@ package object spark3d {
       *   guess the number of partitions by counting the number of distinct elements of
       *   the repartitioning column. As it can be costly, you can provide manually this information.
       *
-      * In other words, the column used for the partitioning should contain Ints describing
+      * In other words, the column used for the partitioning should contain numbers describing
       * the partition indices:
       *
       * > df.show()

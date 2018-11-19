@@ -55,7 +55,7 @@ object Repartitioning {
     * @param options : Map[String, String] containing metadata (see above).
     * @param numPartitions : (optional) The number of partitions wanted. -1 by default,
     *   i.e. the number of partitions of the input DF.
-    * @return repartitioned DataFrame. Note that an additional column `partition_id` is added.
+    * @return Input DataFrame plus an additional column `partition_id`.
     */
   def addSPartitioning(df : DataFrame, options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
 
@@ -154,6 +154,7 @@ object Repartitioning {
     * @param numPartitions : Optional. Number of partitions. If not provided the code will
     *   guess the number of partitions by counting the number of distinct elements of
     *   the repartitioning column. As it can be costly, you can provide manually this information.
+    * @return Repartitioned input DataFrame.
     *
     * In other words, the column used for the partitioning should contain numbers describing
     * the partition indices:

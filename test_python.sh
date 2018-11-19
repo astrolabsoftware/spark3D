@@ -34,7 +34,6 @@ fi
 # First build the assembly JAR
 sbt ++$SCALA_BINARY_VERSION clean
 sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly
-cp target/scala-${SCALA_VERSION}/spark3D-assembly-${PCKG_VERSION}.jar pyspark3d/
 
 # Then run the test suite
 cd pyspark3d

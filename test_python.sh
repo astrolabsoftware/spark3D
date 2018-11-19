@@ -26,12 +26,15 @@ then
     echo "Example: ./test_python.sh 2.11.8"
     echo " "
     SCALA_BINARY_VERSION=`python -c "from pyspark3d import version; print(version.__scala_version_all__)"`
+    SCALA_VERSION=`python -c "from pyspark3d import version; print(version.__scala_version__)"`
+    PCKG_VERSION=`python -c "from pyspark3d import version; print(version.__version__)"`
     echo "Taking the default SCALA_BINARY_VERSION: $SCALA_BINARY_VERSION"
 fi
 
 # First build the assembly JAR
 sbt ++$SCALA_BINARY_VERSION clean
 sbt 'set test in assembly := {}' ++$SCALA_BINARY_VERSION assembly
+cp target/scala-${SCALA_VERSION}/spark3D-assembly-${PCKG_VERSION}.jar pyspark3d/
 
 # Then run the test suite
 cd pyspark3d

@@ -146,89 +146,89 @@ def scala2python(scala_list: JavaObject) -> list:
 
     return java2python(scala2java(scala_list))
 
-def toCoordRDD(
-        srdd: JavaObject, gridtype: str="", numPartitions: int=None) -> RDD:
-    """Convert a RDD of Shape3D objects from spark3D into a PythonRDD whose
-    elements are the coordinates of the Shape3D objects.
-
-    The element of a RDD coming from the Scala/Java world won't be usable in
-    general in Python as they aren't defined (unless you wrote explicitly the
-    converter). For example, a RDD[Point3D] is understood in Python, but
-    you won't be able to manipulate its elements (Point3D are Java objects).
-    The idea is then to manipulate the full RDD in Scala, but interface just
-    the coordinates in the end, e.g. for visualisation.
-
-    By default, `toCoord` will act on the raw RDD. You can also repartition the
-    RDD before the conversion.
-
-    Parameters
-    ----------
-    srdd : JavaObject
-        Point3DRDD or SphereRDD instance (spatial3DRDD).
-    gridtype : str, optional
-        Type of the repartitioning to apply: onion, octree. Default
-        is no repartitioning (gridtype="").
-    numPartitions : int, optional
-        Number of partitions after repartitioning.
-
-    Returns
-    -------
-    RDD
-        PythonRDD whose elements are object centers. If gridtype is specified,
-        the RDD has been repartitioned.
-
-    Examples
-    -------
-    >>> from pyspark3d_conf import path_to_conf
-    >>> from pyspark3d.spatial3DRDD import Point3DRDD
-
-    Load data
-    >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
-    >>> p3d = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
-    ...     True, "fits", {"hdu": "1"})
-
-    No repartitioning & no change of partition number
-    >>> pyrdd = toCoordRDD(p3d)
-    >>> print(round(pyrdd.first()[0], 2))
-    0.55
-
-    No repartitioning but increase the number of partitions
-    >>> pyrdd = toCoordRDD(p3d, numPartitions=100)
-    >>> print(round(pyrdd.first()[0], 2))
-    0.06
-    >>> print(pyrdd.getNumPartitions())
-    100
-
-    OCTREE repartitioning, and increase the number of partitions
-    >>> pyrdd = toCoordRDD(p3d, "octree", 100)
-    >>> print(round(pyrdd.first()[0], 2))
-    0.92
-
-    For Octree, the number of partition is always a power of 8.
-    In this case, 8**2 is the closest.
-    >>> print(pyrdd.getNumPartitions())
-    64
-
-    """
-    pysc = get_spark_context()
-
-    # Get the desired final number of partitions
-    if numPartitions is None:
-        npart = srdd.rawRDD().getNumPartitions()
-    else:
-        npart = numPartitions
-
-    # Repartition if needed
-    if gridtype != "":
-        rdd = srdd.spatialPartitioningPython(gridtype, npart)
-    else:
-        if numPartitions is None:
-            rdd = srdd.rawRDD()
-        else:
-            rdd = srdd.rawRDD()
-            return _java2py(
-                pysc, srdd.toCenterCoordinateRDDPython(rdd)).repartition(npart)
-    return _java2py(pysc, srdd.toCenterCoordinateRDDPython(rdd))
+# def toCoordRDD(
+#         srdd: JavaObject, gridtype: str="", numPartitions: int=None) -> RDD:
+#     """Convert a RDD of Shape3D objects from spark3D into a PythonRDD whose
+#     elements are the coordinates of the Shape3D objects.
+#
+#     The element of a RDD coming from the Scala/Java world won't be usable in
+#     general in Python as they aren't defined (unless you wrote explicitly the
+#     converter). For example, a RDD[Point3D] is understood in Python, but
+#     you won't be able to manipulate its elements (Point3D are Java objects).
+#     The idea is then to manipulate the full RDD in Scala, but interface just
+#     the coordinates in the end, e.g. for visualisation.
+#
+#     By default, `toCoord` will act on the raw RDD. You can also repartition the
+#     RDD before the conversion.
+#
+#     Parameters
+#     ----------
+#     srdd : JavaObject
+#         Point3DRDD or SphereRDD instance (spatial3DRDD).
+#     gridtype : str, optional
+#         Type of the repartitioning to apply: onion, octree. Default
+#         is no repartitioning (gridtype="").
+#     numPartitions : int, optional
+#         Number of partitions after repartitioning.
+#
+#     Returns
+#     -------
+#     RDD
+#         PythonRDD whose elements are object centers. If gridtype is specified,
+#         the RDD has been repartitioned.
+#
+#     Examples
+#     -------
+#     >>> from pyspark3d_conf import path_to_conf
+#     >>> from pyspark3d.spatial3DRDD import Point3DRDD
+#
+#     Load data
+#     >>> fn = os.path.join(path_to_conf, "../src/test/resources/astro_obs.fits")
+#     >>> p3d = Point3DRDD(spark, fn, "Z_COSMO,RA,DEC",
+#     ...     True, "fits", {"hdu": "1"})
+#
+#     No repartitioning & no change of partition number
+#     >>> pyrdd = toCoordRDD(p3d)
+#     >>> print(round(pyrdd.first()[0], 2))
+#     0.55
+#
+#     No repartitioning but increase the number of partitions
+#     >>> pyrdd = toCoordRDD(p3d, numPartitions=100)
+#     >>> print(round(pyrdd.first()[0], 2))
+#     0.06
+#     >>> print(pyrdd.getNumPartitions())
+#     100
+#
+#     OCTREE repartitioning, and increase the number of partitions
+#     >>> pyrdd = toCoordRDD(p3d, "octree", 100)
+#     >>> print(round(pyrdd.first()[0], 2))
+#     0.92
+#
+#     For Octree, the number of partition is always a power of 8.
+#     In this case, 8**2 is the closest.
+#     >>> print(pyrdd.getNumPartitions())
+#     64
+#
+#     """
+#     pysc = get_spark_context()
+#
+#     # Get the desired final number of partitions
+#     if numPartitions is None:
+#         npart = srdd.rawRDD().getNumPartitions()
+#     else:
+#         npart = numPartitions
+#
+#     # Repartition if needed
+#     if gridtype != "":
+#         rdd = srdd.spatialPartitioningPython(gridtype, npart)
+#     else:
+#         if numPartitions is None:
+#             rdd = srdd.rawRDD()
+#         else:
+#             rdd = srdd.rawRDD()
+#             return _java2py(
+#                 pysc, srdd.toCenterCoordinateRDDPython(rdd)).repartition(npart)
+#     return _java2py(pysc, srdd.toCenterCoordinateRDDPython(rdd))
 
 
 if __name__ == "__main__":

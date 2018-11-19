@@ -1,207 +1,106 @@
 ---
 permalink: /docs/repartitioning/python/
 layout: splash
-title: "Tutorial: Introduction"
+title: "Tutorial: Partition your space"
 date: 2018-06-15 22:31:13 +0200
 ---
 
-# Tutorial: Introduction
+# Tutorial: Partition your space
 
-## Manipulate 3D Shapes with pyspark3d
+## Why partitioning the space?
 
-spark3D supports various 3D shapes: points (`Point3D`), spherical shells (`ShellEnvelope`, which includes sphere as well), and boxes (`BoxEnvelope`). You can easily create instances of those objects in pyspark3d, and they come with many methods (distance to, intersection/coverage/contain, volume, equality check, ...).
+Often the data is not written on disks the way we would like to have it distributed. Re-partitioning the space is a way to re-organise the data to speed-up later queries, exploration of the data set or visualisation.
 
-### Point3D
+Unfortunately, re-partitioning the space involves potentially large shuffle between executors which have to send and receive data according to the new partitioning scheme. Depending on the network capacity and the size of the initial data set, this operation can be costly and the re-partition is only a good idea if multiple queries have to be performed, or if you do not have other choices (like in visualisation).
 
-```python
-from pyspark3d.geometryObjects import Point3D
+You might noticed the DataFrame API does not expose many things to repartition your data as you would like (unlike the RDD API), hence we decided to bring here new DataFrame features!
 
-# Cartesian coordinates
-points = Point3D(
-	x: float, y: float, z: float, isSpherical: bool = False) -> JavaObject:
+## How spark3D partitions things?
 
-# Cartesian coordinates
-points = Point3D(
-	r: float, theta: float, phi: float, isSpherical: bool = True) -> JavaObject:
-```
+The partitioning of a DataFrame is done in two steps.
 
-### Shells and Spheres
+- First we create a custom partitioner, that is an object which associates each object in the dataset with a partition number. Once this partitioner is known, we add a DataFrame column with the new partition ID (`addSPartitioning`).
+- Second we trigger the partitioning based on this new column (`repartitionByCol`) using a simple `KeyPartitioner`.
 
-The Scala version makes use of several constructors (i.e. with different
-kinds of argument). In order to mimick this in Python within a single routine, we
-abstract the arguments of the constructor using the iterable `*args`.
-There are then 5 possibilities to instantiate a `ShellEnvelope`:
+## Available partitioning and partitioners
 
-- Case 1: Defined with a center coordinates, inner and outer radius.
-- Case 2: Defined with a center coordinates, and a radius (= a sphere).
-- Case 3: Defined with a Point3D, and a radius (= a sphere).
-- Case 4: from another ShellEnvelope
-- Case 5: Null envelope
+There are currently 2 spatial partitioning implemented in the library:
+
+- **Onion Partitioning:** See [here](https://github.com/astrolabsoftware/spark3D/issues/11) for a description. This is mostly intented for processing astrophysical data as it partitions the space in 3D shells along the radial axis, with the possibility of projecting into 2D shells.
+- **Octree:** An octree extends a quadtree by using three orthogonal splitting planes to subdivide a tile into eight children. Like quadtrees, 3D Tiles allows variations to octrees such as non-uniform subdivision, tight bounding volumes, and overlapping children.
+
+In addition, there is a simple `KeyPartitioner` available in case you bring your own partitioning scheme (see example below).
+
+### An example: Octree partitioning
+
+In the following example, we load 3D data, and we re-partition it with the octree partitioning (note that in practce you can have metadata in addition to the 3 coordinates):
 
 ```python
-from pyspark3d.geometryObjects import ShellEnvelope
+from pyspark3d.repartitioning import addSPartitioning
+from pyspark3d.repartitioning import repartitionByCol
 
-# Generic constructor
-shells = ShellEnvelope(*args) -> JavaObject:
+# Load data
+df = spark.read.format("fits")\
+	.option("hdu", 1)\
+	.load("src/test/resources/cartesian_points.fits")
 
-# Shell from 3D coordinates + inner/outer radii
-shell = ShellEnvelope(
-	x: float, y: float, z: float, isSpherical: bool,
-	innerRadius: float, outerRadius: float) -> JavaObject:
+df.show(5)
+	+----------+-----------+----------+
+	|         x|          y|         z|
+	+----------+-----------+----------+
+	| 0.5488135| 0.39217296|0.36925632|
+	|0.71518934|0.041156586|  0.211326|
+	|0.60276335| 0.92330056|0.47690478|
+	| 0.5448832| 0.40623498|0.08223436|
+	| 0.4236548|  0.9442822|0.23765936|
+	+----------+-----------+----------+
 
-# Shell from Point3D + inner/outer radii
-shell = ShellEnvelope(
-	center: Point3D, isSpherical: bool,
-	innerRadius: float, outerRadius: float) -> JavaObject:
+# Specify options.
+options = {
+	"geometry": "points",
+	"colnames": "x,y,z",
+	"coordSys": "cartesian",
+	"gridtype": "octree"}
 
-# Sphere from 3D coordinates + radius
-sphere = ShellEnvelope(
-	x: float, y: float, z: float, isSpherical: bool,
-	radius: float) -> JavaObject:
+# Add a column containing the future partition ID.
+# Note that no shuffle has been done yet.
+df_colid = addSPartitioning(df, options, numPartitions=8)
 
-# Sphere from Point3D + radius
-sphere = ShellEnvelope(
-	center: Point3D, isSpherical: bool, radius: float) -> JavaObject:
+df_colid.show(5)
+	+----------+-----------+----------+------------+
+	|         x|          y|         z|partition_id|
+	+----------+-----------+----------+------------+
+	| 0.5488135| 0.39217296|0.36925632|           7|
+	|0.71518934|0.041156586|  0.211326|           7|
+	|0.60276335| 0.92330056|0.47690478|           5|
+	| 0.5448832| 0.40623498|0.08223436|           7|
+	| 0.4236548|  0.9442822|0.23765936|           4|
+	+----------+-----------+----------+------------+
+
+# Trigger the repartition
+df_repart = repartitionByCol(df_colid, "partition_id", 8)
+
+df_repart.show(5)
+	+-----------+---------+----------+------------+
+	|          x|        y|         z|partition_id|
+	+-----------+---------+----------+------------+
+	| 0.45615032|0.9558897| 0.9961785|           0|
+	| 0.43703195|0.5811579|0.59632105|           0|
+	| 0.16130951|0.8325458|0.72905064|           0|
+	|  0.4686512|0.7746533| 0.8734174|           0|
+	|0.064147495|0.5454706|0.83992904|           0|
+	+-----------+---------+----------+------------+
 ```
 
-### Boxes
+### Options for repartitioning
 
-The Scala version makes use of several constructors (i.e. with different
-kinds of argument). In order to mimick this in Python within a single routine, we
-abstract the arguments of the constructor using the iterable `*args`.
-There are then 5 possibilities to instantiate a `BoxEnvelope`:
+...
 
-- Case 1: from coordinates
-- Case 2: from a single Point3D (i.e. the box is a Point3D)
-- Case 3: from three Point3D
-- Case 4: from another BoxEnvelope
-- Case 5: Null envelope
+### Your own Partitioning
 
-**/!\ Coordinates of input Point3D MUST be cartesian.**
+...
 
-```python
-from pyspark3d.geometryObjects import BoxEnvelope
+## Memory and speed considerations
 
-# Box from region defined by three pairs of cartesian coordinates.
-box = BoxEnvelope(
-	xmin: float, xmax: float,
-	ymin: float, ymax: float,
-	zmin: float, zmax: float) : JavaObject
-
-# Box from region defined by three (cartesian) coordinates.
-box = BoxEnvelope(p1: Point3D, p2: Point3D, p3: Point3D) -> JavaObject:
-
-# Box from region defined by two (cartesian) coordinates.
-box = BoxEnvelope(p1: Point3D, p2: Point3D) -> JavaObject:
-
-# Box from region defined by one (cartesian) coordinates.
-# The cube Envelope in this case will be a point.
-box = BoxEnvelope(p1: Point3D) -> JavaObject:
-```
-
-## Supported data sources
-
-One of the goal of spark3D is to support as many data source as possible. Currently, you can load all Spark DataSource V2! That means CSV, JSON, parquet, Avro, ... In addition, you can load scientific data formats following Spark DataSource API like [FITS](https:#github.com/astrolabsoftware/spark-fits), [ROOT](https:#github.com/diana-hep/spark-root) (<= 6.11) or [HDF5](https:#github.com/LLNL/spark-hdf5)!
-
-In this tutorial we will review the steps to simply create RDD from 3D data sets. A 3DRDD is simply a RDD whose elements are 3D objects. Currently, pyspark3d supports 2 kind of objects: points (`Point3D`) and spheres (`ShellEnvelope`). Note that spheres are a sub-case of shells.
-
-### Loading Point3D
-
-Note:
-The Scala version makes use of several constructors (i.e. with different
-kinds of argument). Here we only provide one way to instantiate a
-Point3DRDD Scala class, through the full list of arguments.
-
-Note that pyspark works with Python wrappers around the *Java* version
-of Spark objects, not around the *Scala* version of Spark objects.
-Therefore on the Scala side, we trigger the method
-`Point3DRDDFromV2PythonHelper` which is a modified version of
-`Point3DRDDFromV2`. The main change is that `options` on the Scala side
-is a java.util.HashMap in order to smoothly connect to `dictionary` in
-the Python side.
-
-A point is an object with 3 spatial coordinates. In pyspark3d, you can choose the coordinate system between cartesian `(x, y, z)` and spherical `(r, theta, phi)`. Let's suppose we have a file which contains data vectors labeled `x`, `y` and `z`, the cartesian coordinates of points:
-
-```python
-from pyspark3d.spatial3DRDD import Point3DRDD
-
-rdd = Point3DRDD(
-	spark: SparkSession, filename: str, colnames: str,
-	isSpherical: bool, format: str, options: Dict={"": ""})
-```
-
-For convenience (for the developper!), the StorageLevel is no more an
-argument in the constructor (as for Scala) but is set to `StorageLevel.MEMORY_ONLY`.
-This is because I couldn't find how to pass that information from
-Python to Java... TBD!
-
-`format` and `options` control the correct reading of your data.
-
-* `format` is the name of the data source as registered in Spark. For example: `csv`, `json`, `org.dianahep.sparkroot`, ... For Spark built-in see [here](https:#github.com/apache/spark/blob/301bff70637983426d76b106b7c659c1f28ed7bf/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/DataSource.scala#L560).
-* `options`: Options to pass to the `DataFrameReader` (see below for examples).
-
-**CSV / JSON**
-
-```python
-# Spark datasource / You would replace "csv" by "json" for a json file
-format = "csv"
-# Options to pass to the DataFrameReader - optional
-options = {"header": "true"}
-```
-
-**TXT**
-
-```python
-# Spark datasource / use csv for text file with custom separator
-format = "csv"
-# Options to pass to the DataFrameReader - optional
-options = {"header": "true", "sep": " "}
-```
-
-**FITS**
-
-```python
-# Spark datasource
-format = "fits" # or "com.astrolabsoftware.sparkfits"
-# Options to pass to the DataFrameReader - optional
-options = {"hdu": "1"}
-```
-
-**HDF5**
-
-```python
-# Spark datasource
-format = "hdf5" # or "gov.llnl.spark.hdf"
-# Options to pass to the DataFrameReader - optional
-options = {"dataset": "/toto"}
-```
-
-**ROOT (<= 6.11)**
-
-```python
-# Spark datasource
-format = "org.dianahep.sparkroot"
-# Options to pass to the DataFrameReader - optional
-options = {"": ""}
-```
-
-The resulting RDD is a `RDD[Point3D]`.
-
-### Loading Sphere
-
-A sphere is defined by its center (3 spatial coordinates) plus a radius.
-In spark3D, you can choose the coordinate system of the center between cartesian `(x, y, z)` and spherical `(r, theta, phi)`. Let's suppose we have a file which contains data vectors labeled `r`, `theta`, `phi`, the spherical coordinates and `radius`. Similarly to `Point3DRDD` you would use:
-
-```python
-from pyspark3d.spatial3DRDD import SphereRDD
-
-sphereRDD = SphereRDD(
-	spark: SparkSession, filename: str, colnames: str,
-	isSpherical: bool, format: str, options: Dict={"": ""})
-```
-
-The resulting RDD is a `RDD[ShellEnvelope]`.
-
-### Loading Shells and Boxes
-
-TBD.
+We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
+However keep in mind that if a large `numPartitions` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `numPartitions ` which applies in general, and you'll need to set it according to the needs of your problem.

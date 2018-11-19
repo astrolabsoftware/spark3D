@@ -92,7 +92,7 @@ def addSPartitioning(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-
 
     return dfout
 
-def partitionBy(df: DataFrame, colname: str, numPartitions: int=-1):
+def repartitionByCol(df: DataFrame, colname: str, numPartitions: int=-1):
     """Repartition a DataFrame according to a column containing partition ID.
 
     Note this is not re-ordering elements, but making new partitions with
@@ -136,13 +136,13 @@ def partitionBy(df: DataFrame, colname: str, numPartitions: int=-1):
     10
 
     Trigger the repartitioning
-    >>> df_repart = partitionBy(df_colid, "partition_id", 10)
+    >>> df_repart = repartitionByCol(df_colid, "partition_id", 10)
     >>> def mapLen(part): yield len([*part])
     >>> df_repart.rdd.mapPartitions(mapLen).take(1)[0]
     2104
     """
     prefix = "com.astrolabsoftware.spark3d"
-    scalapath = "{}.Repartitioning.partitionBy".format(prefix)
+    scalapath = "{}.Repartitioning.repartitionByCol".format(prefix)
     scalaclass = load_from_jvm(scalapath)
 
     dfout = _java2py(

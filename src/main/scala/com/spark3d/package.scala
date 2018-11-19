@@ -92,7 +92,7 @@ package object spark3d {
       *  +-------------------+-------------------+------------------+------------+
       *
       * will be repartitioned according to partition_id in 3 partitions (0, 1, 2) as
-      * > val dfp = dfExt.partitionBy("partition_id")
+      * > val dfp = dfExt.repartitionByCol("partition_id")
       * > dfp.show()
       *  +-------------------+-------------------+------------------+------------+
       *  |            Z_COSMO|                 RA|               Dec|partition_id|
@@ -104,8 +104,8 @@ package object spark3d {
       *  |0.42365479469299316|  2.966549873352051|1.4932578802108765|           2|
       *  +-------------------+-------------------+------------------+------------+
       */
-    def partitionBy(colname: String, numPartitions: Int = -1): DataFrame = {
-      Repartitioning.partitionBy(df, colname, numPartitions)
+    def repartitionByCol(colname: String, numPartitions: Int = -1): DataFrame = {
+      Repartitioning.repartitionByCol(df, colname, numPartitions)
     }
   }
 }

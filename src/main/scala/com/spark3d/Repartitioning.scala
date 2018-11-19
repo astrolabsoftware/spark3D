@@ -40,7 +40,7 @@ object Repartitioning {
   /**
     * Add a DataFrame column describing the partitioning. This method allows to use a custom
     * partitioner (SpatialPartitioner). Note that no data movement (shuffle) is performed yet here,
-    * as we just describe how the repartitioning should be done. Use `partitionBy` to
+    * as we just describe how the repartitioning should be done. Use `repartitionByCol` to
     * trigger it.
     *
     *`options` must contain four entries:
@@ -172,7 +172,7 @@ object Repartitioning {
     *
     * will be repartitioned according to partition_id in 3 partitions (0, 1, 2) as
     *
-    * > dfp = partitionBy(df, "partition_id")
+    * > dfp = repartitionByCol(df, "partition_id")
     * > dfp.show()
     *  +-------------------+-------------------+------------------+------------+
     *  |            Z_COSMO|                 RA|               Dec|partition_id|
@@ -184,7 +184,7 @@ object Repartitioning {
     *  |0.42365479469299316|  2.966549873352051|1.4932578802108765|           2|
     *  +-------------------+-------------------+------------------+------------+
     */
-  def partitionBy(df: DataFrame, colname: String, numPartitions: Int = -1): DataFrame = {
+  def repartitionByCol(df: DataFrame, colname: String, numPartitions: Int = -1): DataFrame = {
 
     // Compute the number of partitions if not provided
     val numOfPartitions = numPartitions match {

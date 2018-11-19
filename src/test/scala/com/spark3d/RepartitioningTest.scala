@@ -25,7 +25,7 @@ import org.apache.spark.sql.functions._
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 
-import com.astrolabsoftware.spark3d.Repartitioning.partitionBy
+import com.astrolabsoftware.spark3d.Repartitioning.repartitionByCol
 import com.astrolabsoftware.spark3d.Repartitioning.addSPartitioning
 
 // for implicits
@@ -86,7 +86,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val dfp2 = addSPartitioning(df, options, 10)
-    val dfp3 = partitionBy(dfp2, "partition_id")
+    val dfp3 = repartitionByCol(dfp2, "partition_id")
     val p = dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0)
 
     assert(dfp3.rdd.getNumPartitions == 10)
@@ -109,7 +109,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "octree")
 
     val dfp2 = addSPartitioning(df, options, 10)
-    val dfp3 = partitionBy(dfp2, "partition_id")
+    val dfp3 = repartitionByCol(dfp2, "partition_id")
 
     assert(dfp3.rdd.getNumPartitions == 8)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2282)
@@ -124,7 +124,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
     val df = scala.util.Random.shuffle(0.to(9)).toDF("val")
       .select((col("val") % 2).as("val"))
 
-    val dfp = df.partitionBy("val")
+    val dfp = df.repartitionByCol("val")
 
     assert(dfp.rdd.getNumPartitions == 2)
     assert(dfp.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 5)
@@ -145,7 +145,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp3 = df.addSPartitioning(options, 10).partitionBy("partition_id")
+    val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id")
 
     assert(dfp3.rdd.getNumPartitions == 10)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2104)
@@ -184,7 +184,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10).partitionBy("partition_id", -4)
+      df.addSPartitioning(options, 10).repartitionByCol("partition_id", -4)
     }
     assert(exception.getMessage.contains("The number of partitions must be strictly greater than zero!"))
   }
@@ -278,7 +278,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
   //     "coordSys" -> "cartesian",
   //     "gridtype" -> "octree")
   //
-  //   val dfp3 = df.addSPartitioning(options, 10).partitionBy("partition_id")
+  //   val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id")
   //
   //   val partitions = dfp3.mapPartitions(
   //     iter => Array(iter.size).iterator, true).collect()

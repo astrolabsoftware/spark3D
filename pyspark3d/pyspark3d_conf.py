@@ -61,5 +61,5 @@ extra_jars = [extra_jar]
 
 # External packages specified using their Maven coordinates
 extra_packages = [
-    "com.github.astrolabsoftware:spark-fits_2.11:0.6.0",
+    "com.github.astrolabsoftware:spark-fits_2.11:0.7.1",
 ]

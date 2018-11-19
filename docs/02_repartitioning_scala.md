@@ -1,5 +1,5 @@
 ---
-permalink: /docs/introduction/scala/
+permalink: /docs/repartitioning/scala/
 layout: splash
 title: "Tutorial: Introduction"
 date: 2018-06-15 22:31:13 +0200

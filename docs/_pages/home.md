@@ -13,22 +13,22 @@ excerpt: '{::nomarkdown}<iframe style="display: inline-block;" src="https://ghbt
 feature_row:
   - image_path:
     alt:
-    title: "<i class='fas fa-upload'></i> Load 3D object RDD"
-    excerpt: "Distribute points, spheres, shells, boxes, and more using spark3D."
-    url: "/docs/introduction/scala/"
+    title: "<i class='fas fa-upload'></i> Partition your space!"
+    excerpt: "Repartition DataFrames using spark3D to speed-up your search or perform visualisation"
+    url: "/docs/repartitioning/scala/"
     btn_class: "btn--primary"
     btn_label: "Scala"
-    url2: "/docs/introduction/python/"
+    url2: "/docs/repartitioning/python/"
     btn_class2: "btn--primary"
     btn_label2: "Python"
   - image_path:
     alt:
-    title: "<i class='fas fa-cubes'></i> Partition your space"
-    excerpt: "Partition the three-dimensional space to speed-up your search."
-    url: "/docs/partitioning/scala/"
+    title: "<i class='fas fa-cubes'></i> Visualise TB of data!"
+    excerpt: "Build high-level representation of your data using spark3D, and visualise them."
+    url: "/docs/visualisation/scala/"
     btn_class: "btn--primary"
     btn_label: "Scala"
-    url2: "/docs/partitioning/python/"
+    url2: "/docs/visualisation/python/"
     btn_class2: "btn--primary"
     btn_label2: "Python"
   - image_path:

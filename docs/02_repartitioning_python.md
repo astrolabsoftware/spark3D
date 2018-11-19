@@ -1,5 +1,5 @@
 ---
-permalink: /docs/introduction/python/
+permalink: /docs/repartitioning/python/
 layout: splash
 title: "Tutorial: Introduction"
 date: 2018-06-15 22:31:13 +0200
@@ -46,17 +46,17 @@ shells = ShellEnvelope(*args) -> JavaObject:
 
 # Shell from 3D coordinates + inner/outer radii
 shell = ShellEnvelope(
-	x: float, y: float, z: float, isSpherical: bool, 
+	x: float, y: float, z: float, isSpherical: bool,
 	innerRadius: float, outerRadius: float) -> JavaObject:
 
 # Shell from Point3D + inner/outer radii
 shell = ShellEnvelope(
-	center: Point3D, isSpherical: bool, 
+	center: Point3D, isSpherical: bool,
 	innerRadius: float, outerRadius: float) -> JavaObject:
 
 # Sphere from 3D coordinates + radius
 sphere = ShellEnvelope(
-	x: float, y: float, z: float, isSpherical: bool, 
+	x: float, y: float, z: float, isSpherical: bool,
 	radius: float) -> JavaObject:
 
 # Sphere from Point3D + radius
@@ -84,8 +84,8 @@ from pyspark3d.geometryObjects import BoxEnvelope
 
 # Box from region defined by three pairs of cartesian coordinates.
 box = BoxEnvelope(
-	xmin: float, xmax: float, 
-	ymin: float, ymax: float, 
+	xmin: float, xmax: float,
+	ymin: float, ymax: float,
 	zmin: float, zmax: float) : JavaObject
 
 # Box from region defined by three (cartesian) coordinates.
@@ -126,7 +126,7 @@ A point is an object with 3 spatial coordinates. In pyspark3d, you can choose th
 from pyspark3d.spatial3DRDD import Point3DRDD
 
 rdd = Point3DRDD(
-	spark: SparkSession, filename: str, colnames: str, 
+	spark: SparkSession, filename: str, colnames: str,
 	isSpherical: bool, format: str, options: Dict={"": ""})
 ```
 

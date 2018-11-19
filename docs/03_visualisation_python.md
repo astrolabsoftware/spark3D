@@ -1,5 +1,5 @@
 ---
-permalink: /docs/partitioning/python/
+permalink: /docs/visualisation/python/
 layout: splash
 title: "Tutorial: Partition your space"
 date: 2018-06-18 22:31:13 +0200

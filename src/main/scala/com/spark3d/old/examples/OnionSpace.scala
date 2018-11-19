@@ -16,9 +16,10 @@
 package com.astrolabsoftware.spark3d.examples
 
 // spark3d lib
-import com.astrolabsoftware.spark3d.utils.GridType
-import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
-import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+// import com.astrolabsoftware.spark3d.utils.GridType
+// import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
+// import com.astrolabsoftware.spark3d.spatial3DRDD.Point3DRDD
+import com.astrolabsoftware.spark3d._
 
 // Spark lib
 import org.apache.spark.sql.SparkSession
@@ -55,6 +56,8 @@ object OnionSpace {
     .appName("OnionSpace")
     .getOrCreate()
 
+  import spark.implicits._
+
   /**
     * Main
     */
@@ -67,23 +70,35 @@ object OnionSpace {
     val fn_fits = args(0).toString
 
     // Load the data as Point3DRDD
-    val options = Map("hdu" -> args(1).toString)
-    val pointRDD = new Point3DRDD(
-      spark, fn_fits, args(2).toString, true, "fits", options)
+    // val options = Map("hdu" -> args(1).toString)
+    // val pointRDD = new Point3DRDD(
+    //   spark, fn_fits, args(2).toString, true, "fits", options)
+
+    val df = spark.read.format("fits")
+      .option("hdu", args(1).toInt)
+      .load(fn_fits)
+
+    val options = Map(
+      "geometry" -> "points",
+      "colnames" -> args(2).toString,
+      "coordSys" -> "spherical",
+      "gridtype" -> "onion")
+
+    val dfp = df.addSPartitioning(options, 10).partitionBy("partition_id")
 
     // Count the number of partition before, and number of elements per partition
-    val partitionsBefore = pointRDD.rawRDD.mapPartitions(
-      iter => Array(iter.size).iterator, true).collect()
-
-    // Re-partition the space
-    val pointRDD_part = pointRDD.spatialPartitioning(GridType.LINEARONIONGRID, 10)
+    val partitionsBefore = df.mapPartitions(
+      iter => Iterator(iter.size)).collect()
 
     // Collect the size of each partition after re-partitioning
-    val partitionsAfter = pointRDD_part.mapPartitions(
-      iter => Array(iter.size).iterator, true).collect()
+    val partitionsAfter = dfp.mapPartitions(
+      iter => Iterator(iter.size)).take(1).toList(0)
+
+    println(partitionsAfter)
+    println(partitionsAfter == 2104)
 
     println("Before: ", partitionsBefore.toList)
-    println("After : ", partitionsAfter.toList)
+    // println("After : ", partitionsAfter.toList)
 
     // // Display the result
     // val colors = Array(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,

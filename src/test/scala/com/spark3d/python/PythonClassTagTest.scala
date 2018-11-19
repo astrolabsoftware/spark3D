@@ -20,7 +20,6 @@ import scala.reflect.ClassTag
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import com.astrolabsoftware.spark3d.geometryObjects.Point3D
-import com.astrolabsoftware.spark3d.spatial3DRDD._
 import com.astrolabsoftware.spark3d.python.PythonClassTag.classTagFromObject
 import com.astrolabsoftware.spark3d.python.PythonClassTag.javaHashMaptoscalaMap
 
@@ -81,17 +80,6 @@ class PythonClassTagTest extends FunSuite with BeforeAndAfterAll {
     val ctPoint3D = classTagFromObject(pt)
 
     assert(ctPoint3D.toString() == "com.astrolabsoftware.spark3d.geometryObjects.Point3D")
-
-  }
-
-  test("Can you retrieve the ClassTag of RDD elements?") {
-
-    val options = Map("hdu" -> "1")
-    val sRDD = new SphereRDD(spark, fns_fits, "x,y,z,radius", false, "fits", options)
-    val sphere = sRDD.rawRDD.first()
-    val ctSphere = classTagFromObject(sphere)
-
-    assert(ctSphere.toString() == "com.astrolabsoftware.spark3d.geometryObjects.ShellEnvelope")
 
   }
 

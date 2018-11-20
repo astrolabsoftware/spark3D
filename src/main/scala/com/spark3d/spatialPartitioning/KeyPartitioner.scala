@@ -41,6 +41,10 @@ class KeyPartitioner(numOfPartitions: Int) extends Partitioner with Serializable
     * @return (Int) the key of the partition as Int.
     */
   override def getPartition(key : Any) : Int = {
-    key.asInstanceOf[Int]
+    key match {
+      case i:Int => key.asInstanceOf[Int]
+      case l:Long => key.asInstanceOf[Long].toInt
+      case _ => throw new ClassCastException()
+    }
   }
 }

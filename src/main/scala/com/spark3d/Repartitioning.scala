@@ -151,6 +151,9 @@ object Repartitioning {
     *
     * @param df : input DataFrame.
     * @param colname : Column name describing the repartitioning. Typically Ints.
+    * @param preLabeled : Boolean. true means the column containing the partition ID contains
+    *   already numbers from 0 to `numPartitions - 1`. false otherwise. Note that in the latter,
+    *   the execution time will be longer as we need to map column values to partition ID.
     * @param numPartitions : Optional. Number of partitions. If not provided the code will
     *   guess the number of partitions by counting the number of distinct elements of
     *   the repartitioning column. As it can be costly, you can provide manually this information.
@@ -172,7 +175,7 @@ object Repartitioning {
     *
     * will be repartitioned according to partition_id in 3 partitions (0, 1, 2) as
     *
-    * > dfp = repartitionByCol(df, "partition_id")
+    * > dfp = repartitionByCol(df, "partition_id", true)
     * > dfp.show()
     *  +-------------------+-------------------+------------------+------------+
     *  |            Z_COSMO|                 RA|               Dec|partition_id|
@@ -184,11 +187,27 @@ object Repartitioning {
     *  |0.42365479469299316|  2.966549873352051|1.4932578802108765|           2|
     *  +-------------------+-------------------+------------------+------------+
     */
-  def repartitionByCol(df: DataFrame, colname: String, numPartitions: Int = -1): DataFrame = {
+  def repartitionByCol(df: DataFrame, colname: String, preLabeled: Boolean, numPartitions: Int = -1): DataFrame = {
+
+    // Build a Map (k=df.col -> v=partition_id)
+    // to allow the use of standard (Int) partitioners (can be costly).
+    val mapPart : Map[Any, Int] = preLabeled match {
+      case false => df.select(col(colname)).distinct().collect().map(_(0)).zipWithIndex.toMap
+
+      // If already preLabeled, i.e. `colname` already
+      // contains partition ID return empty Map
+      case true => Map[Any, Int]()
+    }
 
     // Compute the number of partitions if not provided
+    // Number of partitions is the number of distinct values in the specified columns.
     val numOfPartitions = numPartitions match {
-      case -1 => df.select(col(colname)).distinct().collect().size
+      case -1 => mapPart.size match {
+        // Return mapPart size if already available
+        case x if x > 0 => x
+        // Otherwise compute it (can be costly)
+        case 0 => df.select(col(colname)).distinct().collect().size
+      }
       case x if x > 0 => numPartitions
       case _ => throw new AssertionError("""
         The number of partitions must be strictly greater than zero!
@@ -205,10 +224,20 @@ object Repartitioning {
     val kp = new KeyPartitioner(numOfPartitions)
 
     // Apply the partitioning in the RDD world
-    val rdd = df.rdd
-      .map(x => (x(position), x))
-      .partitionBy(kp)
-      .values
+    val rdd = mapPart.size match {
+      case x if x > 0 => {
+        df.rdd
+        .map(x => (mapPart(x(position)), x))
+        .partitionBy(kp)
+        .values
+      }
+      case 0 => {
+        df.rdd
+        .map(x => (x(position), x))
+        .partitionBy(kp)
+        .values
+      }
+    }
 
     // Go back to DF
     SparkSession.getActiveSession.get.createDataFrame(rdd, df.schema)

@@ -56,6 +56,9 @@ package object spark3d {
       * having the same partition ID defined by one of the DataFrame column (i.e. shuffling).
       *
       * @param colname : Column name describing the repartitioning. Typically Ints.
+      * @param preLabeled : Boolean. true means the column containing the partition ID contains
+      *   already numbers from 0 to `numPartitions - 1`. false otherwise. Note that in the latter,
+      *   the execution time will be longer as we need to map column values to partition ID.
       * @param numPartitions : Optional. Number of partitions. If not provided the code will
       *   guess the number of partitions by counting the number of distinct elements of
       *   the repartitioning column. As it can be costly, you can provide manually this information.
@@ -80,7 +83,7 @@ package object spark3d {
       *     "colnames" -> "Z_COSMO,RA,DEC",
       *     "coordSys" -> "spherical",
       *     "gridtype" -> "LINEARONIONGRID")
-      * > val dfExt = df.addSPartitioning(options, 3)
+      * > val dfExt = df.addSPartitioning(options, 3, true)
       * > dfExt.show()
       *  +-------------------+-------------------+------------------+------------+
       *  |            Z_COSMO|                 RA|               Dec|partition_id|
@@ -105,8 +108,8 @@ package object spark3d {
       *  |0.42365479469299316|  2.966549873352051|1.4932578802108765|           2|
       *  +-------------------+-------------------+------------------+------------+
       */
-    def repartitionByCol(colname: String, numPartitions: Int = -1): DataFrame = {
-      Repartitioning.repartitionByCol(df, colname, numPartitions)
+    def repartitionByCol(colname: String, preLabeled: Boolean, numPartitions: Int = -1): DataFrame = {
+      Repartitioning.repartitionByCol(df, colname, preLabeled, numPartitions)
     }
 
     /**

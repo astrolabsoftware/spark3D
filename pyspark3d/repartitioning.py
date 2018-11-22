@@ -92,7 +92,7 @@ def addSPartitioning(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-
 
     return dfout
 
-def repartitionByCol(df: DataFrame, colname: str, numPartitions: int=-1):
+def repartitionByCol(df: DataFrame, colname: str, preLabeled: bool, numPartitions: int=-1):
     """Repartition a DataFrame according to a column containing partition ID.
 
     Note this is not re-ordering elements, but making new partitions with
@@ -105,6 +105,11 @@ def repartitionByCol(df: DataFrame, colname: str, numPartitions: int=-1):
         Input DataFrame.
     colname : str
         Column name describing the repartitioning. Typically Ints.
+    preLabeled : bool
+        True means the column containing the partition ID contains
+        already numbers from 0 to `numPartitions - 1`. false otherwise.
+        Note that in the latter, the execution time will be longer as
+        we need to map column values to partition ID.
     numPartitions : int
         (optional )Number of partitions. If not provided the code will
         guess the number of partitions by counting the number of distinct
@@ -136,7 +141,7 @@ def repartitionByCol(df: DataFrame, colname: str, numPartitions: int=-1):
     10
 
     Trigger the repartitioning
-    >>> df_repart = repartitionByCol(df_colid, "partition_id", 10)
+    >>> df_repart = repartitionByCol(df_colid, "partition_id", True, 10)
     >>> def mapLen(part): yield len([*part])
     >>> df_repart.rdd.mapPartitions(mapLen).take(1)[0]
     2104
@@ -147,7 +152,7 @@ def repartitionByCol(df: DataFrame, colname: str, numPartitions: int=-1):
 
     dfout = _java2py(
         get_spark_context(),
-        scalaclass(df._jdf, colname, numPartitions))
+        scalaclass(df._jdf, colname, preLabeled, numPartitions))
 
     return dfout
 

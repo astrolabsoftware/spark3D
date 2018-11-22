@@ -18,6 +18,7 @@ package com.astrolabsoftware
 import org.apache.spark.sql.DataFrame
 
 import com.astrolabsoftware.spark3d.Repartitioning
+import com.astrolabsoftware.spark3d.Checkers
 
 package object spark3d {
 
@@ -106,6 +107,24 @@ package object spark3d {
       */
     def repartitionByCol(colname: String, numPartitions: Int = -1): DataFrame = {
       Repartitioning.repartitionByCol(df, colname, numPartitions)
+    }
+
+    /**
+      * DataFrame containing the weight of each partition.
+      * You can choose between outputing the size (number of rows) of each partition
+      * or the fractional size (%) to the total number of rows.
+      * size of the dataset (in percent). This is useful to check whether the
+      * load is correctly balanced.
+      *
+      * @param kind : print the load balancing in terms of fractional size (kind="frac")
+      *   or number of rows per partition (kind="size"). Default is "frac".
+      * @param numberOfElements : Long (optional). Total number of elements in the DataFrame.
+      *   Only needed if you choose to output fractional sizes (kind="frac").
+      *   If not provided (i.e. default value of -1) and kind="frac", it will be computed (count).
+      * @return DataFrame containing the weight of each partition.
+      */
+    def checkLoadBalancing(kind: String = "frac", numberOfElements: Long = -1L): DataFrame = {
+      Checkers.checkLoadBalancing(df, kind, numberOfElements)
     }
   }
 }

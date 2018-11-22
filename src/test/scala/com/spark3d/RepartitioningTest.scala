@@ -62,7 +62,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
 
   // Test files
   val fn_point = "src/test/resources/astro_obs.csv"
-  val fn_sphere = "src/test/resources/cartesian_spheres_manual.csv"
+  val fn_sphere = "src/test/resources/cartesian_spheres.fits"
 
   // ugly trick - need a val to make imports
   // This is needed to perform mapPartitions on DataFrame with Row type.
@@ -113,6 +113,26 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
 
     assert(dfp3.rdd.getNumPartitions == 8)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2282)
+  }
+
+  test("Can you repartition a DataFrame (octree + cartesian)?") {
+
+    val spark2 = spark
+    import spark2.implicits._
+    val df = spark.read.format("fits")
+      .option("hdu", 1)
+      .load(fn_sphere)
+
+    val options = Map(
+      "geometry" -> "points",
+      "colnames" -> "x,y,z",
+      "coordSys" -> "cartesian",
+      "gridtype" -> "octree")
+
+    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp3 = repartitionByCol(dfp2, "partition_id")
+
+    assert(dfp3.rdd.getNumPartitions == 8)
   }
 
   test("Can you repartition a DataFrame based on a user defined column?") {

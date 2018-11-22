@@ -62,6 +62,7 @@ class PartitionersTest extends FunSuite with BeforeAndAfterAll {
 
   // Test files
   val fn_point = "src/test/resources/astro_obs.csv"
+  val fn_point_cart = "src/test/resources/cartesian_points.fits"
 
   test("Can you catch a wrong coordinate system?") {
 
@@ -126,15 +127,14 @@ class PartitionersTest extends FunSuite with BeforeAndAfterAll {
 
   test("Can you build a partitioner?") {
 
-    val df = spark.read.format("csv")
-      .option("header", true)
-      .option("inferSchema", true)
-      .load(fn_point)
+    val df = spark.read.format("fits")
+      .option("hdu", 1)
+      .load(fn_point_cart)
 
     val options = Map(
       "geometry" -> "points",
-      "colnames" -> "Z_COSMO,RA,DEC",
-      "coordSys" -> "spherical",
+      "colnames" -> "x,y,z",
+      "coordSys" -> "cartesian",
       "gridtype" -> "octree")
 
       val P = new Partitioners(df, options)

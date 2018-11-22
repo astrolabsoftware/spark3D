@@ -2,7 +2,7 @@
 permalink: /docs/repartitioning/python/
 layout: splash
 title: "Tutorial: Partition your space"
-date: 2018-06-15 22:31:13 +0200
+date: 2018-11-22 22:31:13 +0200
 ---
 
 # Tutorial: Partition your space
@@ -78,7 +78,7 @@ df_colid.show(5)
 	+----------+-----------+----------+------------+
 
 # Trigger the repartition
-df_repart = repartitionByCol(df_colid, "partition_id", 8)
+df_repart = repartitionByCol(df_colid, "partition_id", preLabeled=True, numPartitions=8)
 
 df_repart.show(5)
 	+-----------+---------+----------+------------+
@@ -92,13 +92,157 @@ df_repart.show(5)
 	+-----------+---------+----------+------------+
 ```
 
-### Options for repartitioning
+`preLabeled` means the column containing the partition ID contains already numbers from 0 to `numPartitions - 1` (see below for the generic case).
 
-...
+### Options for 3D repartitioning
 
-### Your own Partitioning
+The current options for spark3D repartitioning are:
 
-...
+- `gridtype`: the type of repartitioning. Available: current (no repartitioning), onion, octree.
+- `geometry`: geometry of objects: points (3 coordinates), spheres (3 coordinates + radius)
+- `coordSys`: coordinate system: spherical or cartesian
+- `colnames`: comma-separated names of the spatial coordinates. For points,
+    must be "x,y,z" or "r,theta,phi". For spheres, must be "x,y,z,R" or
+    "r,theta,phi,R".
+
+For example, to load point-like objects whose column coordinates are (x, y, z), in a cartesian coordinate system and repartition using octree, you would use:
+
+```python
+options = {
+	"geometry": "points",
+	"colnames": "x,y,z",
+	"coordSys": "cartesian",
+	"gridtype": "octree"}
+```
+
+### Create your own Partitioning
+
+spark3D contains limited number of partitioners. We plan to add more (RTree in preparation for example). In the meantime, you can add your partitioner, and use spark3D `repartitionByCol` to trigger the repartitioning.
+
+Typically, a partitioner is an object which associate to each row a partition ID. So if you come up with your column containing partition ID, the job is done!
+
+Here is a simple repartitioning. Let's suppose we have a DataFrame with 4 columns (x, y, z, color):
+
+```python
+df.show(5)
++-------------------+-------------------+--------------------+-----+
+|                  x|                  y|                   z|color|
++-------------------+-------------------+--------------------+-----+
+| 0.7597103249274305|0.43553591641478184| 0.28917234457456076|   C0|
+| 0.7026135458509866| 0.8153555174579074|  0.2271205402627411|   C1|
+|0.29406270599653683| 0.1279417475009852| 0.22566980128052516|   C0|
+| 0.9243776892995804| 0.4338940983421623| 0.46862943234999066|   C1|
+|0.13688472232767646|  0.517193173845641|  0.2571428515204228|   C0|
+| 0.5546555520340469| 0.9007788514727354|0.023848244237575034|   C1|
+| 0.3020298950179151| 0.4970200882013287|  0.5753172391955962|   C0|
+| 0.7973444219353029|   0.78955164333523| 0.06861238579818774|   C1|
+| 0.9970636495720013|0.46611372809037144| 0.18037269668312206|   C0|
+| 0.2656533532231762| 0.8281379193317686| 0.13374486702332633|   C1|
++-------------------+-------------------+--------------------+-----+
+```
+
+We will create a column whose elements are based on the distance of (x, y, z) to the center (0, 0, 0):
+
+```python
+from pyspark.sql.functions import pandas_udf
+from pyspark.sql.functions import PandasUDFType
+
+@pandas_udf("double", PandasUDFType.SCALAR)
+def normPartitioner(x, y, z):
+	"""
+	"""
+	# Build vector of norms
+	norm = np.sqrt(x**2 + y**2 + z**2)
+	
+	# Condition on the norm value
+	cond = 87
+	
+	# Flag values based on condition
+	ret = np.ones_like(norm)
+	ret[norm <= cond] = 0
+	return pd.Series(ret)
+
+df_colid = df.withColumn("partition_id", normPartitioner(df["x"], df["y"], df["z"]))
+```
+
+### Going beyond: column partitioning as a standard Spark SQL method
+
+Actually you do not even need to know or create the underlined partitioners. Say you already have a column that described your partitioning, then you can directly apply `repartitionByCol`:
+
+```python
+from pyspark3d.repartitioning import repartitionByCol
+
+df.show()
++---+----+
+|Age|flag|
++---+----+
+| 20|   0|
+| 30|   1|
+| 24|   0|
+| 56|   0|
+| 34|   1|
++---+----+
+
+df_repart = repartitionByCol(df, "flag", preLabeled=True, numPartitions=2)
+
+df_repart.show()
++---+----+
+|Age|flag|
++---+----+
+| 20|   0|
+| 24|   0|
+| 56|   0|
+| 30|   1|
+| 34|   1|
++---+----+
+
+```
+
+If your columns is not `preLabeled` (i.e. does not contain partition ID), this is not a problem:
+
+```python
+from pyspark3d.repartitioning import repartitionByCol
+
+df.show()
++---+----+----+
+|Age|flag|part|
++---+----+----+
+| 20|   0|   A|
+| 30|   2|   A|
+| 24|   0|toto|
+| 56|   0|   A|
+| 34|   2|toto|
++---+----+----+
+
+df_repart = repartitionByCol(df, "part", preLabeled=False)
+df_repart.show()
++---+----+----+
+|Age|flag|part|
++---+----+----+
+| 20|   0|   A|
+| 30|   2|   A|
+| 56|   0|   A|
+| 24|   0|toto|
+| 34|   2|toto|
++---+----+----+
+
+df_repart.rdd.getNumPartitions()
+2
+```
+
+Note however that the execution time will be longer since the routine needs to map column elements to distinct keys.
+
+### How is spark3D `df.repartitionByCol` different from Apache Spark `df.repartitionByRange` or `df.orderBy`?
+
+- `df.repartitionByRange` returns a `DataFrame` partitioned by the specified column(s). 
+- `df.orderBy` returns a `DataFrame` partitioned and sorted by the specified column(s). 
+
+
+A major problem of both is there is no guarantee to always get the same final partitioning. In other words, they are non-deterministic. See for example [SPARK-26024](https://issues.apache.org/jira/browse/SPARK-26024). For performance reasons they use sampling to estimate the ranges (with default size of 100). Hence, the output may not be consistent, since sampling can return different values.
+
+Conversely `df.repartitionByCol` always guarantees the same final partitioning, by strictly following the partitioning scheme in the specified column. Obviously this exactness has a cost, and using `df.repartitionByCol` can increase the repartitioning time as shown in:
+
+![raw]({{ "/assets/images/benchmark_repart_methods.png" | absolute_url }})
 
 ## Memory and speed considerations
 

@@ -44,7 +44,9 @@ class KeyPartitioner(numOfPartitions: Int) extends Partitioner with Serializable
     key match {
       case i:Int => key.asInstanceOf[Int]
       case l:Long => key.asInstanceOf[Long].toInt
-      case _ => throw new ClassCastException()
+      case _ => throw new ClassCastException("""
+        Key from KeyPartitioner must be Int or Long!
+        """)
     }
   }
 }

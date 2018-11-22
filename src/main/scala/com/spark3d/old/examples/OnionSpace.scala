@@ -84,7 +84,7 @@ object OnionSpace {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp = df.addSPartitioning(options, 10).repartitionByCol("partition_id")
+    val dfp = df.addSPartitioning(options, 10).repartitionByCol("partition_id", true)
 
     // Count the number of partition before, and number of elements per partition
     val partitionsBefore = df.mapPartitions(

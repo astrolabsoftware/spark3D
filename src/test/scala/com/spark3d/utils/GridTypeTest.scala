@@ -26,7 +26,7 @@ class GridTypeTest extends FunSuite with BeforeAndAfterAll {
 
   // Completely dumb test... Must change that...
   test("Do you know the names of the implemented grids?") {
-    assert(GridType.LINEARONIONGRID == "LINEARONIONGRID")
-    assert(GridType.OCTREE == "OCTREE")
+    assert(GridType.LINEARONIONGRID == "onion")
+    assert(GridType.OCTREE == "octree")
   }
 }

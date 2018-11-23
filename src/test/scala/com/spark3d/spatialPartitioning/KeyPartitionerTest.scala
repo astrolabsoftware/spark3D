@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.astrolabsoftware.spark3d.python
-
-import scala.reflect.ClassTag
+package com.astrolabsoftware.spark3d.spatialPartitioning
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
-
-import com.astrolabsoftware.spark3d.geometryObjects.Point3D
-import com.astrolabsoftware.spark3d.python.PythonClassTag.classTagFromObject
-import com.astrolabsoftware.spark3d.python.PythonClassTag.javaHashMaptoscalaMap
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
@@ -30,7 +24,9 @@ import org.apache.spark.sql.functions._
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 
-class PythonClassTagTest extends FunSuite with BeforeAndAfterAll {
+import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
+
+class KeyPartitionerTest extends FunSuite with BeforeAndAfterAll {
 
   // Set to Level.WARN is you want verbosity
   Logger.getLogger("org").setLevel(Level.OFF)
@@ -59,36 +55,32 @@ class PythonClassTagTest extends FunSuite with BeforeAndAfterAll {
   }
   // END TODO
 
-  // Test files
-  val fns_fits = "src/test/resources/cartesian_spheres.fits"
+  val numOfPartitions = 2
 
-  /**
-    * Note that it returns the Java type, and not the Scala type.
-    */
-  test("Can you retrieve the ClassTag of standard objects?") {
-
-    val aInt : Int = 1
-    val ctInt = classTagFromObject(aInt)
-
-    assert(ctInt.toString() == "java.lang.Integer")
-
+  test("Can you build a key Partitioner?") {
+    val kp = new KeyPartitioner(numOfPartitions)
+    assert(kp.isInstanceOf[KeyPartitioner])
   }
 
-  test("Can you retrieve the ClassTag of spark3D objects?") {
-
-    val pt = new Point3D(0.0, 0.0, 0.0, true)
-    val ctPoint3D = classTagFromObject(pt)
-
-    assert(ctPoint3D.toString() == "com.astrolabsoftware.spark3d.geometryObjects.Point3D")
-
+  test("Can you build a key Partitioner (with Int)?") {
+    val rdd = spark.sparkContext.parallelize(1::1::0::Nil).map(x => (x, "val"))
+    val kp = new KeyPartitioner(numOfPartitions)
+    assert(rdd.partitionBy(kp).getNumPartitions == 2)
+    assert(kp.getPartition(1).isInstanceOf[Int])
   }
 
-  test("Can you convert a java HashMap to scala Map?") {
-    var javaHasMap = new java.util.HashMap[String, String]
-    javaHasMap.put("toto", "titi")
-    val scalaMap = javaHashMaptoscalaMap(javaHasMap)
+  test("Can you build a key Partitioner (with Long)?") {
+    val rdd = spark.sparkContext.parallelize(1L::1L::0L::Nil).map(x => (x, "val"))
+    val kp = new KeyPartitioner(numOfPartitions)
+    assert(rdd.partitionBy(kp).getNumPartitions == 2)
+    assert(kp.getPartition(1L).isInstanceOf[Int])
+  }
 
-    assert(scalaMap.isInstanceOf[Map[String, String]])
-
+  test("Can you catch error if the key is not Int or Long?") {
+    val kp = new KeyPartitioner(numOfPartitions)
+    val exception = intercept[ClassCastException] {
+      kp.getPartition("toto")
+    }
+    assert(exception.getMessage.contains("Key from KeyPartitioner must be Int or Long!"))
   }
 }

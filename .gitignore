@@ -10,3 +10,8 @@ __pycache__
 htmlcov
 cov.txt
 .coverage
+build/
+dist/
+MANIFEST*
+pyspark3d.egg-info/
+scripts/

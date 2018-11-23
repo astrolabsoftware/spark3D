@@ -88,7 +88,7 @@ def rec_load(obj: Any, mod: List[str], count: int=0) -> Any:
     Example
     ----------
     >>> pysc = get_spark_context()
-    >>> mod = "_gateway.jvm.com.astrolabsoftware.spark3d.spatialOperator"
+    >>> mod = "_gateway.jvm.com.astrolabsoftware.spark3d.geometryObjects"
     >>> jvm_obj = rec_load(pysc, mod.split("."))
     >>> print(type(jvm_obj))
     <class 'py4j.java_gateway.JavaPackage'>
@@ -120,7 +120,7 @@ def load_from_jvm(scala_package: str) -> Any:
     Example
     ----------
     >>> pysc = get_spark_context()
-    >>> sp = "com.astrolabsoftware.spark3d.spatialOperator.CenterCrossMatch"
+    >>> sp = "com.astrolabsoftware.spark3d.geometryObjects.Point3D"
     >>> jvm_obj = load_from_jvm(sp)
     >>> print(type(jvm_obj))
     <class 'py4j.java_gateway.JavaClass'>

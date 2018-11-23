@@ -15,6 +15,9 @@
  */
 package com.astrolabsoftware.spark3d.python
 
+import scala.collection.JavaConverters._
+import java.util.HashMap
+
 import scala.reflect.ClassTag
 
 /**
@@ -57,5 +60,24 @@ object PythonClassTag {
     */
   def classTagFromObject(obj: Any): ClassTag[_] = {
     ClassTag.apply(obj.getClass())
+  }
+
+  /**
+    * By default, Python dictionaries are converted in java.util.HashMap when
+    * used as method arguments by py4j. This is a problem for most Scala methods
+    * which need Map as arguments.
+    *
+    * This method allows the conversion from Python dictionary to scala immutable map in py4j.
+    * This should be use in Python as:
+    * mydic = {k: v}
+    * conv = sc._jvm.com.astrolabsoftware.spark3d.python.PythonClassTag.javaHashMaptoscalaMap
+    * scalaMap = conv(mydic)
+    * sc._jvm.<...>.myscalaMethod(scalaMap)
+    *
+    * @param hashMap : java.util.HashMap[String, String]
+    * @return Map[String, String]
+    */
+  def javaHashMaptoscalaMap(hashMap: HashMap[String, String]): Map[String, String] = {
+    hashMap.asScala.toMap
   }
 }

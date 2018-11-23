@@ -22,6 +22,6 @@ package com.astrolabsoftware.spark3d.utils
 object GridType {
 
   // Add new GridType name here once implementation done.
-  val LINEARONIONGRID = "LINEARONIONGRID"
-  val OCTREE = "OCTREE"
+  val LINEARONIONGRID = "onion"
+  val OCTREE = "octree"
 }

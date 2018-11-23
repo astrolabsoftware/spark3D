@@ -22,6 +22,8 @@ The partitioning of a DataFrame is done in two steps.
 - First we create a custom partitioner, that is an object which associates each object in the dataset with a partition number. Once this partitioner is known, we add a DataFrame column with the new partition ID (`addSPartitioning`).
 - Second we trigger the partitioning based on this new column (`repartitionByCol`) using a simple `KeyPartitioner`.
 
+Note that partitioning by a DataFrame column is similar to indexing a column in a relational database.
+
 ## Available partitioning and partitioners
 
 There are currently 2 spatial partitioning implemented in the library:

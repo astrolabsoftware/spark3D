@@ -194,8 +194,8 @@ toto:~$ PYSPARK_DRIVER_PYTHON=ipython pyspark \
 # Batch mode and provided examples
 
 You can follow the different tutorials:
-- Loading data [Scala]({{ site.baseurl }}{% link 02_introduction_scala.md %}), [Python]({{ site.baseurl }}{% link 02_introduction_python.md %})
-- Space partitioning [Scala]({{ site.baseurl }}{% link 03_partitioning_scala.md %}), [Python]({{ site.baseurl }}{% link 03_partitioning_python.md %})
+- Repartitioning [Scala]({{ site.baseurl }}{% link 02_repartitioning_scala.md %}), [Python]({{ site.baseurl }}{% link 02_repartitioning_python.md %})
+- Visualisation [Scala]({{ site.baseurl }}{% link 03_visualisation_scala.md %}), [Python]({{ site.baseurl }}{% link 03_visualisation_python.md %})
 - Query [Scala]({{ site.baseurl }}{% link 04_query_scala.md %}), [Python]({{ site.baseurl }}{% link 04_query_python.md %})
 
 We also include [Scala examples](https://github.com/astrolabsoftware/spark3D/tree/master/src/main/scala/com/spark3d/examples) and runners (`run_*.sh`) in the folder runners of the repo.

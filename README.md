@@ -13,7 +13,7 @@
 - [08/2018] **Release**: version 0.2.0, 0.2.1 (pyspark3d)
 - [09/2018] **Release**: version 0.2.2
 
-<p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_newapi.png"/>
+<p align="center"><img width="300" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_newapi.png"/>
 </p>
 
 ## Rationale

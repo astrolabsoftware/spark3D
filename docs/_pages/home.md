@@ -13,8 +13,8 @@ excerpt: '{::nomarkdown}<iframe style="display: inline-block;" src="https://ghbt
 feature_row:
   - image_path:
     alt:
-    title: "<i class='fas fa-upload'></i> Partition your space!"
-    excerpt: "Repartition DataFrames using spark3D to speed-up your search or perform visualisation"
+    title: "<i class='fas fa-cubes'></i> Partition your space!"
+    excerpt: "Repartition DataFrames using spark3D to speed-up your future searches or perform efficient exploration"
     url: "/docs/repartitioning/scala/"
     btn_class: "btn--primary"
     btn_label: "Scala"
@@ -23,8 +23,8 @@ feature_row:
     btn_label2: "Python"
   - image_path:
     alt:
-    title: "<i class='fas fa-cubes'></i> Visualise TB of data!"
-    excerpt: "Build high-level representation of your data using spark3D, and visualise them."
+    title: "<i class='fas fa-binoculars'></i> Quickly explore huge data sets!"
+    excerpt: "Build high-level representation of your data using spark3D, and visualise it."
     url: "/docs/visualisation/scala/"
     btn_class: "btn--primary"
     btn_label: "Scala"

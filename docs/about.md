@@ -8,7 +8,7 @@ author_profile: true
 <p align="center"><img width="500" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_newapi.png"/>
 </p>
 
-spark3D should be viewed as an extension of the Apache Spark framework, and more specifically the Spark SQL module, focusing on the manipulation of three*-dimensional data sets.
+spark3D should be viewed as an extension of the Apache Spark framework, and more specifically the Spark SQL module, focusing on the manipulation of three-dimensional data sets.
 
 ## Why spark3D?
 

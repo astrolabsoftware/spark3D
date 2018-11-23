@@ -86,7 +86,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val dfp2 = addSPartitioning(df, options, 10)
-    val dfp3 = repartitionByCol(dfp2, "partition_id")
+    val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true)
     val p = dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0)
 
     assert(dfp3.rdd.getNumPartitions == 10)
@@ -109,10 +109,32 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "octree")
 
     val dfp2 = addSPartitioning(df, options, 10)
-    val dfp3 = repartitionByCol(dfp2, "partition_id")
+    val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true)
 
     assert(dfp3.rdd.getNumPartitions == 8)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2282)
+  }
+
+  test("Can you repartition a DataFrame not preLabeled?") {
+
+    val spark2 = spark
+    import spark2.implicits._
+    val df = spark.read.format("csv")
+      .option("header", true)
+      .option("inferSchema", true)
+      .load(fn_point)
+
+    val options = Map(
+      "geometry" -> "points",
+      "colnames" -> "Z_COSMO,RA,DEC",
+      "coordSys" -> "spherical",
+      "gridtype" -> "octree")
+
+    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = false)
+
+    assert(dfp3.rdd.getNumPartitions == 8)
+    assert(dfp3.select("partition_id").map(x => x.getInt(0)).collect().toList.max == 7)
   }
 
   test("Can you repartition a DataFrame (octree + cartesian)?") {
@@ -130,7 +152,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "octree")
 
     val dfp2 = addSPartitioning(df, options, 10)
-    val dfp3 = repartitionByCol(dfp2, "partition_id")
+    val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true, numPartitions = 8)
 
     assert(dfp3.rdd.getNumPartitions == 8)
   }
@@ -144,7 +166,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
     val df = scala.util.Random.shuffle(0.to(9)).toDF("val")
       .select((col("val") % 2).as("val"))
 
-    val dfp = df.repartitionByCol("val")
+    val dfp = df.repartitionByCol("val", preLabeled = true)
 
     assert(dfp.rdd.getNumPartitions == 2)
     assert(dfp.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 5)
@@ -165,7 +187,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id")
+    val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     assert(dfp3.rdd.getNumPartitions == 10)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2104)
@@ -204,7 +226,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10).repartitionByCol("partition_id", -4)
+      df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true, numPartitions = -4)
     }
     assert(exception.getMessage.contains("The number of partitions must be strictly greater than zero!"))
   }

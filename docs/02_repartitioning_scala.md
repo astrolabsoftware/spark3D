@@ -213,6 +213,8 @@ Conversely `df.repartitionByCol` always guarantees the same final partitioning, 
 
 ![raw]({{ "/assets/images/benchmark_repart_methods.png" | absolute_url }})
 
+Note that the Spark `df.repartition` method is not present from this benchmark as for such volume of data it leads to completely unpredictive results (empty partitions, and partitions twice the size of others... even by fixing the number of partitions AND the column to use for the repartitioning).
+
 ## Memory and speed considerations
 
 We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.

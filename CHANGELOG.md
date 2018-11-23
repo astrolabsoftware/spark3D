@@ -1,3 +1,15 @@
+## 0.3.0
+
+- Complete change of the interface ([PR](https://github.com/astrolabsoftware/spark3D/pull/108)). This includes:
+  - DataFrame API
+  - Extension of the Spark SQL module (new methods + implicits on DataFrame)
+  - Metadata are propagated (not just 3D coordinates).
+  - Seamless interface with Python
+- Compiling against Apache Spark 2.3.2: fix incompatibilities ([PR](https://github.com/astrolabsoftware/spark3D/pull/107))
+- Website update: spark-fits version + vulnerability fix ([PR](https://github.com/astrolabsoftware/spark3D/pull/105))
+-  Fix wrong angle definition in cartesian to spherical coordinate change! ([PR](https://github.com/astrolabsoftware/spark3D/pull/102))
+
+
 ## 0.2.2
 
 - Add the conversion from FITS file (single HDU) to parquet ([PR](https://github.com/astrolabsoftware/spark3D/pull/92))

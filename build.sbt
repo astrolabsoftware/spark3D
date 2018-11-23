@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Julien Peloton
+ * Copyright 2018 AstroLab Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import xerial.sbt.Sonatype._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.2.2"
+     version      := "0.3.0"
    )),
    // Name of the application
    name := "spark3D",
@@ -46,7 +46,7 @@ lazy val root = (project in file(".")).
      "org.apache.spark" %% "spark-core" % "2.3.2" % "provided",
      "org.apache.spark" %% "spark-sql" % "2.3.2" % "provided",
      // For loading FITS files
-     "com.github.astrolabsoftware" %% "spark-fits" % "0.7.0",
+     "com.github.astrolabsoftware" %% "spark-fits" % "0.7.1",
      // "org.datasyslab" % "geospark" % "1.1.3",
      // Uncomment if you want to trigger visualisation
      // "com.github.haifengl" % "smile-plot" % "1.5.1",

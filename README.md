@@ -12,6 +12,7 @@
 - [07/2018] **Release**: version 0.1.3, 0.1.4, 0.1.5
 - [08/2018] **Release**: version 0.2.0, 0.2.1 (pyspark3d)
 - [09/2018] **Release**: version 0.2.2
+- [11/2018] **Release**: version 0.3.0 (new DataFrame API)
 
 <p align="center"><img width="300" src="https://github.com/astrolabsoftware/spark3D/raw/master/pic/spark3d_newapi.png"/>
 </p>

@@ -15,7 +15,7 @@ Unfortunately, re-partitioning the space involves potentially large shuffle betw
 
 You might noticed the DataFrame API does not expose many things to repartition your data as you would like (unlike the RDD API), hence we decided to bring here new DataFrame features!
 
-## How spark3D partitions things?
+## How spark3D partitions DataFrames?
 
 The partitioning of a DataFrame is done in two steps.
 
@@ -247,4 +247,14 @@ Conversely `df.repartitionByCol` always guarantees the same final partitioning, 
 ## Memory and speed considerations
 
 We advice to cache the re-partitioned sets, to speed-up future call by not performing the re-partitioning again.
-However keep in mind that if a large `numPartitions` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions. There is no magic number for `numPartitions ` which applies in general, and you'll need to set it according to the needs of your problem.
+However keep in mind that if a large `numPartitions` decreases the cost of performing future queries (cross-match, KNN, ...), it increases the partitioning cost as more partitions implies more data shuffle between partitions and often increases the scheduler delays. There is no magic number for `numPartitions ` which applies in general, and you'll need to set it according to the needs of your problem. But here are few guidelines:
+
+### What kind of performance I will get assuming fixed cluster configuration and input data set?
+
+Assuming you use a fix cluster configuration (numbers of cores + available memory), the repartitioning time is quadratic in the final number of partitions:
+
+![raw]({{ "/assets/images/complexity_repartitioning.png" | absolute_url }})
+
+In fact, that also depends on the difference between the number of worker threads and the number of partitions:
+
+![raw]({{ "/assets/images/complexity_repartitioning_explained.png" | absolute_url }})

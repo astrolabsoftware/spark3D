@@ -260,3 +260,27 @@ Assuming you use a fix cluster configuration (numbers of cores + available memor
 In fact, that also depends on the difference between the number of worker threads and the number of partitions:
 
 ![raw]({{ "/assets/images/complexity_repartitioning_explained.png" | absolute_url }})
+
+### How can I check that my repartitioning is well balanced?
+
+There is a method in spark3D to check the load balancing:
+
+```python
+from pyspark3d.checkers import checkLoadBalancing
+
+checkLoadBalancing(df_repart, "frac").show()
++--------+------------+
+|Load (%)|partition_id|
++--------+------------+
+|   10.52|           0|
+|   10.19|           1|
+|   9.925|           2|
+|    9.87|           3|
+|  10.135|           4|
+|   10.13|           5|
+|    9.49|           6|
+|    9.81|           7|
+|    9.87|           8|
+|   10.06|           9|
++--------+------------+
+```

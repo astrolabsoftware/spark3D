@@ -70,10 +70,6 @@ def checkLoadBalancing(df: DataFrame, kind: str="frac", numberOfElements: int=-1
     scalapath = "{}.Checkers.checkLoadBalancing".format(prefix)
     scalaclass = load_from_jvm(scalapath)
 
-    # To convert python dic to Scala Map
-    convpath = "{}.python.PythonClassTag.javaHashMaptoscalaMap".format(prefix)
-    conv = load_from_jvm(convpath)
-
     dfout = _java2py(
         get_spark_context(),
         scalaclass(df._jdf, kind, numberOfElements))

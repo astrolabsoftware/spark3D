@@ -15,8 +15,6 @@
  */
 package com.astrolabsoftware.spark3d
 
-import java.util.HashMap
-
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.functions.col

@@ -22,6 +22,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 import com.astrolabsoftware.spark3d.python.PythonClassTag.classTagFromObject
 import com.astrolabsoftware.spark3d.python.PythonClassTag.javaHashMaptoscalaMap
+import com.astrolabsoftware.spark3d.python.PythonClassTag.javaListtoscalaList
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
@@ -89,6 +90,13 @@ class PythonClassTagTest extends FunSuite with BeforeAndAfterAll {
     val scalaMap = javaHashMaptoscalaMap(javaHasMap)
 
     assert(scalaMap.isInstanceOf[Map[String, String]])
+  }
 
+  test("Can you convert a java ArrayList to scala List?") {
+    var javaArrayList = new java.util.ArrayList[Double]
+    javaArrayList.add(0.3)
+    val scalaList = javaListtoscalaList(javaArrayList)
+
+    assert(scalaList.isInstanceOf[List[Double]])
   }
 }

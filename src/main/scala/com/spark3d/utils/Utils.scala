@@ -145,26 +145,46 @@ object Utils {
     * @return array of top k elements based on the Ordering relative to the queryObject from the input RDD
     */
   def takeOrdered[T <: Shape3D: ClassTag](rdd: RDD[T], num: Int, queryObject: T, unique: Boolean = false)(ord: Ordering[T]): Array[T] = {
-    if (unique) {
-      if (num == 0) {
-        Array.empty
-      } else {
-        val mapRDDs = rdd.mapPartitions { items =>
-          val queue = new BoundedUniquePriorityQueue[T](num)(ord)
-          queue ++= takeOrdered(items, num)(ord)
-          Iterator.single(queue)
-        }
-        if (mapRDDs.partitions.length == 0) {
-          return Array.empty
-        } else {
-          return mapRDDs.reduce { (queue1, queue2) =>
-            queue1 ++= queue2
-            queue1
-          }.toArray.sorted(ord)
+
+    // Is K=0?
+    num match {
+      // Is K=0? YES
+      case 0 => Array.empty
+
+      // Is K=0? NO
+      case _ => {
+        // Are Ks only distinct elements?
+        unique match {
+          // Are Ks only distinct elements? NO
+          case false => rdd.takeOrdered(num)(new GeometryObjectComparator[T](queryObject.center))
+
+          // Are Ks only distinct elements? YES
+          case true => {
+            val mapRDDs = rdd.mapPartitions { items =>
+              val queue = new BoundedUniquePriorityQueue[T](num)(ord)
+              queue ++= takeOrdered(items, num)(ord)
+              Iterator.single(queue)
+            }
+            val lenMapRDDs = mapRDDs.partitions.length
+
+            // Are partitions empty?
+            lenMapRDDs match {
+
+              // Are partitions empty? YES
+              case 0 => Array.empty
+
+              // Are partitions empty? NO
+              case _ => {
+                mapRDDs.reduce { (queue1, queue2) =>
+                  queue1 ++= queue2
+                  queue1
+                }.toArray.sorted(ord)
+              }
+            }
+          }
         }
       }
     }
-    return rdd.takeOrdered(num)(new GeometryObjectComparator[T](queryObject.center))
   }
 
   private def takeOrdered[T](input: Iterator[T], num: Int)(implicit ord: Ordering[T]): Iterator[T] = {

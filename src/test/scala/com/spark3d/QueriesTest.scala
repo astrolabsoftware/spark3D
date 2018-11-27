@@ -56,7 +56,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
   val fn_cart = "src/test/resources/cartesian_spheres.fits"
   val fn_sphe = "src/test/resources/astro_obs.fits"
 
-  test("Can you find the K nearest neighbours (cartesian)?") {
+  test("Can you find the K nearest neighbours (cartesian + no unique)?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -85,6 +85,35 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     // Stupid sum to quickly check they are the same
     assert(knn.select("x").collect().map(x => x.getDouble(0)).sum == knnRepart.select("x").collect().map(x => x.getDouble(0)).sum)
     // assert(knnEff.map(x=>x.center.getCoordinate).distinct.size == 5000)
+  }
+
+  test("Can you find the K nearest neighbours (unique vs no unique)?") {
+    val spark2 = spark
+    import spark2.implicits._
+
+    val df = spark.read.format("fits")
+      .option("hdu", 1)
+      .load(fn_cart)
+
+    val options = Map(
+      "geometry" -> "points",
+      "colnames" -> "x,y,z",
+      "coordSys" -> "cartesian",
+      "gridtype" -> "octree")
+
+    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+
+    val queryObject = 0.2::0.2::0.2::Nil
+
+    // using Octree partitioning
+    val knnRepartNoUnique = KNN(dfp_repart.select("x", "y", "z"), queryObject, 5000, options("coordSys"), false)
+    val knnRepartUnique = KNN(dfp_repart.select("x", "y", "z"), queryObject, 5000, options("coordSys"), true)
+
+    assert(knnRepartNoUnique.distinct.count == 5000)
+    assert(knnRepartUnique.distinct.count == 5000)
+
+    // Stupid sum to quickly check they are the same
+    assert(knnRepartNoUnique.select("x").collect().map(x => x.getDouble(0)).sum == knnRepartUnique.select("x").collect().map(x => x.getDouble(0)).sum)
   }
 
   test("Can you find the K nearest neighbours (spherical)?") {

@@ -40,6 +40,21 @@ def addargs(parser):
 
     ## Arguments
     parser.add_argument(
+        '-K', dest='K',
+        default=10,
+        type=int,
+        help='Number of neighbours')
+
+    ## Arguments
+    parser.add_argument(
+        '-target', dest='target',
+        default=[],
+        nargs='+',
+        type=float,
+        help='Target point')
+
+    ## Arguments
+    parser.add_argument(
         '-part', dest='part',
         default=None,
         help='Type of partitioning')
@@ -79,7 +94,12 @@ if __name__ == "__main__":
 
     # Load raw data
     fn = args.inputpath
-    df = spark.read.format("fits").option("hdu", 1).load(fn)
+    if fn.endswith(".fits"):
+        df = spark.read.format("fits").option("hdu", 1).load(fn)
+    elif fn.endswith(".csv"):
+        df = spark.read.format("csv").option("inferSchema", True).option("header", True).load(fn)
+    else:
+        print("Input format not understood - choose btw FITS or CSV.")
 
     # Perform the re-partitioning, and convert to Python RDD
     npart = args.npart
@@ -90,6 +110,8 @@ if __name__ == "__main__":
         coordSys = "spherical"
 
     if gridtype is not None:
+        fnout = "knn_with_{}_repartitioning.png".format(gridtype)
+        title = "KNN with {} partitioning".format(gridtype)
 
         options = {
     	   "geometry": "points",
@@ -99,17 +121,50 @@ if __name__ == "__main__":
 
         df_colid = addSPartitioning(df, options, npart)
         df = repartitionByCol(df_colid, "partition_id", True, npart)
+    else:
+        fnout = "knn_without_repartitioning.png"
+        title = "KNN without partitioning"
 
     xyz = np.transpose(df.select("x", "y", "z").collect())
 
-    k = 100
-    target = [0.2, 0.2, 0.2]
-    nei = knn(df.select("x", "y", "z"), target, k, coordSys, False)
+    if len(args.target) == 0:
+        target = [0.2, 0.2, 0.2]
+    else:
+        target = args.target
 
+    ## Plot Target
+    radius = [30]
+    ax = scatter3d_mpl(
+        [target[0]], [target[1]], [target[2]],
+        label="Target",
+        radius=radius, **{"facecolors":"green"})
+
+    ## Plot the data set
+    all = np.transpose(df.select("x", "y", "z").collect())
+    scatter3d_mpl(
+        all[0], all[1], all[2],
+        label="Data set",
+        axIn=ax, **{"facecolors":"blue", "marker": "."})
+
+    ## Plot KNN std
+    nei = knn(df.select("x", "y", "z"), target, args.K, coordSys, False)
     xyz = np.transpose(nei.collect())
+    radius = np.ones_like(xyz[0]) * 60
+    scatter3d_mpl(
+        xyz[0], xyz[1], xyz[2],
+        label="KNN standard",
+        radius=radius, axIn=ax, **{"facecolors":"red"})
 
-    ax = scatter3d_mpl(xyz[0], xyz[1], xyz[2], **{"facecolors":"red"})
-    ax3 = scatter3d_mpl(target[0], target[1], target[2], axIn=ax, **{"facecolors":"green"})
+    ## Plot KNN unique
+    neiUnique = knn(df.select("x", "y", "z"), target, args.K, coordSys, True)
+    xyz = np.transpose(neiUnique.collect())
+    radius = np.ones_like(xyz[0]) * 30
+    scatter3d_mpl(
+        xyz[0], xyz[1], xyz[2],
+        label="KNN Unique",
+        radius=radius, axIn=ax, **{"facecolors":"orange", "marker": "D"})
 
-    pl.savefig("knn.png")
+    pl.legend()
+    pl.title(title)
+    pl.savefig(fnout)
     pl.show()

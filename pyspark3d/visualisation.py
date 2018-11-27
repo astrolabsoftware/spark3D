@@ -14,8 +14,6 @@
 import os
 
 import numpy as np
-import pylab as pl
-from mpl_toolkits.mplot3d import Axes3D
 
 from typing import Iterator, Any, Callable, Generator
 
@@ -212,7 +210,7 @@ def collapse_rdd_data(
     return rdd.mapPartitions(
         lambda partition: collapse_function(partition, *args))
 
-def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn: Axes3D = None, **kwargs) -> Axes3D:
+def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn = None, **kwargs):
     """3D scatter plot from matplotlib.
     Invoke show() or save the figure to get the result.
 
@@ -227,9 +225,15 @@ def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn: Axes3D = N
     radius: int/float or list of int/float, optional
         If given, the size of the markers. Can be a single number
         of a list of sizes (of the same length as the coordinates)
+    axIn : Axes3D
+        If provided, overplot. Default is None (new figure).
+    kwargs : Dictionary
+        Additional key/value for the plot (color, etc...)
 
     """
     if axIn is None:
+        import pylab as pl
+        from mpl_toolkits.mplot3d import Axes3D
         fig = pl.figure()
         ax = Axes3D(fig)
     else:

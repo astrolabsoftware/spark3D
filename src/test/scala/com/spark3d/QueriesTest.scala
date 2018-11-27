@@ -55,6 +55,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
 
   val fn_cart = "src/test/resources/cartesian_spheres.fits"
   val fn_sphe = "src/test/resources/astro_obs.fits"
+  val fn_sphe_manual = "src/test/resources/cartesian_spheres_manual_knn.csv"
 
   test("Can you find the K nearest neighbours (cartesian + no unique)?") {
     val spark2 = spark
@@ -208,5 +209,21 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     val knn = KNN(df.select(col("x").cast("double"), col("y").cast("double"), col("z").cast("double")), queryObject, 10, "cartesian", false)
 
     assert(knn.count == 10)
+  }
+
+  test("Can you take Integer as input?") {
+    val spark2 = spark
+    import spark2.implicits._
+
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val queryObject = List(0.2, 0.2, 0.2)
+
+    val knn = KNN(df.select(col("x").cast("integer"), col("y").cast("integer"), col("z").cast("integer")), queryObject, 2, "cartesian", false)
+
+    assert(knn.count == 2)
   }
 }

@@ -13,6 +13,8 @@
 # limitations under the License.
 import os
 
+import numpy as np
+
 from typing import Iterator, Any, Callable, Generator
 
 from py4j.java_gateway import JavaObject
@@ -208,7 +210,7 @@ def collapse_rdd_data(
     return rdd.mapPartitions(
         lambda partition: collapse_function(partition, *args))
 
-def scatter3d_mpl(x: list, y: list, z: list, radius: list=None):
+def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, label: str = None, axIn = None, **kwargs):
     """3D scatter plot from matplotlib.
     Invoke show() or save the figure to get the result.
 
@@ -223,13 +225,21 @@ def scatter3d_mpl(x: list, y: list, z: list, radius: list=None):
     radius: int/float or list of int/float, optional
         If given, the size of the markers. Can be a single number
         of a list of sizes (of the same length as the coordinates)
+    label : str
+        Add a label for the legend. Default is None.
+    axIn : Axes3D
+        If provided, overplot. Default is None (new figure).
+    kwargs : Dictionary
+        Additional key/value for the plot (color, etc...)
 
     """
-    import pylab as pl
-    from mpl_toolkits.mplot3d import Axes3D
-
-    fig = pl.figure()
-    ax = Axes3D(fig)
+    if axIn is None:
+        import pylab as pl
+        from mpl_toolkits.mplot3d import Axes3D
+        fig = pl.figure()
+        ax = Axes3D(fig)
+    else:
+        ax = axIn
 
     # Size of the centroids
     if radius is None:
@@ -238,12 +248,77 @@ def scatter3d_mpl(x: list, y: list, z: list, radius: list=None):
         assert len(radius) == len(x), "Wrong size!"
         rad = radius
 
-    ax.scatter(x, y, z, c=z, s=rad)
+    ax.scatter(x, y, z, s=rad, label=label, **kwargs)
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
 
+    return ax
+
+def sph2cart(r: float, theta: float, phi: float) -> (float, float, float):
+    """ Conversion from spherical to cartesian
+
+    Parameters
+    ----------
+    r : float
+        Radial distance (>= 0)
+    theta : float
+        Polar angle in radian (0 <= theta <= np.pi)
+    r : float
+        Azimuthal angle in radian (0 <= phi <= 2 * np.pi)
+
+    Returns
+    ----------
+    x : float
+        Cartesian X in units of r
+    y : float
+        Cartesian Y in units of r
+    z : float
+        Cartesian Z in units of r
+
+    Examples
+    ----------
+    >>> p = sph2cart(1.0, 0.0, 0.0)
+    >>> print(p)
+    (0.0, 0.0, 1.0)
+    """
+    x = r * np.sin(theta) * np.cos(phi)
+    y = r * np.sin(theta) * np.sin(phi)
+    z = r * np.cos(theta)
+    return x, y, z
+
+def cart2sph(x, y, z):
+    """ Conversion from cartesian to spherical
+
+    Parameters
+    ----------
+    x : float
+        Cartesian X
+    y : float
+        Cartesian Y
+    z : float
+        Cartesian Z
+
+    Returns
+    ----------
+    r : float
+        Radial distance (>= 0) in the units of (X, Y, Z)
+    theta : float
+        Polar angle in radian (0 <= theta <= np.pi)
+    r : float
+        Azimuthal angle in radian (0 <= phi <= 2 * np.pi)
+
+    Examples
+    ----------
+    >>> p = cart2sph(0.0, 0.0, 1.0)
+    >>> print(p)
+    (1.0, 0.0, 0.0)
+    """
+    r = np.sqrt(x*x + y*y + z*z)
+    theta = np.arctan2(np.sqrt(x*x + y*y), z)
+    phi = np.arctan2(y, x)
+    return r, theta, phi
 
 if __name__ == "__main__":
     """

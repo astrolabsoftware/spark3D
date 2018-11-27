@@ -80,4 +80,23 @@ object PythonClassTag {
   def javaHashMaptoscalaMap(hashMap: HashMap[String, String]): Map[String, String] = {
     hashMap.asScala.toMap
   }
+
+  /**
+    * By default, Python lists are converted in java.util.ArrayList when
+    * used as method arguments by py4j. This is a problem for most Scala methods
+    * which need List as arguments.
+    *
+    * This method allows the conversion from Python list to scala immutable List in py4j.
+    * This should be use in Python as:
+    * mylist = [val, ...]
+    * conv = sc._jvm.com.astrolabsoftware.spark3d.python.PythonClassTag.javaListtoscalaList
+    * scalaList = conv(mylist)
+    * sc._jvm.<...>.myscalaMethod(scalaList)
+    *
+    * @param javaArrayList : java.util.ArrayList[Double]
+    * @return List[Double]
+    */
+  def javaListtoscalaList(javaArrayList: java.util.ArrayList[Double]): List[Double] = {
+    javaArrayList.asScala.toList
+  }
 }

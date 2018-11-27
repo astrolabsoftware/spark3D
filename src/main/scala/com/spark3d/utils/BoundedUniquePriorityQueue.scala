@@ -75,7 +75,9 @@ class BoundedUniquePriorityQueue[A <: Shape3D](maxSize: Int)(implicit ord: Order
 
   private def maybeReplaceLowest(a: A): Boolean = {
     val head = underlying.head
-    if (head != null && ord.gt(a, head)) {
+    // Definition of scala.Ordering.get(x, y) is:
+    // Returns true iff y comes before x in the ordering and is not the same as x.
+    if (head != null && ord.gt(head, a)) {
       underlying.dequeue
       underlying.enqueue(a)
       containedElements.add(a.center.getCoordinate.hashCode)

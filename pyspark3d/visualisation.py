@@ -210,7 +210,7 @@ def collapse_rdd_data(
     return rdd.mapPartitions(
         lambda partition: collapse_function(partition, *args))
 
-def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn = None, **kwargs):
+def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, label: str = None, axIn = None, **kwargs):
     """3D scatter plot from matplotlib.
     Invoke show() or save the figure to get the result.
 
@@ -225,6 +225,8 @@ def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn = None, **k
     radius: int/float or list of int/float, optional
         If given, the size of the markers. Can be a single number
         of a list of sizes (of the same length as the coordinates)
+    label : str
+        Add a label for the legend. Default is None.
     axIn : Axes3D
         If provided, overplot. Default is None (new figure).
     kwargs : Dictionary
@@ -246,7 +248,7 @@ def scatter3d_mpl(x: list, y: list, z: list, radius: list=None, axIn = None, **k
         assert len(radius) == len(x), "Wrong size!"
         rad = radius
 
-    ax.scatter(x, y, z, s=rad, **kwargs)
+    ax.scatter(x, y, z, s=rad, label=label, **kwargs)
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")

@@ -72,7 +72,7 @@ class CheckersTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val df_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val df_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
     val df_load = df_repart.checkLoadBalancing()
 
     assert(df_load.rdd.getNumPartitions == 10)
@@ -92,7 +92,7 @@ class CheckersTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val df_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val df_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
     val df_load = df_repart.checkLoadBalancing(kind = "size")
     val count = df.count()
 
@@ -113,7 +113,7 @@ class CheckersTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val df_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val df_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
     val df_load = df_repart.checkLoadBalancing(numberOfElements = df_repart.count())
 
     assert(df_load.rdd.getNumPartitions == 10)

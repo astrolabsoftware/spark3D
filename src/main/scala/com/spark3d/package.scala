@@ -46,8 +46,8 @@ package object spark3d {
       *   i.e. the code will try to guess something.
       * @return Input DataFrame plus an additional column `partition_id`.
       */
-    def addSPartitioning(options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
-      Repartitioning.addSPartitioning(df, options, numPartitions)
+    def prePartition(options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
+      Repartitioning.prePartition(df, options, numPartitions)
     }
 
     /**
@@ -83,7 +83,7 @@ package object spark3d {
       *     "colnames" -> "Z_COSMO,RA,DEC",
       *     "coordSys" -> "spherical",
       *     "gridtype" -> "LINEARONIONGRID")
-      * > val dfExt = df.addSPartitioning(options, 3, true)
+      * > val dfExt = df.prePartition(options, 3, true)
       * > dfExt.show()
       *  +-------------------+-------------------+------------------+------------+
       *  |            Z_COSMO|                 RA|               Dec|partition_id|

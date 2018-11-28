@@ -73,7 +73,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "cartesian",
       "gridtype" -> "octree")
 
-    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val dfp_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     val queryObject = 0.2::0.2::0.2::Nil
 
@@ -104,7 +104,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "cartesian",
       "gridtype" -> "octree")
 
-    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val dfp_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     val queryObject = 0.2::0.2::0.2::Nil
 
@@ -133,7 +133,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val dfp_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     val queryObject = 0.0::0.0::0.0::Nil
 
@@ -286,7 +286,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "cartesian",
       "gridtype" -> "octree")
 
-    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val dfp_repart = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     val windowCoord = List(1.0, 1.0, 1.0, 2.0)
     val windowType = "sphere"

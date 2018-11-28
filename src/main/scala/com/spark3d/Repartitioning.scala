@@ -55,7 +55,7 @@ object Repartitioning {
     *   i.e. the number of partitions of the input DF.
     * @return Input DataFrame plus an additional column `partition_id`.
     */
-  def addSPartitioning(df : DataFrame, options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
+  def prePartition(df : DataFrame, options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
 
     // Change the number of partitions if wanted
     val numOfPartitions = numPartitions match {

@@ -19,6 +19,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import com.astrolabsoftware.spark3d._
 import com.astrolabsoftware.spark3d.Queries.KNN
+import com.astrolabsoftware.spark3d.Queries.windowQuery
 
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.SparkSession
@@ -55,7 +56,8 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
 
   val fn_cart = "src/test/resources/cartesian_spheres.fits"
   val fn_sphe = "src/test/resources/astro_obs.fits"
-  val fn_sphe_manual = "src/test/resources/cartesian_spheres_manual_knn.csv"
+  val fn_sphe_manual_knn = "src/test/resources/cartesian_spheres_manual_knn.csv"
+  val fn_sphe_manual = "src/test/resources/cartesian_spheres_manual.csv"
 
   test("Can you find the K nearest neighbours (cartesian + no unique)?") {
     val spark2 = spark
@@ -88,7 +90,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     // assert(knnEff.map(x=>x.center.getCoordinate).distinct.size == 5000)
   }
 
-  test("Can you find the K nearest neighbours (unique vs no unique)?") {
+  test("KNN: Can you find the K nearest neighbours (unique vs no unique)?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -117,7 +119,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     assert(knnRepartNoUnique.select("x").collect().map(x => x.getDouble(0)).sum == knnRepartUnique.select("x").collect().map(x => x.getDouble(0)).sum)
   }
 
-  test("Can you find the K nearest neighbours (spherical)?") {
+  test("KNN: Can you find the K nearest neighbours (spherical)?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -148,7 +150,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     // assert(knnEff.map(x=>x.center.getCoordinate).distinct.size == 5000)
   }
 
-  test("Do you have the correct behaviour if K=0?") {
+  test("KNN: Do you have the correct behaviour if K=0?") {
 
     val spark2 = spark
     import spark2.implicits._
@@ -164,7 +166,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     assert(knn.count == 0)
   }
 
-  test("Can you catch a wrong DF in input?") {
+  test("KNN: Can you catch a wrong DF in input?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -180,7 +182,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     assert(exception.getMessage.contains("Input DataFrame must have 3 columns to perform KNN"))
   }
 
-  test("Can you catch a wrong coordSys?") {
+  test("KNN: Can you catch a wrong coordSys?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -196,7 +198,7 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     assert(exception.getMessage.contains("Coordinate system not understood!"))
   }
 
-  test("Can you take Float as input?") {
+  test("KNN: Can you take Float as input?") {
     val spark2 = spark
     import spark2.implicits._
 
@@ -211,19 +213,152 @@ class QueriesTest extends FunSuite with BeforeAndAfterAll {
     assert(knn.count == 10)
   }
 
-  test("Can you take Integer as input?") {
+  test("KNN: Can you take Integer as input?") {
     val spark2 = spark
     import spark2.implicits._
 
     val df = spark.read.format("csv")
       .option("inferSchema", true)
       .option("header", true)
-      .load(fn_sphe_manual)
+      .load(fn_sphe_manual_knn)
 
     val queryObject = List(0.2, 0.2, 0.2)
 
     val knn = KNN(df.select(col("x").cast("integer"), col("y").cast("integer"), col("z").cast("integer")), queryObject, 2, "cartesian", false)
 
     assert(knn.count == 2)
+  }
+
+  test("WindowQuery: Can you perform a window query (point-like)?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(1.0, 1.0, 1.0)
+    val windowType = "point"
+    val coordSys = "cartesian"
+
+    val dfEnv = windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+
+    assert(dfEnv.count == 2)
+  }
+
+  test("WindowQuery: Can you perform a window query (shell-like)?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(1.0, 1.0, 1.0, 0.0, 2.0)
+    val windowType = "shell"
+    val coordSys = "cartesian"
+
+    val dfEnv = windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+
+    assert(dfEnv.count == 3)
+  }
+
+  test("WindowQuery: Can you perform a window query (sphere-like)?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(1.0, 1.0, 1.0, 2.0)
+    val windowType = "sphere"
+    val coordSys = "cartesian"
+
+    val dfEnv = windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+
+    assert(dfEnv.count == 3)
+  }
+
+  test("WindowQuery: Can you perform a window query (sphere-like + repartitioning)?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val options = Map(
+      "geometry" -> "points",
+      "colnames" -> "x,y,z",
+      "coordSys" -> "cartesian",
+      "gridtype" -> "octree")
+
+    val dfp_repart = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+
+    val windowCoord = List(1.0, 1.0, 1.0, 2.0)
+    val windowType = "sphere"
+    val coordSys = "cartesian"
+
+    val dfEnv = windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+    val dfEnv_repart = windowQuery(dfp_repart.select("x", "y", "z"), windowType, windowCoord, coordSys)
+
+    assert(dfEnv_repart.count == 3)
+    assert(dfEnv.select("x").collect().map(x => x.getDouble(0)).sum == dfEnv_repart.select("x").collect().map(x => x.getDouble(0)).sum)
+  }
+
+  test("WindowQuery: Can you perform a window query (box-like)?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0)
+    val windowType = "box"
+    val coordSys = "cartesian"
+
+    val dfEnv = windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+
+    assert(dfEnv.count == 2)
+  }
+
+  test("WindowQuery: Can you check wrong windowType for window query?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0)
+    val windowType = "toto"
+    val coordSys = "cartesian"
+
+    val exception = intercept[AssertionError] {
+      windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+    }
+    assert(exception.getMessage.contains("windowType not understood!"))
+  }
+
+  test("WindowQuery: Can you check input box can take only cartesian coordinates?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0)
+    val windowType = "box"
+    val coordSys = "spherical"
+
+    val exception = intercept[AssertionError] {
+      windowQuery(df.select("x", "y", "z"), windowType, windowCoord, coordSys)
+    }
+    assert(exception.getMessage.contains("Input Box coordinates must have cartesian coordinate!"))
+  }
+
+  test("WindowQuery: Can you check input DataFrame has 3 columns for window Query?") {
+    val df = spark.read.format("csv")
+      .option("inferSchema", true)
+      .option("header", true)
+      .load(fn_sphe_manual)
+
+    val windowCoord = List(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0)
+    val windowType = "box"
+    val coordSys = "cartesian"
+
+    val exception = intercept[AssertionError] {
+      windowQuery(df, windowType, windowCoord, coordSys)
+    }
+    assert(exception.getMessage.contains("Input DataFrame must have 3 columns to perform window query"))
   }
 }

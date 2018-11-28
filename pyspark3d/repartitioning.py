@@ -19,7 +19,7 @@ from pyspark3d import get_spark_context
 
 from typing import Dict
 
-def addSPartitioning(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-1):
+def prePartition(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-1):
     """Add a DataFrame column describing the partitioning.
 
     This method allows to use a custom partitioner (SpatialPartitioner).
@@ -65,7 +65,7 @@ def addSPartitioning(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-
     ...     "gridtype": "onion"}
 
     Add a column containing the partitioning (Onion)
-    >>> df_colid = addSPartitioning(df, options, 10)
+    >>> df_colid = prePartition(df, options, 10)
     >>> print(df_colid.select("partition_id").distinct().count())
     10
 
@@ -75,11 +75,11 @@ def addSPartitioning(df: DataFrame, options: Dict={"": ""}, numPartitions: int=-
     ...     "colnames": "Z_COSMO,RA,DEC",
     ...     "coordSys": "spherical",
     ...     "gridtype": "current"}
-    >>> df_colid = addSPartitioning(df, options)
+    >>> df_colid = prePartition(df, options)
     >>> assert(df_colid.select("partition_id").distinct().count() == df.rdd.getNumPartitions())
     """
     prefix = "com.astrolabsoftware.spark3d"
-    scalapath = "{}.Repartitioning.addSPartitioning".format(prefix)
+    scalapath = "{}.Repartitioning.prePartition".format(prefix)
     scalaclass = load_from_jvm(scalapath)
 
     # To convert python dic to Scala Map
@@ -136,7 +136,7 @@ def repartitionByCol(df: DataFrame, colname: str, preLabeled: bool, numPartition
     ...     "gridtype": "onion"}
 
     Add a column containing the partitioning (Onion)
-    >>> df_colid = addSPartitioning(df, options, 10)
+    >>> df_colid = prePartition(df, options, 10)
     >>> print(df_colid.select("partition_id").distinct().count())
     10
 

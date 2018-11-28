@@ -19,7 +19,7 @@ You might noticed the DataFrame API does not expose many things to repartition y
 
 The partitioning of a DataFrame is done in two steps.
 
-- First we create a custom partitioner, that is an object which associates each object in the dataset with a partition number. Once this partitioner is known, we add a DataFrame column with the new partition ID (`addSPartitioning`).
+- First we create a custom partitioner, that is an object which associates each object in the dataset with a partition number. Once this partitioner is known, we add a DataFrame column with the new partition ID (`prePartition`).
 - Second we trigger the partitioning based on this new column (`repartitionByCol`) using a simple `KeyPartitioner`.
 
 Note that partitioning by a DataFrame column is similar to indexing a column in a relational database.
@@ -38,7 +38,7 @@ In addition, there is a simple `KeyPartitioner` available in case you bring your
 In the following example, we load 3D data, and we re-partition it with the octree partitioning (note that in practce you can have metadata in addition to the 3 coordinates):
 
 ```python
-from pyspark3d.repartitioning import addSPartitioning
+from pyspark3d.repartitioning import prePartition
 from pyspark3d.repartitioning import repartitionByCol
 
 # Load data
@@ -66,7 +66,7 @@ options = {
 
 # Add a column containing the future partition ID.
 # Note that no shuffle has been done yet.
-df_colid = addSPartitioning(df, options, numPartitions=8)
+df_colid = prePartition(df, options, numPartitions=8)
 
 df_colid.show(5)
 	+----------+-----------+----------+------------+
@@ -155,10 +155,10 @@ def normPartitioner(x, y, z):
 	"""
 	# Build vector of norms
 	norm = np.sqrt(x**2 + y**2 + z**2)
-	
+
 	# Condition on the norm value
 	cond = 87
-	
+
 	# Flag values based on condition
 	ret = np.ones_like(norm)
 	ret[norm <= cond] = 0
@@ -236,8 +236,8 @@ Note however that the execution time will be longer since the routine needs to m
 
 ### How is spark3D `df.repartitionByCol` different from Apache Spark `df.repartitionByRange` or `df.orderBy`?
 
-- `df.repartitionByRange` returns a `DataFrame` partitioned by the specified column(s). 
-- `df.orderBy` returns a `DataFrame` partitioned and sorted by the specified column(s). 
+- `df.repartitionByRange` returns a `DataFrame` partitioned by the specified column(s).
+- `df.orderBy` returns a `DataFrame` partitioned and sorted by the specified column(s).
 
 
 A major problem of both is there is no guarantee to always get the same final partitioning. In other words, they are non-deterministic. See for example [SPARK-26024](https://issues.apache.org/jira/browse/SPARK-26024). For performance reasons they use sampling to estimate the ranges (with default size of 100). Hence, the output may not be consistent, since sampling can return different values.

@@ -26,7 +26,7 @@ import org.apache.log4j.Level
 import org.apache.log4j.Logger
 
 import com.astrolabsoftware.spark3d.Repartitioning.repartitionByCol
-import com.astrolabsoftware.spark3d.Repartitioning.addSPartitioning
+import com.astrolabsoftware.spark3d.Repartitioning.prePartition
 
 // for implicits
 import com.astrolabsoftware.spark3d._
@@ -85,7 +85,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp2 = prePartition(df, options, 10)
     val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true)
     val p = dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0)
 
@@ -108,7 +108,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "octree")
 
-    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp2 = prePartition(df, options, 10)
     val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true)
 
     assert(dfp3.rdd.getNumPartitions == 8)
@@ -130,7 +130,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "octree")
 
-    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp2 = prePartition(df, options, 10)
     val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = false)
 
     assert(dfp3.rdd.getNumPartitions == 8)
@@ -151,7 +151,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "cartesian",
       "gridtype" -> "octree")
 
-    val dfp2 = addSPartitioning(df, options, 10)
+    val dfp2 = prePartition(df, options, 10)
     val dfp3 = repartitionByCol(dfp2, "partition_id", preLabeled = true, numPartitions = 8)
 
     assert(dfp3.rdd.getNumPartitions == 8)
@@ -187,7 +187,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "onion")
 
-    val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true)
+    val dfp3 = df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true)
 
     assert(dfp3.rdd.getNumPartitions == 10)
     assert(dfp3.mapPartitions(part => Iterator(part.size)).take(1).toList(0) == 2104)
@@ -207,7 +207,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, -4)
+      df.prePartition(options, -4)
     }
     assert(exception.getMessage.contains("The number of partitions must be strictly greater than zero!"))
   }
@@ -226,7 +226,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10).repartitionByCol("partition_id", preLabeled = true, numPartitions = -4)
+      df.prePartition(options, 10).repartitionByCol("partition_id", preLabeled = true, numPartitions = -4)
     }
     assert(exception.getMessage.contains("The number of partitions must be strictly greater than zero!"))
   }
@@ -245,7 +245,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10)
+      df.prePartition(options, 10)
     }
     assert(exception.getMessage.contains("Coordinate system not understood!"))
   }
@@ -264,7 +264,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "onion")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10)
+      df.prePartition(options, 10)
     }
     assert(exception.getMessage.contains("Geometry not understood!"))
   }
@@ -283,7 +283,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "gridtype" -> "quadtree")
 
     val exception = intercept[AssertionError] {
-      df.addSPartitioning(options, 10)
+      df.prePartition(options, 10)
     }
     assert(exception.getMessage.contains("Gridtype not understood!"))
   }
@@ -301,7 +301,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
       "coordSys" -> "spherical",
       "gridtype" -> "current")
 
-    val dfp = df.addSPartitioning(options)
+    val dfp = df.prePartition(options)
 
     assert(dfp.select("partition_id").distinct().collect().size == 1)
   }
@@ -320,7 +320,7 @@ class RepartitioningTest extends FunSuite with BeforeAndAfterAll {
   //     "coordSys" -> "cartesian",
   //     "gridtype" -> "octree")
   //
-  //   val dfp3 = df.addSPartitioning(options, 10).repartitionByCol("partition_id")
+  //   val dfp3 = df.prePartition(options, 10).repartitionByCol("partition_id")
   //
   //   val partitions = dfp3.mapPartitions(
   //     iter => Array(iter.size).iterator, true).collect()

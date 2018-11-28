@@ -19,7 +19,7 @@ import pylab as pl
 from pyspark3d import set_spark_log_level
 from pyspark3d.visualisation import scatter3d_mpl, sph2cart
 from pyspark3d.queries import knn
-from pyspark3d.repartitioning import addSPartitioning, repartitionByCol
+from pyspark3d.repartitioning import prePartition, repartitionByCol
 
 import argparse
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
            "coordSys": coordSys,
            "gridtype": gridtype}
 
-        df_colid = addSPartitioning(df, options, npart)
+        df_colid = prePartition(df, options, npart)
         df = repartitionByCol(df_colid, "partition_id", True, npart)
     else:
         fnout = "knn_without_repartitioning.png"

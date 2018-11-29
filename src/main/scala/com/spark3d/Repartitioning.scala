@@ -99,6 +99,7 @@ object Repartitioning {
 
         // Column names must be comma-separated.
         val colnames : Array[String] = options("colnames").split(",")
+        val colIndex = colnames.map(x => df.columns.indexOf(x))
 
         val P = new Partitioners(df, options)
         val partitioner = P.get(numOfPartitions)
@@ -114,7 +115,7 @@ object Repartitioning {
               while (iter.hasNext) {
                 val data = iter.next
                 // val p = new Point3D(data._1, data._2, data._3, isSpherical)
-                result ++= List(((data.getDouble(0), data.getDouble(1), data.getDouble(2), partitioner.placePoints(data.getDouble(0), data.getDouble(1), data.getDouble(2), isSpherical))))
+                result ++= List(((data.getDouble(colIndex(0)), data.getDouble(colIndex(1)), data.getDouble(colIndex(2)), partitioner.placePoints(data.getDouble(0), data.getDouble(1), data.getDouble(2), isSpherical))))
               }
               result.iterator
             }

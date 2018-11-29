@@ -101,6 +101,9 @@ object Repartitioning {
         val colnames : Array[String] = options("colnames").split(",")
         val colIndex = colnames.map(x => df.columns.indexOf(x))
 
+        // Assume inputs have the same type
+        val inputType = df.dtypes(0)._2
+
         val P = new Partitioners(df, options)
         val partitioner = P.get(numOfPartitions)
 
@@ -115,7 +118,36 @@ object Repartitioning {
               while (iter.hasNext) {
                 val data = iter.next
                 // val p = new Point3D(data._1, data._2, data._3, isSpherical)
-                result ++= List(((data.getDouble(colIndex(0)), data.getDouble(colIndex(1)), data.getDouble(colIndex(2)), partitioner.placePoints(data.getDouble(0), data.getDouble(1), data.getDouble(2), isSpherical))))
+                val myRow = inputType match {
+                  case "DoubleType" => List(((
+                    data.getDouble(colIndex(0)),
+                    data.getDouble(colIndex(1)),
+                    data.getDouble(colIndex(2)),
+                    partitioner.placePoints(
+                      data.getDouble(colIndex(0)),
+                      data.getDouble(colIndex(1)),
+                      data.getDouble(colIndex(2)),
+                      isSpherical))))
+                  case "FloatType" => List(((
+                    data.getFloat(colIndex(0)).toDouble,
+                    data.getFloat(colIndex(1)).toDouble,
+                    data.getFloat(colIndex(2)).toDouble,
+                    partitioner.placePoints(
+                      data.getFloat(colIndex(0)).toDouble,
+                      data.getFloat(colIndex(1)).toDouble,
+                      data.getFloat(colIndex(2)).toDouble,
+                      isSpherical))))
+                  case "IntegerType" => List(((
+                    data.getInt(colIndex(0)).toDouble,
+                    data.getInt(colIndex(1)).toDouble,
+                    data.getInt(colIndex(2)).toDouble,
+                    partitioner.placePoints(
+                      data.getInt(colIndex(0)).toDouble,
+                      data.getInt(colIndex(1)).toDouble,
+                      data.getInt(colIndex(2)).toDouble,
+                      isSpherical))))
+                }
+                result ++= myRow
               }
               result.iterator
             }

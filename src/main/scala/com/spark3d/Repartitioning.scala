@@ -15,15 +15,21 @@
  */
 package com.astrolabsoftware.spark3d
 
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.functions.spark_partition_id
+
+
+import scala.collection.mutable.{HashSet, ListBuffer}
 
 import com.astrolabsoftware.spark3d.Partitioners
 import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 /**
   * Main object containing methods to repartition DataFrames.
@@ -101,16 +107,31 @@ object Repartitioning {
         val dfExt = geometry match {
           case "points" => {
             // UDF for the repartitioning
-            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+            // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
 
-            df.withColumn("partition_id",
-              placePointsUDF(
-                col(colnames(0)).cast("double"),
-                col(colnames(1)).cast("double"),
-                col(colnames(2)).cast("double"),
-                lit(isSpherical)
-              )
-            )
+            def mapElements(iter: Iterator[Row]) : Iterator[(Double, Double, Double, Int)] = {
+              val result = ListBuffer[(Double, Double, Double, Int)]()
+              while (iter.hasNext) {
+                val data = iter.next
+                // val p = new Point3D(data._1, data._2, data._3, isSpherical)
+                result ++= List(((data.getDouble(0), data.getDouble(1), data.getDouble(2), partitioner.placePoints(data.getDouble(0), data.getDouble(1), data.getDouble(2), isSpherical))))
+              }
+              result.iterator
+            }
+
+            // df.withColumn("partition_id",
+            //   placePointsUDF(
+            //     col(colnames(0)).cast("double"),
+            //     col(colnames(1)).cast("double"),
+            //     col(colnames(2)).cast("double"),
+            //     lit(isSpherical)
+            //   )
+            // )
+            val locSpark = SparkSession.getActiveSession.get
+            import locSpark.implicits._
+            df.rdd.mapPartitions(mapElements).toDF(df.columns(0), df.columns(1), df.columns(2), "partition_id")
+            // Array(df.columns(0), df.columns(1), df.columns(2), "partition_id")
+            //df.schema.add("partition_id", IntegerType)
           }
           case "spheres" => {
             // UDF for the repartitioning

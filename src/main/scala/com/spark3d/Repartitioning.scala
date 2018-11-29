@@ -109,39 +109,10 @@ object Repartitioning {
         val dfExt = geometry match {
           case "points" => {
             // UDF for the repartitioning
-            // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
-
-            def placePointsUDF(partitioner: SpatialPartitioner) = udf((c0: Double, c1: Double, c2: Double, isSpherical: Boolean) => {
-              val center = new Point3D(c0, c1, c2, isSpherical)
-              var containFlag : Boolean = false
-              val notIncludedID = partitioner.grids.size - 1
-              val result = HashSet.empty[Int]
-
-
-              // Associate the object with one shell
-              breakable {
-                for (pos <- 0 to partitioner.grids.size - 1) {
-                  val shell = partitioner.grids(pos)
-
-                  if (shell.intersects(center)) {
-                    result += pos
-                    containFlag = true
-                    break
-                  }
-                }
-              }
-
-              // Useless if Point3D
-              if (!containFlag) {
-                result += notIncludedID
-              }
-
-              // Return an iterator
-              result.toList(0)
-            })
+            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
 
             df.withColumn("partition_id",
-              placePointsUDF(partitioner)(
+              placePointsUDF(
                 col(colnames(0)).cast("double"),
                 col(colnames(1)).cast("double"),
                 col(colnames(2)).cast("double"),

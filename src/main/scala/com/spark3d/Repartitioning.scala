@@ -24,11 +24,13 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.functions.spark_partition_id
 
-
+import scala.reflect.runtime.universe._
 import scala.collection.mutable.{HashSet, ListBuffer}
+import scala.util.control.Breaks._
 
 import com.astrolabsoftware.spark3d.Partitioners
 import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
+import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 /**
@@ -107,10 +109,39 @@ object Repartitioning {
         val dfExt = geometry match {
           case "points" => {
             // UDF for the repartitioning
-            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+            // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+
+            def placePointsUDF(partitioner: SpatialPartitioner) = udf((c0: Double, c1: Double, c2: Double, isSpherical: Boolean) => {
+              val center = new Point3D(c0, c1, c2, isSpherical)
+              var containFlag : Boolean = false
+              val notIncludedID = partitioner.grids.size - 1
+              val result = HashSet.empty[Int]
+
+
+              // Associate the object with one shell
+              breakable {
+                for (pos <- 0 to partitioner.grids.size - 1) {
+                  val shell = partitioner.grids(pos)
+
+                  if (shell.intersects(center)) {
+                    result += pos
+                    containFlag = true
+                    break
+                  }
+                }
+              }
+
+              // Useless if Point3D
+              if (!containFlag) {
+                result += notIncludedID
+              }
+
+              // Return an iterator
+              result.toList(0)
+            })
 
             df.withColumn("partition_id",
-              placePointsUDF(
+              placePointsUDF(partitioner)(
                 col(colnames(0)).cast("double"),
                 col(colnames(1)).cast("double"),
                 col(colnames(2)).cast("double"),

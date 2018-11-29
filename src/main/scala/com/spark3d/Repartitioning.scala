@@ -102,7 +102,7 @@ object Repartitioning {
         val colIndex = colnames.map(x => df.columns.indexOf(x))
 
         // Assume inputs have the same type
-        val inputType = df.dtypes(0)._2
+        val inputType = df.dtypes(colIndex(0))._2
 
         val P = new Partitioners(df, options)
         val partitioner = P.get(numOfPartitions)

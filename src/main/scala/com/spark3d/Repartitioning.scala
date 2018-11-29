@@ -99,10 +99,6 @@ object Repartitioning {
 
         // Column names must be comma-separated.
         val colnames : Array[String] = options("colnames").split(",")
-        val colIndex = colnames.map(x => df.columns.indexOf(x))
-
-        // Assume inputs have the same type
-        val inputType = df.dtypes(colIndex(0))._2
 
         val P = new Partitioners(df, options)
         val partitioner = P.get(numOfPartitions)
@@ -111,60 +107,16 @@ object Repartitioning {
         val dfExt = geometry match {
           case "points" => {
             // UDF for the repartitioning
-            // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
 
-            def mapElements(iter: Iterator[Row]) : Iterator[(Double, Double, Double, Int)] = {
-              val result = ListBuffer[(Double, Double, Double, Int)]()
-              while (iter.hasNext) {
-                val data = iter.next
-                // val p = new Point3D(data._1, data._2, data._3, isSpherical)
-                val myRow = inputType match {
-                  case "DoubleType" => List(((
-                    data.getDouble(colIndex(0)),
-                    data.getDouble(colIndex(1)),
-                    data.getDouble(colIndex(2)),
-                    partitioner.placePoints(
-                      data.getDouble(colIndex(0)),
-                      data.getDouble(colIndex(1)),
-                      data.getDouble(colIndex(2)),
-                      isSpherical))))
-                  case "FloatType" => List(((
-                    data.getFloat(colIndex(0)).toDouble,
-                    data.getFloat(colIndex(1)).toDouble,
-                    data.getFloat(colIndex(2)).toDouble,
-                    partitioner.placePoints(
-                      data.getFloat(colIndex(0)).toDouble,
-                      data.getFloat(colIndex(1)).toDouble,
-                      data.getFloat(colIndex(2)).toDouble,
-                      isSpherical))))
-                  case "IntegerType" => List(((
-                    data.getInt(colIndex(0)).toDouble,
-                    data.getInt(colIndex(1)).toDouble,
-                    data.getInt(colIndex(2)).toDouble,
-                    partitioner.placePoints(
-                      data.getInt(colIndex(0)).toDouble,
-                      data.getInt(colIndex(1)).toDouble,
-                      data.getInt(colIndex(2)).toDouble,
-                      isSpherical))))
-                }
-                result ++= myRow
-              }
-              result.iterator
-            }
-
-            // df.withColumn("partition_id",
-            //   placePointsUDF(
-            //     col(colnames(0)).cast("double"),
-            //     col(colnames(1)).cast("double"),
-            //     col(colnames(2)).cast("double"),
-            //     lit(isSpherical)
-            //   )
-            // )
-            val locSpark = SparkSession.getActiveSession.get
-            import locSpark.implicits._
-            df.rdd.mapPartitions(mapElements).toDF(df.columns(0), df.columns(1), df.columns(2), "partition_id")
-            // Array(df.columns(0), df.columns(1), df.columns(2), "partition_id")
-            //df.schema.add("partition_id", IntegerType)
+            df.withColumn("partition_id",
+              placePointsUDF(
+                col(colnames(0)).cast("double"),
+                col(colnames(1)).cast("double"),
+                col(colnames(2)).cast("double"),
+                lit(isSpherical)
+              )
+            )
           }
           case "spheres" => {
             // UDF for the repartitioning

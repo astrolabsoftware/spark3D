@@ -74,9 +74,10 @@ abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner wit
     * Gets the partitions which are the neighbors of the partitions which contain the input object.
     *
     * @param spatialObject input object for which the neighbors are to be found
+    * @param inclusive If true, includes the node of the spatialObject as well. Default is false.
     * @return list of Tuple of neighbor partitions and their index/partition IDs
     */
-  def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = ???
+  def getNeighborNodes[T <: Shape3D](spatialObject: T, inclusive: Boolean = false): List[Tuple2[Int, Shape3D]] = ???
 
   /**
     * Gets the partitions which are the neighbors to the input partition. Useful when getting

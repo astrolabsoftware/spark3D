@@ -15,23 +15,15 @@
  */
 package com.astrolabsoftware.spark3d
 
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.functions.spark_partition_id
-
-import scala.reflect.runtime.universe._
-import scala.collection.mutable.{HashSet, ListBuffer}
-import scala.util.control.Breaks._
 
 import com.astrolabsoftware.spark3d.Partitioners
 import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
-import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
-import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 /**
   * Main object containing methods to repartition DataFrames.

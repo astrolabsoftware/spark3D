@@ -34,27 +34,39 @@ In addition, there is a simple `KeyPartitioner` available in case you bring your
 
 ### An example: Octree partitioning
 
-In the following example, we load 3D data, and we re-partition it with the octree partitioning (note that in practce you can have metadata in addition to the 3 coordinates):
+In the following example, we load 3D data, and we re-partition it with the octree partitioning (note that in practice you can have metadata in addition to the 3 coordinates):
 
 ```scala
 // spark3D implicits
 import com.astrolabsoftware.spark3d._
 
 // Load data
-val df = spark.read.format("fits")
-	.option("hdu", 1)
-	.load("src/test/resources/cartesian_points.fits")
+val df = spark.read.format("csv")
+	.option("header", true)
+	.option("inferSchema", true)
+	.load("src/test/resources/cartesian_spheres_manual.csv")
 
-df.show(5)
-	+----------+-----------+----------+
-	|         x|          y|         z|
-	+----------+-----------+----------+
-	| 0.5488135| 0.39217296|0.36925632|
-	|0.71518934|0.041156586|  0.211326|
-	|0.60276335| 0.92330056|0.47690478|
-	| 0.5448832| 0.40623498|0.08223436|
-	| 0.4236548|  0.9442822|0.23765936|
-	+----------+-----------+----------+
+df.show()
+	+---+---+---+------+
+	|  x|  y|  z|radius|
+	+---+---+---+------+
+	|1.0|1.0|1.0|   0.8|
+	|1.0|1.0|1.0|   0.5|
+	|3.0|1.0|1.0|   0.8|
+	|3.0|1.0|1.0|   0.5|
+	|3.0|3.0|1.0|   0.8|
+	|3.0|3.0|1.0|   0.5|
+	|1.0|3.0|1.0|   0.8|
+	|1.0|3.0|1.0|   0.5|
+	|1.0|1.0|3.0|   0.8|
+	|1.0|1.0|3.0|   0.5|
+	|3.0|1.0|3.0|   0.8|
+	|3.0|1.0|3.0|   0.5|
+	|3.0|3.0|3.0|   0.8|
+	|3.0|3.0|3.0|   0.5|
+	|1.0|3.0|3.0|   0.8|
+	|2.0|2.0|2.0|   2.0|
+	+---+---+---+------+
 
 // Specify options.
 val options = Map(
@@ -67,30 +79,52 @@ val options = Map(
 // Note that no shuffle has been done yet.
 val df_colid = df.prePartition(options, numPartitions=8)
 
-df_colid.show(5)
-	+----------+-----------+----------+------------+
-	|         x|          y|         z|partition_id|
-	+----------+-----------+----------+------------+
-	| 0.5488135| 0.39217296|0.36925632|           7|
-	|0.71518934|0.041156586|  0.211326|           7|
-	|0.60276335| 0.92330056|0.47690478|           5|
-	| 0.5448832| 0.40623498|0.08223436|           7|
-	| 0.4236548|  0.9442822|0.23765936|           4|
-	+----------+-----------+----------+------------+
+df_colid.show()
+	+---+---+---+------+------------+
+	|  x|  y|  z|radius|partition_id|
+	+---+---+---+------+------------+
+	|1.0|1.0|1.0|   0.8|           6|
+	|1.0|1.0|1.0|   0.5|           6|
+	|3.0|1.0|1.0|   0.8|           7|
+	|3.0|1.0|1.0|   0.5|           7|
+	|3.0|3.0|1.0|   0.8|           5|
+	|3.0|3.0|1.0|   0.5|           5|
+	|1.0|3.0|1.0|   0.8|           4|
+	|1.0|3.0|1.0|   0.5|           4|
+	|1.0|1.0|3.0|   0.8|           2|
+	|1.0|1.0|3.0|   0.5|           2|
+	|3.0|1.0|3.0|   0.8|           3|
+	|3.0|1.0|3.0|   0.5|           3|
+	|3.0|3.0|3.0|   0.8|           1|
+	|3.0|3.0|3.0|   0.5|           1|
+	|1.0|3.0|3.0|   0.8|           0|
+	|2.0|2.0|2.0|   2.0|           1|
+	+---+---+---+------+------------+
 
 // Trigger the repartition
 val df_repart = df_colid.repartitionByCol("partition_id", preLabeled=true, numPartitions=8)
 
-df_repart.show(5)
-	+-----------+---------+----------+------------+
-	|          x|        y|         z|partition_id|
-	+-----------+---------+----------+------------+
-	| 0.45615032|0.9558897| 0.9961785|           0|
-	| 0.43703195|0.5811579|0.59632105|           0|
-	| 0.16130951|0.8325458|0.72905064|           0|
-	|  0.4686512|0.7746533| 0.8734174|           0|
-	|0.064147495|0.5454706|0.83992904|           0|
-	+-----------+---------+----------+------------+
+df_repart.show()
+	+---+---+---+------+------------+
+	|  x|  y|  z|radius|partition_id|
+	+---+---+---+------+------------+
+	|1.0|3.0|3.0|   0.8|           0|
+	|3.0|3.0|3.0|   0.8|           1|
+	|3.0|3.0|3.0|   0.5|           1|
+	|2.0|2.0|2.0|   2.0|           1|
+	|1.0|1.0|3.0|   0.8|           2|
+	|1.0|1.0|3.0|   0.5|           2|
+	|3.0|1.0|3.0|   0.8|           3|
+	|3.0|1.0|3.0|   0.5|           3|
+	|1.0|3.0|1.0|   0.8|           4|
+	|1.0|3.0|1.0|   0.5|           4|
+	|3.0|3.0|1.0|   0.8|           5|
+	|3.0|3.0|1.0|   0.5|           5|
+	|1.0|1.0|1.0|   0.8|           6|
+	|1.0|1.0|1.0|   0.5|           6|
+	|3.0|1.0|1.0|   0.8|           7|
+	|3.0|1.0|1.0|   0.5|           7|
+	+---+---+---+------+------------+
 ```
 
 `preLabeled` means the column containing the partition ID contains already numbers from 0 to `numPartitions - 1` (see below for the generic case).

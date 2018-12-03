@@ -25,6 +25,8 @@ import org.apache.spark.sql.functions.spark_partition_id
 import com.astrolabsoftware.spark3d.Partitioners
 import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
 
+import scala.collection.mutable.{HashSet, ListBuffer}
+
 /**
   * Main object containing methods to repartition DataFrames.
   * Unlike RDDs, Apache Spark Dataset & DataFrame cannot use custom partitioner.
@@ -100,17 +102,38 @@ object Repartitioning {
         // Add a column with the new partition indices
         val dfExt = geometry match {
           case "points" => {
-            // UDF for the repartitioning
-            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
 
-            df.withColumn("partition_id",
-              placePointsUDF(
-                col(colnames(0)).cast("double"),
-                col(colnames(1)).cast("double"),
-                col(colnames(2)).cast("double"),
-                lit(isSpherical)
-              )
-            )
+            def mapElements(iter: Iterator[(Double, Double, Double)]) : Iterator[(Double, Double, Double, Int)] = {
+              var res = ListBuffer[(Double, Double, Double, Int)]()
+              while (iter.hasNext) {
+                val cs = iter.next
+                res ++= List((cs._1, cs._2, cs._3, partitioner.placePoints(cs._1, cs._2, cs._3, isSpherical)))
+              }
+              res.iterator
+            }
+
+            val locSpark = SparkSession.getActiveSession.get
+            import locSpark.implicits._
+            val df_sub = df.select(
+              col(colnames(0)).cast("double"),
+              col(colnames(1)).cast("double"),
+              col(colnames(2)).cast("double"))
+              .rdd.map(x => (x.getDouble(0), x.getDouble(1), x.getDouble(2)))
+              .mapPartitions(mapElements)
+              .toDF(colnames(0), colnames(1), colnames(2), "partition_id")
+
+            df.join(df_sub, df_sub.columns, "left_semi")
+            // // UDF for the repartitioning
+            // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+            //
+            // df.withColumn("partition_id",
+            //   placePointsUDF(
+            //     col(colnames(0)).cast("double"),
+            //     col(colnames(1)).cast("double"),
+            //     col(colnames(2)).cast("double"),
+            //     lit(isSpherical)
+            //   )
+            // )
           }
           case "spheres" => {
             // UDF for the repartitioning

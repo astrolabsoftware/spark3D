@@ -1,3 +1,11 @@
+## 0.3.1
+
+- Introducing KNN + DataFrame API ([PR](https://github.com/astrolabsoftware/spark3D/pull/110))
+- Fix wrong ordering when using unique in KNN ([PR](https://github.com/astrolabsoftware/spark3D/pull/111))
+- Introducing Window Query + DataFrame API ([PR](https://github.com/astrolabsoftware/spark3D/pull/112))
+- Rename addSPartitioning -> prePartition ([PR](https://github.com/astrolabsoftware/spark3D/pull/113))
+- Accelerated partitioning (aborted and postponed) ([PR](https://github.com/astrolabsoftware/spark3D/pull/114))
+
 ## 0.3.0
 
 - Complete change of the interface ([PR](https://github.com/astrolabsoftware/spark3D/pull/108)). This includes:

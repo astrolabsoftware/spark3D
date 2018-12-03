@@ -42,7 +42,7 @@ Julien
 You can link spark3D to your project (either spark-shell or spark-submit) by specifying the coordinates:
 
 ```
-spark-submit --packages "com.github.astrolabsoftware:spark3d_2.11:0.3.0"
+spark-submit --packages "com.github.astrolabsoftware:spark3d_2.11:0.3.1"
 ```
 
 ### Python

@@ -122,7 +122,7 @@ object Repartitioning {
               .mapPartitions(mapElements)
               .toDF(colnames(0), colnames(1), colnames(2), "partition_id")
 
-            df.join(df_sub, Seq(colnames(0), colnames(1), colnames(2)), "left")
+            // df.join(df_sub, Seq(colnames(0), colnames(1), colnames(2)), "left")
             // // UDF for the repartitioning
             // val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
             //

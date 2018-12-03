@@ -134,6 +134,7 @@ object Repartitioning {
             //     lit(isSpherical)
             //   )
             // )
+            df_sub
           }
           case "spheres" => {
             // UDF for the repartitioning

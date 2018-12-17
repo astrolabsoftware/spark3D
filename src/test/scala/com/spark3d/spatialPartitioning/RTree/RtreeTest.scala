@@ -21,7 +21,7 @@ import com.astrolabsoftware.spark3d.spatialPartitioning.Rtree._
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.collection.mutable.ListBuffer
 
-class RtreeTest extends FunSuite with BeforeAndAfterAll {
+class RTreeTest extends FunSuite with BeforeAndAfterAll {
 
   var tree_space: BoxEnvelope = _
   var valid_tree: BaseRTree = _

@@ -26,7 +26,7 @@ import scala.math._
   * three axes. On creating the cube Envelope initially, the min's and max's are assigned automatically.
   *
   * Default constructor is kept private to avoid creating an instance of the cube Envelope class without initialising
-  * the min/max coordinates along axes incorrectly.
+  * the min/max coordinates along axes correctly.
   *
   * @param minX minimum coordinate of cube Envelope along X-axis
   * @param maxX maximum coordinate of cube Envelope along X-axis

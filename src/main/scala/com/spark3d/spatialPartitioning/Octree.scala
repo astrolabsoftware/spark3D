@@ -403,8 +403,8 @@ class Octree(
     * @param queryNode the box of the the input node to avoid passing same node as neighbor
     * @return list of lead neghbors and their index/partition ID's
     */
-  def getLeafNeighbors(queryNode: BoxEnvelope): List[Tuple2[Int, BoxEnvelope]] = {
-    val leafNeighbors = new ListBuffer[Tuple2[Int, BoxEnvelope]]
+  def getLeafNeighbors(queryNode: BoxEnvelope): List[(Int, BoxEnvelope)] = {
+    val leafNeighbors = new ListBuffer[(Int, BoxEnvelope)]
     if (parentNode != null){
       for (neighbor <- parentNode.children) {
         if (!neighbor.box.isEqual(queryNode)) {

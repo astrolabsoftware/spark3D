@@ -175,7 +175,7 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
   }
 
   /**
-    * We are mapping a level above the leaf nodes to a partition.
+    * We are mapping the parents of the leaf nodes to a partition.
     */
   def getGrids(): List[BoxEnvelope] = {
     val leafNodes = ListBuffer[Node]()
@@ -190,13 +190,11 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     * @param func anonymous function to decide if the desired action should be performed on the this
     *             node or not
     * @param data a ListBuffer in which the desired data should be placed when the funct() == true
-    * @param actionID -3 => get the bounding box of the node if the node and the query object
+    * @param actionID -1 => get the node if the node and the query object
     *                         intersect
-    *                 -2 => collect data in the all nodes
-    *                 -1 => get the bounding box of the node
     *                 x, where x > 0 => assign partitionID to the leaf node
     */
-  private def bfsTraverse(func: Node => Boolean, data: ListBuffer[BoxEnvelope],
+  private def bfsTraverse(func: Node => Boolean, data: ListBuffer[Node],
                           actionID: Int, obj: BoxEnvelope): Unit = {
 
     // create a queue
@@ -207,17 +205,11 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     while (!que.isEmpty) {
       val current = que.dequeue
       if (func(current)) {
-        if (actionID == -3) {
+        if (actionID == -1) {
           if (current.envelope.intersects(obj) ||
             obj.intersects(current.envelope)) {
-            data += current.envelope
+            data += current
           }
-        } else if (actionID == -2) {
-          // get all the elements in the tree
-          data ++= current.children.map(x => x.envelope)
-        } else if (actionID == -1) {
-          // add this to the leaf node
-          data += current.envelope
         } else {
           // assign the partitionID for this node
           current.envelope.indexID = partitionID
@@ -264,12 +256,39 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
     * @param obj Input object to be checked for the match
     * @return list of Envelopes of the leafNodes which match the conditions
     */
-  def getMatchedLeafNodes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
-    val matchedLeaves = new ListBuffer[BoxEnvelope]
+  def getMatchedLeafNodes(obj: BoxEnvelope): ListBuffer[Node] = {
+    val matchedLeaves = new ListBuffer[Node]
     val traverseFunct: Node => Boolean = {
       node => node.isInstanceOf[LeafNode]
     }
-    bfsTraverse(traverseFunct, matchedLeaves, -3, obj)
+    bfsTraverse(traverseFunct, matchedLeaves, -1, obj)
     matchedLeaves
+  }
+
+  def getMatchedLeafNodeBoxes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
+    val matchedLeafNodes = getMatchedLeafNodeBoxes(obj)
+    matchedLeafNodes.map(_.getEnvelope)
+  }
+
+  /**
+    * Get the neighbors of this node. Neighbors here are //ToDo: Complete the definition
+    *
+    * @param queryNode the box of the the input node to avoid passing same node as neighbor
+    * @return list of lead neghbors and their index/partition ID's
+    */
+  def getLeafNeighbors(queryNode: BoxEnvelope): List[(Int, BoxEnvelope)] = {
+    val leafNeighbors = new ListBuffer[(Int, BoxEnvelope)]
+    if (parentNode != null){
+      for (neighbor <- parentNode.children) {
+        if (!neighbor.box.isEqual(queryNode)) {
+          if (neighbor.isLeaf) {
+            leafNeighbors += new Tuple2(neighbor.box.indexID, neighbor.box)
+          } else {
+            leafNeighbors ++= neighbor.children(0).getLeafNeighbors(queryNode)
+          }
+        }
+      }
+    }
+    leafNeighbors.toList.distinct
   }
 }

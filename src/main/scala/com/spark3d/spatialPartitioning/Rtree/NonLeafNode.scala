@@ -23,7 +23,7 @@ class NonLeafNode (var children: ListBuffer[Node],
     boxEnv.maxY = Int.MinValue
     boxEnv.minZ = Int.MaxValue
     boxEnv.maxZ = Int.MinValue
-    val aa = children.foldLeft(boxEnv)(
+    val boundary = children.foldLeft(boxEnv)(
       (acc, child) => {
         if (acc.minX > child.envelope.minX) {
           acc.minX = child.envelope.minX
@@ -46,7 +46,7 @@ class NonLeafNode (var children: ListBuffer[Node],
         acc
       }
     )
-    aa
+    boundary
   }
 
 }

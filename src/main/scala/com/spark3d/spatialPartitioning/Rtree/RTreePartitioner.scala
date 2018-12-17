@@ -39,13 +39,13 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
     * @param spatialObject : (T<:Shape3D)
     *   Shape3D instance (or any extension) representing objects to put on
     *   the grid.
-    * @return (Iterator[Tuple2[Int, T]) Iterable over a Tuple
+    * @return (Iterator[(Int, T)) Iterable over a Tuple
     *         *   of (Int, T) where Int is the partition index, and T the input object.
     *
     */
-  override def placeObject[T <: Shape3D](spatialObject: T): Iterator[Tuple2[Int, T]] = {
+  override def placeObject[T <: Shape3D](spatialObject: T): Iterator[(Int, T)] = {
 
-    val result = HashSet.empty[Tuple2[Int, T]]
+    val result = HashSet.empty[(Int, T)]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
     matchedPartitions ++= rtree.getMatchedLeafNodes(spatialObject.getEnvelope)
     for(partition <- matchedPartitions) {
@@ -60,8 +60,11 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
     * @param spatialObject input object for which the containment is to be found
     * @return list of Tuple of containing partitions and their index/partition ID's
     */
-  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
-    null
+  override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[(Int, Shape3D)] = {
+    var partitionNodes = new ListBuffer[Shape3D]
+    partitionNodes ++= rtree.getMatchedLeafNodeBoxes(spatialObject.getEnvelope)
+    val partitionNodesIDs = partitionNodes.map(x => new Tuple2(x.getEnvelope.indexID, x))
+    partitionNodesIDs.toList
   }
 
   /**
@@ -70,8 +73,22 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
     * @param spatialObject input object for which the neighbors are to be found
     * @return list of Tuple of neighbor partitions and their index/partition ID's
     */
-  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
-    null
+  override def getNeighborNodes[T <: Shape3D](spatialObject: T): List[(Int, Shape3D)] = {
+    val neighborNodes  = new ListBuffer[(Int, Shape3D)]
+    val partitionNodes = rtree.getMatchedLeafNodes(spatialObject.getEnvelope)
+    for (partitionNode <- partitionNodes) {
+      val parentNode = partitionNode.parent
+      val partitionNodePos = parentNode.children.indexOf(partitionNode)
+      if (partitionNodePos > 0) {
+        val node = parentNode.children(partitionNodePos - 1)
+        neighborNodes += new Tuple2(node.envelope.indexID, node.envelope)
+      }
+      if (partitionNodePos < parentNode.children.size - 1) {
+        val node = partitionNode.parent.children(partitionNodePos + 1)
+        neighborNodes += new Tuple2(node.envelope.indexID, node.envelope)
+      }
+    }
+    neighborNodes.toList
   }
 
   /**
@@ -82,7 +99,7 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
     * @param containingNodeID The index/partition ID of the containingNode
     * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
     */
-  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
+  override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[(Int, Shape3D)] = {
     null
   }
 

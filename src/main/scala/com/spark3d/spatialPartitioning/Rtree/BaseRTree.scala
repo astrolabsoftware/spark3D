@@ -266,8 +266,8 @@ class BaseRTree (private val maxNodeCapacity: Int = 10){
   }
 
   def getMatchedLeafNodeBoxes(obj: BoxEnvelope): ListBuffer[BoxEnvelope] = {
-    val matchedLeafNodes = getMatchedLeafNodeBoxes(obj)
-    matchedLeafNodes.map(_.getEnvelope)
+    val matchedLeafNodes = getMatchedLeafNodes(obj)
+    matchedLeafNodes.map(_.envelope)
   }
 
   /**

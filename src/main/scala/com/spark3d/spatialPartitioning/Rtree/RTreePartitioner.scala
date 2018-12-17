@@ -47,7 +47,7 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
 
     val result = HashSet.empty[(Int, T)]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
-    matchedPartitions ++= rtree.getMatchedLeafNodes(spatialObject.getEnvelope)
+    matchedPartitions ++= rtree.getMatchedLeafNodeBoxes(spatialObject.getEnvelope)
     for(partition <- matchedPartitions) {
       result += new Tuple2(partition.indexID, spatialObject)
     }
@@ -62,6 +62,20 @@ class RTreePartitioner (rtree: BaseRTree, grids : List[BoxEnvelope]) extends Spa
     */
   override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[(Int, Shape3D)] = {
     var partitionNodes = new ListBuffer[Shape3D]
+    // Problem - In RTree we have mapped the immediate parents of the LeafNodes to a partition,
+    // but here we are returning the actual leafNodes. So in KNN there will never be a match in the
+    // condition
+    /*
+    val containingPartitions = partitioner.getPartitionNodes(queryObject)
+    val containingPartitionsIndex = containingPartitions.map(x => x._1)
+    val matchedContainingSubRDD = rdd.mapPartitionsWithIndex(
+      (index, iter) => {
+        if (containingPartitionsIndex.contains(index)) iter else Iterator.empty
+      }
+    )
+    */
+    // Will have to do something about this :thinking:
+
     partitionNodes ++= rtree.getMatchedLeafNodeBoxes(spatialObject.getEnvelope)
     val partitionNodesIDs = partitionNodes.map(x => new Tuple2(x.getEnvelope.indexID, x))
     partitionNodesIDs.toList

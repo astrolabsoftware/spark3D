@@ -4,7 +4,7 @@ SBT_VERSION_SPARK=2.11
 VERSION=0.3.1
 
 # Compile the code
-sbt ++2.11.8 'set test in assembly := {}' assembly
+sbt ++2.11.8 package
 
 PACK=com.github.astrolabsoftware:spark-fits_2.11:0.7.1
 SF=target/scala-2.11/spark3d_2.11-${VERSION}.jar

@@ -10,13 +10,14 @@ PACK=com.github.astrolabsoftware:spark-fits_2.11:0.7.1
 SF=target/scala-2.11/spark3d_2.11-${VERSION}.jar
 HP=lib/jhealpix.jar
 
-fitsfn="hdfs://134.158.75.222:8020//user/julien.peloton/LSST1Y/out_srcs_s1_0.fits"
+MASTERURL=
+fitsfn=
 
 # "order" "col" "range" "rep"
 for method in "range" "col"
 do
     spark-submit \
-        --master spark://134.158.75.222:7077 \
+        --master ${MASTERURL} \
         --driver-memory 4g --executor-memory 30g --executor-cores 17 --total-executor-cores 102 \
         --jars ${SF},${HP} --packages ${PACK} \
         --class com.astrolabsoftware.spark3d.examples.PartitioningDF \

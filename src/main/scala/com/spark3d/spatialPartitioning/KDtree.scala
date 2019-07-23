@@ -15,6 +15,8 @@
  */
 package com.astrolabsoftware.spark3d.spatialPartitioning
 
+import com.astrolabsoftware.spark3d.spatialPartitioning
+import com.astrolabsoftware.spark3d.geometryObjects.BoxEnvelope
 import com.astrolabsoftware.spark3d.geometryObjects._
 import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import com.astrolabsoftware.spark3d.geometryObjects.Point3D
@@ -42,7 +44,7 @@ class KDtree() extends Serializable {
    */
   def insertElement(current:KDtree, value:Point3D, level:Int):KDtree={
      
-     var currentLevel=level%3
+     var currentLevel=level%2
       if(current==null)
         return null
      // For x dimension
@@ -57,7 +59,7 @@ class KDtree() extends Serializable {
             current.left.point=value
             current.left.parent=current
             current.left.level=level+1
-            current.left.box=BoxEnvelope.apply(box.minX,point.x,box.minY,box.maxY,box.minZ,box.maxZ)
+            current.left.box=BoxEnvelope.apply(current.box.minX,current.point.x,current.box.minY,current.box.maxY,current.box.minZ,current.box.maxZ)
          }
        }
        //right side
@@ -70,7 +72,7 @@ class KDtree() extends Serializable {
                  current.right.point=value
                  current.right.parent=current
                  current.right.level=level+1
-                 current.right.box=BoxEnvelope.apply(point.x,box.maxX,box.minY,box.maxY,box.minZ,box.maxZ)
+                 current.right.box=BoxEnvelope.apply(current.point.x,current.box.maxX,current.box.minY,current.box.maxY,current.box.minZ,current.box.maxZ)
 
                  }
        }   
@@ -89,7 +91,7 @@ class KDtree() extends Serializable {
                    current.left.point=value
                    current.left.parent=current
                    current.left.level=level+1
-                   current.left.box=BoxEnvelope.apply(box.minX,box.maxX,box.minY,point.y,box.minZ,box.maxZ)
+                   current.left.box=BoxEnvelope.apply(current.box.minX,current.box.maxX,current.box.minY,current.point.y,current.box.minZ,current.box.maxZ)
          }
        }
        //right side
@@ -102,7 +104,7 @@ class KDtree() extends Serializable {
                  current.right.point=value
                  current.right.parent=current
                  current.right.level=level+1
-                 current.right.box=BoxEnvelope.apply(box.minX,box.maxX,point.y,box.maxX,box.minZ,box.maxZ)
+                 current.right.box=BoxEnvelope.apply(current.box.minX,current.box.maxX,current.point.y,current.box.maxX,current.box.minZ,current.box.maxZ)
                  
                   }
        }   
@@ -120,7 +122,7 @@ class KDtree() extends Serializable {
                      current.left.point=value
                      current.left.parent=current
                      current.left.level=level+1
-                     current.left.box=BoxEnvelope.apply(box.minX,box.maxX,box.minY,box.maxX,box.minZ,point.z)
+                     current.left.box=BoxEnvelope.apply(current.box.minX,current.box.maxX,current.box.minY,current.box.maxX,current.box.minZ,current.point.z)
           }
         }
            //right side
@@ -133,7 +135,7 @@ class KDtree() extends Serializable {
                   current.right.point=value
                   current.right.parent=current
                   current.right.level=level+1
-                  current.right.box=BoxEnvelope.apply(box.minX,box.maxX,box.minY,box.maxX,point.z,box.maxZ)
+                  current.right.box=BoxEnvelope.apply(current.box.minX,current.box.maxX,current.box.minY,current.box.maxX,current.point.z,current.box.maxZ)
                   }
         }   
       }// end of z dim
@@ -144,17 +146,54 @@ class KDtree() extends Serializable {
    * This is used to insert one point to KDtree 
    * 
    */
-    def insert(value:Point3D):Unit={
-       
-      if(this.point==null){
+  def insert(value:Point3D, initialBox:BoxEnvelope):Unit={
+      if(this.point==null){ print ("first")
          this.point=value
-         this.box=BoxEnvelope.apply(0,4,0,3,0,7)
+         this.box=initialBox
       }
      else
       insertElement(this,value,0)
 
          
     }
+
+    /**
+     * Insert list of 3D points
+     * 
+     */
+    def insertList (points: List[Point3D], level:Int, initialBox:BoxEnvelope ):Unit  ={
+       var currentLevel=level%2
+      if( points!=null)
+      {   
+         var sortedPoints:List[Point3D] =List()
+         if(currentLevel == 0)
+            {
+              sortedPoints=points.sortWith(_.x<_.x)
+            }
+          else if(currentLevel == 1){
+              sortedPoints=points.sortWith(_.y<_.y)
+             }
+              else  
+                sortedPoints=points.sortWith(_.z<_.z)
+          
+          var medianIndex:Int=(sortedPoints.length)/2 
+          insert(sortedPoints(medianIndex),initialBox)
+          var leftSubtree:  List[Point3D]=List()
+          var rightSubtree: List[Point3D]=List()
+          leftSubtree =sortedPoints.take(medianIndex)
+          rightSubtree =sortedPoints.takeRight(sortedPoints.length-(medianIndex+1))  
+        
+          if(medianIndex-1>=0 &&leftSubtree.length>0){
+                insertList(leftSubtree,level+1,initialBox) 
+            }
+       
+         if(medianIndex-1<sortedPoints.length &&rightSubtree.length>0){
+              insertList(rightSubtree,level+1,initialBox)
+          }
+
+       }//end points!=null
+    }
+
 
   /**
    * Print the content of the KDtree

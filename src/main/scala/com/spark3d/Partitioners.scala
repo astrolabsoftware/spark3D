@@ -21,9 +21,10 @@ import scala.util.Random
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
 
-import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
-
 import com.astrolabsoftware.spark3d.geometryObjects._
+import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
+import com.astrolabsoftware.spark3d.geometryObjects.Point3D
+
 import com.astrolabsoftware.spark3d.spatialPartitioning.SpatialPartitioner
 import com.astrolabsoftware.spark3d.spatialPartitioning.OnionPartitioning
 import com.astrolabsoftware.spark3d.spatialPartitioning.OnionPartitioner
@@ -31,12 +32,14 @@ import com.astrolabsoftware.spark3d.spatialPartitioning.Octree
 import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioning
 import com.astrolabsoftware.spark3d.spatialPartitioning.OctreePartitioner
 import com.astrolabsoftware.spark3d.utils.Utils.getSampleSize
-
+import com.astrolabsoftware.spark3d.spatialPartitioning.KDtree
+import com.astrolabsoftware.spark3d.spatialPartitioning.KDtreePartitioning
+import com.astrolabsoftware.spark3d.spatialPartitioning.KDtreePartitioner
 /**
   * Main object to retrieve SpatialPartitioner.
   */
 class Partitioners(df : DataFrame, options: Map[String, String]) extends Serializable {
-
+  println("Partitioners")
   // Definition of the coordinate system. Spherical or cartesian
   val isSpherical : Boolean = options("coordSys") match {
     case "spherical" => true
@@ -80,10 +83,10 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
       Geometry not understood! You must choose between:
       points or spheres
       """)
-  }
-
-
-  /**
+  }       
+     
+      
+         /**
     * Define a spatial partitioning for rawRDD, and return the partitioner.
     * The list of available partitioning can be found in utils/GridType.
     * By default, the outgoing level of parallelism is the same as the incoming
@@ -119,17 +122,20 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
 
         // Initialise our space
         val partitioning = new OnionPartitioning
+        
         partitioning.LinearOnionPartitioning(
           numPartitionsRaw,
           partitioning.getMaxZ(rawRDD),
           isSpherical
         )
-
+         
         // Grab the grid elements
         val grids = partitioning.getGrids
-
+        
         // Build our partitioner
-        new OnionPartitioner(grids)
+       var x= new OnionPartitioner(grids)
+        
+       x
       }
       case "octree" => {
         // taking 20% of the data as a sample
@@ -153,6 +159,20 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         val grids = partitioning.getGrids
         new OctreePartitioner(octree, grids)
       }
+      //for KDtree
+      case "kdtree" => {
+        val dataCount = rawRDD.count
+        val sampleSize = getSampleSize(dataCount, numPartitionsRaw)
+        val samples:List[Point3D] = rawRDD.takeSample(false, sampleSize,
+            new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.asInstanceOf[Point3D]) 
+             
+        val kdtree=new KDtree( )  
+        val partitioning = KDtreePartitioning.apply(samples, kdtree)
+        // val grids = partitioning.getGrids
+        new KDtreePartitioner(kdtree,null)
+         
+      }
+
 
       // Other cases not handled. RTree in prep.
       case _ => throw new AssertionError("""
@@ -161,6 +181,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
 
     // Apply the partitioner and return the RDD
     partitioner
+   
   }
 
   /**
@@ -203,5 +224,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
 
     dataBoundary
   }
+   
 
+  
 }

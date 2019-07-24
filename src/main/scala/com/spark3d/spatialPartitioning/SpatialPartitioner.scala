@@ -31,7 +31,6 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
   *
   */
 abstract class SpatialPartitioner(grids : List[Shape3D]) extends Partitioner with Serializable {
-
   /**
     * Method to place a spatialObject (could a Point3D, a Sphere, and so on) on
     * a grid. In practice it will assign a key (Int) to the spatialObject

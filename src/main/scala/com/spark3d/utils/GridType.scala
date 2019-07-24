@@ -24,4 +24,5 @@ object GridType {
   // Add new GridType name here once implementation done.
   val LINEARONIONGRID = "onion"
   val OCTREE = "octree"
+  val KDTREE = "kdtree"
 }

@@ -21,6 +21,11 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.spark_partition_id
+import org.apache.spark.sql.Column
+
+
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.Dataset
 
 import com.astrolabsoftware.spark3d.Partitioners
 import com.astrolabsoftware.spark3d.spatialPartitioning.KeyPartitioner
@@ -56,7 +61,7 @@ object Repartitioning {
     * @return Input DataFrame plus an additional column `partition_id`.
     */
   def prePartition(df : DataFrame, options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
-
+    println("prePartition Method")
     // Change the number of partitions if wanted
     val numOfPartitions = numPartitions match {
       case -1 => df.rdd.getNumPartitions
@@ -80,7 +85,7 @@ object Repartitioning {
       }
 
       // Other implemented repartitioners
-      case grid @ ("onion" | "octree") => {
+      case grid @ ("onion" | "octree" |"kdtree") => {
         // Definition of the coordinate system. Spherical or cartesian
         val isSpherical : Boolean = options("coordSys") match {
           case "spherical" => true
@@ -96,13 +101,13 @@ object Repartitioning {
 
         val P = new Partitioners(df, options)
         val partitioner = P.get(numOfPartitions)
-
+          
         // Add a column with the new partition indices
         val dfExt = geometry match {
           case "points" => {
             // UDF for the repartitioning
-            val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
-
+             val placePointsUDF = udf[Int, Double, Double, Double, Boolean](partitioner.placePoints)
+           
             df.withColumn("partition_id",
               placePointsUDF(
                 col(colnames(0)).cast("double"),
@@ -111,11 +116,12 @@ object Repartitioning {
                 lit(isSpherical)
               )
             )
+            
           }
           case "spheres" => {
             // UDF for the repartitioning
             val placePointsUDF = udf[Int, Double, Double, Double, Double, Boolean](partitioner.placeSpheres)
-
+         
             df.withColumn("partition_id",
               placePointsUDF(
                 col(colnames(0)).cast("double"),
@@ -132,13 +138,15 @@ object Repartitioning {
             """)
         }
         dfExt
+       
+    
       }
       case _ => throw new AssertionError("""
         Gridtype not understood! You must choose between:
         onion, octree, or current
         """)
     }
-
+   
     dfout
   }
 
@@ -186,7 +194,7 @@ object Repartitioning {
     *  +-------------------+-------------------+------------------+------------+
     */
   def repartitionByCol(df: DataFrame, colname: String, preLabeled: Boolean, numPartitions: Int = -1): DataFrame = {
-
+   println("repartitionByCol")
     // Build a Map (k=df.col -> v=partition_id)
     // to allow the use of standard (Int) partitioners (can be costly).
     val mapPart : Map[Any, Int] = preLabeled match {

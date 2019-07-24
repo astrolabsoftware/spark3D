@@ -44,7 +44,7 @@ class KDtree() extends Serializable {
    */
   def insertElement(current:KDtree, value:Point3D, level:Int):KDtree={
      
-     var currentLevel=level%2
+     var currentLevel=level%3
       if(current==null)
         return null
      // For x dimension
@@ -147,7 +147,7 @@ class KDtree() extends Serializable {
    * 
    */
   def insert(value:Point3D, initialBox:BoxEnvelope):Unit={
-      if(this.point==null){ print ("first")
+      if(this.point==null){ 
          this.point=value
          this.box=initialBox
       }
@@ -162,7 +162,7 @@ class KDtree() extends Serializable {
      * 
      */
     def insertList (points: List[Point3D], level:Int, initialBox:BoxEnvelope ):Unit  ={
-       var currentLevel=level%2
+       var currentLevel=level%3
       if( points!=null)
       {   
          var sortedPoints:List[Point3D] =List()

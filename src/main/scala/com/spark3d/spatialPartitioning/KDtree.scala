@@ -44,7 +44,7 @@ class KDtree() extends Serializable {
    */
   def insertElement(current:KDtree, value:Point3D, level:Int):KDtree={
      
-     var currentLevel=level%3
+     var currentLevel=level%2
       if(current==null)
         return null
      // For x dimension
@@ -153,7 +153,6 @@ class KDtree() extends Serializable {
       }
      else
       insertElement(this,value,0)
-
          
     }
 
@@ -162,7 +161,7 @@ class KDtree() extends Serializable {
      * 
      */
     def insertList (points: List[Point3D], level:Int, initialBox:BoxEnvelope ):Unit  ={
-       var currentLevel=level%3
+       var currentLevel=level%2
       if( points!=null)
       {   
          var sortedPoints:List[Point3D] =List()
@@ -193,8 +192,6 @@ class KDtree() extends Serializable {
 
        }//end points!=null
     }
-
-
   /**
    * Print the content of the KDtree
    * 
@@ -207,5 +204,26 @@ class KDtree() extends Serializable {
         printKDtree(current.right)
       }
   }
+
+  /**
+   * Breadth-First Search (BFS)
+   */
+
+   def BFS(current:KDtree,level:Int):ListBuffer[BoxEnvelope]={
+     var partitionBoundary= new ListBuffer[BoxEnvelope]
+     if(current==null)
+     null
+     else  if(level==1){
+              println(partitionBoundary)
+              partitionBoundary += current.box
+            }
+           else  if(level>1){
+                 BFS(current.left,level-1)
+                 BFS(current.right,level-1) 
+
+           }
+       
+    partitionBoundary
+   }
    
 }

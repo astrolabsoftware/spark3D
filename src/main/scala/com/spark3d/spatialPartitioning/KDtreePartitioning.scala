@@ -48,7 +48,7 @@ class KDtreePartitioning (private val octree: KDtree)
 
 object KDtreePartitioning {
 
-  def apply(data: List[Point3D], tree: KDtree): KDtreePartitioning = {
+  def apply(data: List[Point3D], tree: KDtree, levelPart:Int): KDtreePartitioning = {
 
     //Initialize the boundary box
     var min_X:Double=data(0).x
@@ -82,6 +82,10 @@ object KDtreePartitioning {
     val KDtreeBoundary:BoxEnvelope=BoxEnvelope.apply(min_X,max_X,min_Y,max_Y,min_Z,max_Z)
     tree.insertList(data,0,KDtreeBoundary)
     tree.printKDtree(tree)
+
+     val test1=tree.BFS(tree,levelPart)
+     for (a<-test1)
+     println(a.maxX)
     //tree.assignPartitionIDs
     //new OctreePartitioning(tree)
 

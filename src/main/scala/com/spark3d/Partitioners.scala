@@ -115,7 +115,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         (You put: $numPartitions)
         """)
     }
-
+    
     // Add here new cases.
     val partitioner = gridtype match {
       case "onion" => {
@@ -165,9 +165,13 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         val sampleSize = getSampleSize(dataCount, numPartitionsRaw)
         val samples:List[Point3D] = rawRDD.takeSample(false, sampleSize,
             new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.asInstanceOf[Point3D]) 
-             
+         
+        // to determine the level which is used in partitioning, also the number of partitions is determined
+        val log2 = (x: Int) => floor(log10(x)/log10(2.0)).asInstanceOf[Int]
+        val levelPartitioning=log2(numPartitionsRaw) +1  
+        println("level is"+levelPartitioning)  
         val kdtree=new KDtree( )  
-        val partitioning = KDtreePartitioning.apply(samples, kdtree)
+        val partitioning = KDtreePartitioning.apply(samples, kdtree, levelPartitioning)
         // val grids = partitioning.getGrids
         new KDtreePartitioner(kdtree,null)
          
@@ -228,3 +232,4 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
 
   
 }
+ 

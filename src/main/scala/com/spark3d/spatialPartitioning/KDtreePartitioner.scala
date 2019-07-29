@@ -24,15 +24,17 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import scala.collection.mutable.{HashSet, ListBuffer}
 
 class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
-  println("KDtreePartitioner")
+   
+    
+    
   /**
     * Get the number of partitions in this partitioning
     *
     * @return the number of partitions
     */
   override def numPartitions: Int = {
-   // grids.size
-   1
+     grids.size
+    
   }
 
   /**
@@ -63,8 +65,25 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
     *
     */
   override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
-     
-    1
+     val result = HashSet.empty[Int]
+     var partitionId:Int=0
+     for(element<-grids){
+       if(element.covers(c0,c1,c2)){
+         return  partitionId
+       }
+       partitionId+=1
+     }
+
+     partitionId=0
+     for(element<-grids){
+       if(element.coversKD(c0,c1,c2)){
+         return  partitionId
+      }
+       partitionId+=1
+    }
+        
+   64
+
   }
 
   /**
@@ -74,8 +93,7 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
     * @return list of Tuple of containing partitions and their index/partition ID's
     */
   override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
-    println("getPartitionNodes")
-   null
+    null
   }
 
   /**

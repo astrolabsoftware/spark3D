@@ -26,23 +26,23 @@ import com.astrolabsoftware.spark3d.geometryObjects.Point3D
 
 import scala.collection.mutable.ListBuffer
 
-class KDtreePartitioning (private val octree: KDtree)
+class KDtreePartitioning (private val kdtree: KDtree, grids:List[BoxEnvelope])
   extends Serializable {
   println("KDtreePartitioning")
   /**
     * @return the octree used for partitioning
     */
   def getPartitionTree(): KDtree = {
-    //octree
-    null
+      kdtree
+    
   }
 
   /**
     * @return Leaf nodes of the partitioning tree
     */
   def getGrids(): List[BoxEnvelope] = {
-    //octree.getLeafNodes.toList
-    null
+     // grids.isInstanceOf[List[BoxEnvelope]]
+     grids 
   }
 }
 
@@ -79,17 +79,18 @@ object KDtreePartitioning {
         max_Z=i.z
     }
 
-    val KDtreeBoundary:BoxEnvelope=BoxEnvelope.apply(min_X,max_X,min_Y,max_Y,min_Z,max_Z)
+    val KDtreeBoundary:BoxEnvelope=BoxEnvelope.apply(min_X-1,max_X+1,min_Y-1,max_Y+1,min_Z-1,max_Z+1)
+    
     tree.insertList(data,0,KDtreeBoundary)
-    tree.printKDtree(tree)
+    //tree.printKDtree(tree)
 
-     val test1=tree.BFS(tree,levelPart)
-     for (a<-test1)
-     println(a.maxX)
-    //tree.assignPartitionIDs
-    //new OctreePartitioning(tree)
+    val grids=tree.BFS(tree,levelPart).toList
+    
+    for(i<-grids)
+      println(i)
+    new KDtreePartitioning(tree,grids)
 
     
-    null
+    
   }
 }

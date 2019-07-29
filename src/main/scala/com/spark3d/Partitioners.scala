@@ -172,8 +172,8 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         println("level is"+levelPartitioning)  
         val kdtree=new KDtree( )  
         val partitioning = KDtreePartitioning.apply(samples, kdtree, levelPartitioning)
-        // val grids = partitioning.getGrids
-        new KDtreePartitioner(kdtree,null)
+        val grids:List[BoxEnvelope] =  partitioning.getGrids 
+        new KDtreePartitioner(kdtree,grids)
          
       }
 
@@ -184,7 +184,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
     }
 
     // Apply the partitioner and return the RDD
-    partitioner
+     partitioner
    
   }
 

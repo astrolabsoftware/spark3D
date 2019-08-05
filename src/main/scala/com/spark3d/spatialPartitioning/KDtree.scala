@@ -220,7 +220,6 @@ class KDtree() extends Serializable {
      null
      else  if(level==1){
               current.box.indexID=partitionID
-              println(current.box.indexID)
               partitionBoundary += current.box
               partitionID+=1
             }

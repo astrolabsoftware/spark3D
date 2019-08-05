@@ -23,7 +23,7 @@ then
     echo "Syntax : ./test_scala.sh <SCALA_BINARY_VERSION>"
     echo "Example: ./test_scala.sh 2.11.8"
     echo " "
-    SCALA_BINARY_VERSION=`python -c "from pyspark3d import version; print(version.__scala_version_all__)"`
+    SCALA_BINARY_VERSION="2.11.8"
     echo "Taking the default SCALA_BINARY_VERSION: $SCALA_BINARY_VERSION"
 fi
 

@@ -28,7 +28,6 @@ import scala.collection.mutable.ListBuffer
 
 class KDtreePartitioning (private val kdtree: KDtree, grids:List[BoxEnvelope])
   extends Serializable {
-  println("KDtreePartitioning")
   /**
     * @return the octree used for partitioning
     */
@@ -85,9 +84,6 @@ object KDtreePartitioning {
     //tree.printKDtree(tree)
 
     val grids=tree.BFS(tree,levelPart).toList
-    
-    for(i<-grids)
-      println(i)
     new KDtreePartitioning(tree,grids)
 
     

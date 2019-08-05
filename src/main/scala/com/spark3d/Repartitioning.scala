@@ -61,7 +61,6 @@ object Repartitioning {
     * @return Input DataFrame plus an additional column `partition_id`.
     */
   def prePartition(df : DataFrame, options: Map[String, String], numPartitions : Int = -1) : DataFrame = {
-    println("prePartition Method")
     // Change the number of partitions if wanted
     val numOfPartitions = numPartitions match {
       case -1 => df.rdd.getNumPartitions
@@ -194,7 +193,7 @@ object Repartitioning {
     *  +-------------------+-------------------+------------------+------------+
     */
   def repartitionByCol(df: DataFrame, colname: String, preLabeled: Boolean, numPartitions: Int = -1): DataFrame = {
-   println("repartitionByCol")
+   
     // Build a Map (k=df.col -> v=partition_id)
     // to allow the use of standard (Int) partitioners (can be costly).
     val mapPart : Map[Any, Int] = preLabeled match {

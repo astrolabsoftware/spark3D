@@ -10,8 +10,9 @@ PACK=com.github.astrolabsoftware:spark-fits_2.11:0.7.1
 SF=target/scala-2.11/spark3d_2.11-${VERSION}.jar
 HP=lib/jhealpix.jar
 
-MASTERURL=
-fitsfn=
+MASTERURL=spark://134.158.75.222:7077
+fitsfn=hdfs://134.158.75.222:8020//lsst/LSST1Y/out_srcs_s1_0.fits
+
 
 # "order" "col" "range" "rep"
 for method in "range" "col"
@@ -22,6 +23,6 @@ do
         --jars ${SF},${HP} --packages ${PACK} \
         --class com.astrolabsoftware.spark3d.examples.PartitioningDF \
         target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \
-        $fitsfn 1 "Z_COSMO,RA,DEC" true "onion" 102 ${method}
+        $fitsfn 1 "Z_COSMO,RA,DEC" true "octree" 102 ${method}
 done
 

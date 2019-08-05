@@ -140,7 +140,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         // see https://github.com/JulienPeloton/spark3D/issues/37
         // for the maxLevels and maxItemsPerNode calculations logic
         val maxLevels = floor(log(numPartitionsRaw)/log(8)).asInstanceOf[Int]
-        val maxItemsPerBox = ceil(dataCount/pow(8, maxLevels)).asInstanceOf[Int]
+        val maxItemsPerBox = ceil(dataCount/pow(8, maxLevels + 1)).asInstanceOf[Int]
         if (maxItemsPerBox > Int.MaxValue) {
           throw new AssertionError(
             """
@@ -172,11 +172,16 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
   def getDataEnvelope(): BoxEnvelope = {
     val seqOp: (BoxEnvelope, BoxEnvelope) => BoxEnvelope = {
       (x, y) => {
-        BoxEnvelope.apply(
-          min(x.minX, y.minX), max(x.maxX, y.maxX),
-          min(x.minY, y.minY), max(x.maxY, y.maxY),
-          min(x.minZ, y.minZ), max(x.maxZ, y.maxZ)
-        )
+        // Check if x is initially null
+        if (x.getEnvelope.isNull) {
+          BoxEnvelope.apply(y.minX, y.maxX, y.minY, y.maxY, y.minZ, y.maxZ)
+        } else {
+          BoxEnvelope.apply(
+            min(x.minX, y.minX), max(x.maxX, y.maxX),
+            min(x.minY, y.minY), max(x.maxY, y.maxY),
+            min(x.minZ, y.minZ), max(x.maxZ, y.maxZ)
+          )
+        }
       }
     }
 

@@ -175,7 +175,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         // Check if x is initially null
         if (x.getEnvelope.isNull) {
           BoxEnvelope.apply(y.minX, y.maxX, y.minY, y.maxY, y.minZ, y.maxZ)
-        else {
+        } else {
           BoxEnvelope.apply(
             min(x.minX, y.minX), max(x.maxX, y.maxX),
             min(x.minY, y.minY), max(x.maxY, y.maxY),

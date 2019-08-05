@@ -180,8 +180,8 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
             min(x.minX, y.minX), max(x.maxX, y.maxX),
             min(x.minY, y.minY), max(x.maxY, y.maxY),
             min(x.minZ, y.minZ), max(x.maxZ, y.maxZ)
-          }
-        )
+          )
+        }
       }
     }
 

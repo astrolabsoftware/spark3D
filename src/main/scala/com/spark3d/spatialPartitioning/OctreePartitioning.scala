@@ -22,7 +22,7 @@ import scala.collection.mutable.ListBuffer
 
 class OctreePartitioning (private val octree: Octree)
   extends Serializable {
-
+  println("OctreePartitioning")
   /**
     * @return the octree used for partitioning
     */

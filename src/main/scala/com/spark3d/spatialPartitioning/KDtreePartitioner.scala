@@ -82,7 +82,7 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
        partitionId+=1
     }
         
-   64
+      0  
 
   }
 

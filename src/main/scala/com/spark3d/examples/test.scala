@@ -87,7 +87,7 @@ object Test {
     //val  df = spark.read.format("csv").option("header", "true").load("hdfs://134.158.75.222:8020/user/alia/example3D.csv")
     //val  df = spark.read.format("csv").option("header", "true").load("hdfs://134.158.75.222:8020/user/alia/test2d.csv")
      val df = spark.read.format("fits").option("hdu", 1).load(fn_fits)
-     
+     println("Number of pints:"+df.count)
     
     //////////////////////////////
      
@@ -112,16 +112,16 @@ object Test {
   //Find the number of partitions
   val maximumPartitions=pow(maximumLevel,2)
   
-  if(log2(part)%1==0)
-     if(part<=maximumPartitions){
+//  if(log2(part)%1==0)
+    // if(part<=maximumPartitions){
          val df_colid = df.prePartition(options, part)
          val number1=df_colid.repartitionByCol("partition_id", true, part).mapPartitions(part => Iterator(part.size)).collect().toList
          println("number1: "+ number1)
-      }
-      else 
-         println("Please, Maximum number of partitions is "+ maximumPartitions)
-   else 
-    println("Please determine the number of partitions as 1, 2, 4, 8 and so on")
+     // }
+     // else 
+        // println("Please, Maximum number of partitions is "+ maximumPartitions)
+  // else 
+   // println("Please determine the number of partitions as 1, 2, 4, 8 and so on")
         
 
  

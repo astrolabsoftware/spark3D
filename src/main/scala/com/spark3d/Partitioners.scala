@@ -39,7 +39,7 @@ import com.astrolabsoftware.spark3d.spatialPartitioning.KDtreePartitioner
   * Main object to retrieve SpatialPartitioner.
   */
 class Partitioners(df : DataFrame, options: Map[String, String]) extends Serializable {
-  println("Partitioners")
+   
   // Definition of the coordinate system. Spherical or cartesian
   val isSpherical : Boolean = options("coordSys") match {
     case "spherical" => true
@@ -169,7 +169,7 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         // to determine the level which is used in partitioning, also the number of partitions is determined
         val log2 = (x: Int) => floor(log10(x)/log10(2.0)).asInstanceOf[Int]
         val levelPartitioning=log2(numPartitionsRaw) +1  
-        println("level is"+levelPartitioning)  
+         
         val kdtree=new KDtree( )  
         val partitioning = KDtreePartitioning.apply(samples, kdtree, levelPartitioning)
         val grids:List[BoxEnvelope] =  partitioning.getGrids 

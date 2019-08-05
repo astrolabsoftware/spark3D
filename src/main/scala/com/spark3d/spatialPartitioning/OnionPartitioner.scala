@@ -40,7 +40,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.Point3D
   *
   */
 class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(grids) {
-
+  println("OnionPartitioner")
   /**
     * The number of partitions is the number of shells defined as the
     * difference between 2 concentric spheres. The n partitions
@@ -122,32 +122,36 @@ class OnionPartitioner(grids : List[ShellEnvelope]) extends SpatialPartitioner(g
     *
     */
   override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
+   
     val center = new Point3D(c0, c1, c2, isSpherical)
     var containFlag : Boolean = false
     val notIncludedID = grids.size - 1
     val result = HashSet.empty[Int]
 
-
+   
     // Associate the object with one shell
     breakable {
       for (pos <- 0 to grids.size - 1) {
         val shell = grids(pos)
-
-        if (shell.isPointInShell(center)) {
+        
+         if (shell.isPointInShell(center)) {
           result += pos
           containFlag = true
           break
-        }
+         }
       }
     }
-
+ 
     // Useless if Point3D
     if (!containFlag) {
       result += notIncludedID
     }
-
+     
     // Return an iterator
+   
     result.toList(0)
+   
+    
   }
 
   // /**

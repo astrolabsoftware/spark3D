@@ -56,24 +56,6 @@ Note that we release the assembly JAR with it.
 ### More information
 
 See the [website](https://astrolabsoftware.github.io/spark3D/)!
-Here is a visualisation of the repartitioning of two datasets:
-
-#### Onion repartitioning
-
-.. raw:: html
-	<div>
-	  <a href="https://plot.ly/~JulienPeloton/211/?share_key=pS2w30RtS4dTlrCrk7HZdX" target="_blank" title="partitioning-out_srcs_s1_0.fits-onion" style="display: block; text-align: center;"><img src="https://plot.ly/~JulienPeloton/211.png?share_key=pS2w30RtS4dTlrCrk7HZdX" alt="partitioning-out_srcs_s1_0.fits-onion" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a>
-	  <script data-plotly="JulienPeloton:211" sharekey-plotly="pS2w30RtS4dTlrCrk7HZdX" src="https://plot.ly/embed.js" async></script>
-	</div>
-
-#### Octree repartitioning
-
-.. raw:: html
-	<div>
-	  <a href="https://plot.ly/~JulienPeloton/213/?share_key=6WVgA1daL8PmIRF2HejMxQ" target="_blank" title="partitioning-dc2-octree" style="display: block; text-align: center;"><img src="https://plot.ly/~JulienPeloton/213.png?share_key=6WVgA1daL8PmIRF2HejMxQ" alt="partitioning-dc2-octree" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a>
-	  <script data-plotly="JulienPeloton:213" sharekey-plotly="6WVgA1daL8PmIRF2HejMxQ" src="https://plot.ly/embed.js" async></script>
-	</div>
-
 
 ## Contributors
 

@@ -19,7 +19,7 @@ spark-submit \
     --jars ${SF},${HP} --packages ${PACK} \
     --class com.astrolabsoftware.spark3d.examples.VisualizePart \
     target/scala-${SCAlA_VERSION}/spark3d_${SCAlA_VERSION}-${VERSION}.jar \
-    $inputfn "Z_COSMO,RA,DEC" true "onion" 8 0.0001 "JulienPeloton" "TFdIOAdqlKNEl7HpybA1"
+    $inputfn "Z_COSMO,RA,DEC" true "onion" 8 0.0001 "username" "api_key"
 
 inputfn="dc2"
 spark-submit \
@@ -28,4 +28,4 @@ spark-submit \
     --jars ${SP},${HP} --packages ${PACK} \
     --class com.astrolabsoftware.spark3d.examples.VisualizePart \
     target/scala-${SCAlA_VERSION}/spark3d_${SCAlA_VERSION}-${VERSION}.jar \
-    $inputfn "position_x_mock,position_y_mock,position_z_mock" false "octree" 512 0.001 "JulienPeloton" "TFdIOAdqlKNEl7HpybA1"
+    $inputfn "position_x_mock,position_y_mock,position_z_mock" false "octree" 512 0.001 "username" "api_key"

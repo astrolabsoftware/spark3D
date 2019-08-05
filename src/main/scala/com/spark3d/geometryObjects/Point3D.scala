@@ -40,12 +40,15 @@ import com.astrolabsoftware.spark3d.utils.Utils.sphericalToCartesian
 class Point3D(val x: Double, val y: Double, val z: Double,
     val isSpherical: Boolean) extends Shape3D with Serializable {
 
+
+
   // The center of the point is the point
   val center: Point3D = this
 
   // Zero volume
   def getVolume: Double = 0.0
-
+   
+   
   /**
     * Methods to determine whether the Point3D is contained in another shape.
     * Implement different ways for different shapes (Point, Shell, Box available).

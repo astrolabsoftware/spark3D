@@ -57,7 +57,6 @@ lazy val root = (project in file(".")).
    )
  )
 
-
 // POM settings for Sonatype
 homepage := Some(
  url("https://github.com/astrolabsoftware/spark3D")

@@ -39,3 +39,11 @@ We repartitioned a dataset containing data in cartesian coordinates using the `o
     <a href="https://plot.ly/~JulienPeloton/225/?share_key=01FRN2snL0QWpSHefu2PqH" target="_blank" title="partitioning-dc2-octree-spark3dweb" style="display: block; text-align: center;"><img src="https://plot.ly/~JulienPeloton/225.png?share_key=01FRN2snL0QWpSHefu2PqH" alt="partitioning-dc2-octree-spark3dweb" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a>
     <script data-plotly="JulienPeloton:225" sharekey-plotly="01FRN2snL0QWpSHefu2PqH" src="https://plot.ly/embed.js" async></script>
 </div>
+
+Here is another data set with clusters:
+
+<div>
+    <a href="https://plot.ly/~JulienPeloton/233/?share_key=Vj7gfS7eTl8A96ot9mxU13" target="_blank" title="partitioning-dc2_rand-octree-spark3web" style="display: block; text-align: center;"><img src="https://plot.ly/~JulienPeloton/233.png?share_key=Vj7gfS7eTl8A96ot9mxU13" alt="partitioning-dc2_rand-octree-spark3web" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a>
+    <script data-plotly="JulienPeloton:233" sharekey-plotly="Vj7gfS7eTl8A96ot9mxU13" src="https://plot.ly/embed.js" async></script>
+</div>
+

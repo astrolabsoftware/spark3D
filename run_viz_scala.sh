@@ -30,12 +30,12 @@ MASTERURL=yarn
   #  target/scala-${SCAlA_VERSION}/spark3d_${SCAlA_VERSION}-${VERSION}.jar \
    #  $inputfn "position_x_mock,position_y_mock,position_z_mock" false "octree" 512 0.001 "abualia4" "GFz0cUDumcKcnhpMd8qw"
 
-inputfn=hdfs://134.158.75.222:8020/user/julien.peloton/dc2
+inputfn=hdfs://134.158.75.222:8020/user/julien.peloton/dc2_rand
 spark-submit \
     --master ${MASTERURL} \
    --driver-memory 4g --executor-memory 28g --executor-cores 17 --total-executor-cores 102 \
    --jars ${SP},${HP} --packages ${PACK} \
    --class com.astrolabsoftware.spark3d.examples.VisualizePart \
     target/scala-${SCAlA_VERSION}/spark3d_${SCAlA_VERSION}-${VERSION}.jar \
-    $inputfn "position_x_mock,position_y_mock,position_z_mock" false "octree" 512 0.001 "abualia4" "GFz0cUDumcKcnhpMd8qw"
+    $inputfn "position_x_mock,position_y_mock,position_z_mock" false "kdtree" 512 0.001 "abualia4" "GFz0cUDumcKcnhpMd8qw"
 

@@ -12,10 +12,11 @@ HP=lib/jhealpix.jar
 
 #MASTERURL=spark://134.158.75.222:7077
 MASTERURL=yarn
-fitsfn=hdfs://134.158.75.222:8020//lsst/LSST1Y/out_srcs_s1_2.fits
+ # fitsfn=hdfs://134.158.75.222:8020//lsst/LSST1Y/out_srcs_s1_3.fits
 # fitsfn=hdfs://134.158.75.222:8020/user/alia/a.fits
+ fitsfn=hdfs://134.158.75.222:8020/user/julien.peloton/dc2
 
-#   4096
+#This is used in evaluation of the KDtree partitioner
 sum=0
 for i in {1..10}
 do 
@@ -27,7 +28,7 @@ do
         --jars ${SF},${HP} --packages ${PACK} \
         --class com.astrolabsoftware.spark3d.examples.Test \
         target/scala-${SBT_VERSION_SPARK}/spark3d_${SBT_VERSION_SPARK}-${VERSION}.jar \
-        $fitsfn 1 "Z_COSMO,RA,DEC" true "octree" 4096 "col"
+        $fitsfn 1 "position_x_mock,position_y_mock,position_z_mock" true "kdtree" 8 "col"
     end_time="$(date -u +%s)"
     elapsed="$(($end_time-$start_time))"
     echo "Total of $elapsed seconds elapsed for process"

@@ -29,7 +29,7 @@ import scala.collection.mutable.ListBuffer
 class KDtreePartitioning (private val kdtree: KDtree, grids:List[BoxEnvelope])
   extends Serializable {
   /**
-    * @return the octree used for partitioning
+    * @return the KDtree used for partitioning
     */
   def getPartitionTree(): KDtree = {
       kdtree
@@ -37,19 +37,24 @@ class KDtreePartitioning (private val kdtree: KDtree, grids:List[BoxEnvelope])
   }
 
   /**
-    * @return Leaf nodes of the partitioning tree
+    * @return List of boundary boxes that will be used in the partitioning  
     */
   def getGrids(): List[BoxEnvelope] = {
-     // grids.isInstanceOf[List[BoxEnvelope]]
+     
      grids 
   }
 }
 
 object KDtreePartitioning {
-
+  /**
+   * @param data List of the input objects/3D points
+   * @param tree KDtree tree
+   * @param levelPart The level which is used to determine the boundary boxes for partitioning
+   * @return KDtreePartitioning
+   */
   def apply(data: List[Point3D], tree: KDtree, levelPart:Int): KDtreePartitioning = {
 
-    //Initialize the boundary box
+    //Initialize the boundary box for the KDtree root
     var min_X:Double=data(0).x
     var max_X:Double=data(0).x
     var min_Y:Double=data(0).y
@@ -77,12 +82,11 @@ object KDtreePartitioning {
      if(i.z>max_Z)
         max_Z=i.z
     }
-
+    //Expand by 1 the boundary box
     val KDtreeBoundary:BoxEnvelope=BoxEnvelope.apply(min_X-1,max_X+1,min_Y-1,max_Y+1,min_Z-1,max_Z+1)
-    
+    //Sending the list of data to build the balanced KDtree
     tree.insertList(data,0,KDtreeBoundary)
-    //tree.printKDtree(tree)
-
+   //Finding the list of boundary boxes for partitioning
     val grids=tree.BFS(tree,levelPart).toList
     new KDtreePartitioning(tree,grids)
 

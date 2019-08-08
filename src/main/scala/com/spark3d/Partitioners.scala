@@ -166,7 +166,8 @@ class Partitioners(df : DataFrame, options: Map[String, String]) extends Seriali
         val samples:List[Point3D] = rawRDD.takeSample(false, sampleSize,
             new Random(dataCount).nextInt(dataCount.asInstanceOf[Int])).toList.map(x => x.asInstanceOf[Point3D]) 
          
-        // to determine the level which is used in partitioning, also the number of partitions is determined
+        // To determine the level which is used in partitioning, also the number of partitions is determined
+        // Number of partitions is power of 2. 1, 2, 4, 8, 16, 32 and so on
         val log2 = (x: Int) => floor(log10(x)/log10(2.0)).asInstanceOf[Int]
         val levelPartitioning=log2(numPartitionsRaw) +1  
          

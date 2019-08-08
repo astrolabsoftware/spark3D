@@ -627,8 +627,7 @@ class BoxEnvelope private(
     *           being checked for containment
     * @param  z the z-coordinate of the point for which this cube Envelope is
     *           being checked for containment
-    * @return true if (x, y, z) lies in the interior or
-    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
+    * @return true if (x, y, z) lies in the interior  of this cube Envelope, false if the cube Envelope is null.
     */
   def covers(x: Double, y: Double, z: Double): Boolean = {
      
@@ -646,7 +645,18 @@ class BoxEnvelope private(
         
   }
  
-
+  /**
+   * Tests if the given tuple/point lies inside or in the border of the envelope. This method is used to assign the tuple to its partitioner in KD tree partitioner
+   * @param  x the x-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @param  y the y-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @param  z the z-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @return true if (x, y, z) lies in the interior or
+    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
+   * 
+   */
   def coversKD(x: Double, y: Double, z: Double): Boolean = {
     
     if (isNull) {

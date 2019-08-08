@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 AstroLab Software
+ * Copyright 2019 AstroLab Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,12 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 
 import scala.collection.mutable.{HashSet, ListBuffer}
 
+/**
+ * @param kdtree KDtree tree
+ * @param grids the list of boundary boxex/partitions in this partitioning
+ * 
+ */
+
 class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
    
     
@@ -38,14 +44,7 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
   }
 
   /**
-    * Gets the iterator on tuple leaf nodes (partitions) which intersects, contains or are contained
-    * by the input object.
-    *
-    * @param spatialObject : (T<:Shape3D)
-    *   Shape3D instance (or any extension) representing objects to put on
-    *   the grid.
-    * @return (Iterator[Tuple2[Int, T]) Iterable over a Tuple
-    *         *   of (Int, T) where Int is the partition index, and T the input object.
+    * 
     *
     */
   override def placeObject[T <: Shape3D](spatialObject: T): Iterator[Tuple2[Int, T]] = {
@@ -54,16 +53,15 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
   }
 
   /**
-    * Gets the iterator on tuple leaf nodes (partitions) which intersects, contains or are contained
-    * by the input object.
-    *
+    *Assigning the tuple to its partitions
+    *@param c0 the x-coordinate of the point
+    *@param c1 the y-coordinate of the point
+    *@param c2 the z-coordinate of the point
+    @param isSpherical Definition of the coordinate system. Spherical or cartesian
+    @return The partiton number of the tuple/3Dpoint
     * @param spatialObject : (T<:Shape3D)
-    *   Shape3D instance (or any extension) representing objects to put on
-    *   the grid.
-    * @return (Iterator[Tuple2[Int, T]) Iterable over a Tuple
-    *         *   of (Int, T) where Int is the partition index, and T the input object.
-    *
     */
+
   override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
      val result = HashSet.empty[Int]
      var partitionId:Int=0
@@ -87,34 +85,22 @@ class KDtreePartitioner (kdtree: KDtree, grids : List[BoxEnvelope]) extends Spat
   }
 
   /**
-    * Gets the partitions which contain the input object.
-    *
-    * @param spatialObject input object for which the containment is to be found
-    * @return list of Tuple of containing partitions and their index/partition ID's
+    * 
     */
   override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
     null
   }
 
   /**
-    * Gets the partitions which are the neighbors of the partitions which contain the input object.
-    *
-    * @param spatialObject input object for which the neighbors are to be found
-    * @param inclusive If true, includes the node of the spatialObject as well. Default is false.
-    * @return list of Tuple of neighbor partitions and their index/partition ID's
+    * 
     */
   override def getNeighborNodes[T <: Shape3D](spatialObject: T, inclusive: Boolean = false): List[Tuple2[Int, Shape3D]] = {
     null
   }
 
   /**
-    * Gets the partitions which are the neighbors to the input partition. Useful when getting
-    * secondary neighbors (neighbors to neighbor) of the queryObject.
-    *
-    * @param containingNode The boundary of the Node for which neighbors are to be found.
-    * @param containingNodeID The index/partition ID of the containingNode
-    * @return list of Tuple of secondary neighbor partitions and their index/partition IDs
-    */
+   * 
+   */
   override def getSecondaryNeighborNodes[T <: Shape3D](containingNode: T, containingNodeID: Int): List[Tuple2[Int, Shape3D]] = {
      
    null

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Julien Peloton
+ * Copyright 2019 AstroLab Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.apache.log4j.Level
 import org.apache.log4j.Logger
 
 /**
-  * Main app.
+  * Main app. This is  used by Ahmed Alia to run the Spark3D, especially KDtree
   */
 object Test {
   // Set to Level.WARN is you want verbosity
@@ -82,11 +82,15 @@ object Test {
     // Mode
     val mode = args(6).toString
      
-    // Load the data
-    ///////////////////////////////spark.sparkContext
-    //val  df = spark.read.format("csv").option("header", "true").load("hdfs://134.158.75.222:8020/user/alia/example3D.csv")
-    //val  df = spark.read.format("csv").option("header", "true").load("hdfs://134.158.75.222:8020/user/alia/test2d.csv")
-     val df = spark.read.format("fits").option("hdu", 1).load(fn_fits)
+    
+   
+     // Load the data
+     val df = if (fn_fits.endsWith("fits")) {
+      spark.read.format("fits").option("hdu", 1).load(fn_fits)
+    } else {
+      spark.read.format("parquet").load(fn_fits)
+    }
+
      println("Number of pints:"+df.count)
     
     //////////////////////////////
@@ -112,35 +116,26 @@ object Test {
   //Find the number of partitions
   val maximumPartitions=pow(maximumLevel,2)
   
-//  if(log2(part)%1==0)
-    // if(part<=maximumPartitions){
+  if(part=="kdtree"){// For kdtree partitioner
+    //Validation
+   if(log2(part)%1==0)
+      if(part<=maximumPartitions){
          val df_colid = df.prePartition(options, part)
          val number1=df_colid.repartitionByCol("partition_id", true, part).mapPartitions(part => Iterator(part.size)).collect().toList
-         println("number1: "+ number1)
-     // }
-     // else 
-        // println("Please, Maximum number of partitions is "+ maximumPartitions)
-  // else 
-   // println("Please determine the number of partitions as 1, 2, 4, 8 and so on")
-        
+         println("Partitions: "+ number1)
+       }
+       else 
+          println("Please, Maximum number of partitions is "+ maximumPartitions)
+    else 
+     println("Please determine the number of partitions as 1, 2, 4, 8 and so on")
+  }
+  else  For others
+  {
+    val df_colid = df.prePartition(options, part)
+    val number1=df_colid.repartitionByCol("partition_id", true, part).mapPartitions(part => Iterator(part.size)).collect().toList
+    println("Partitions: "+ number1)
+  }      
 
- 
-  //  val df_colid = df.prePartition(options, part)
-
-   // df_colid.show(100,false)
-   // df_colid.groupBy("partition_id").count().show(50,false)   
-    // df_colid.printSchema()
-     //df_colid.filter($"partition_id">4).show()
-     //println(df_colid.filter($"DEC"< -0.001).count())
-     //MC it to minimize flukes
-   
-  //    val number= df_colid.repartitionByCol("partition_id", true, part)
-          
-
-  // val number1=df_colid.repartitionByCol("partition_id", true, part).mapPartitions(part => Iterator(part.size)).collect().toList
-  //  println("number1: "+ number1)
-   
-     
-
+       
   }
 }

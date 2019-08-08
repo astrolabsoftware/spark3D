@@ -27,33 +27,48 @@ import scala.collection.mutable.Queue
 
 /**Description: This class is responsible for:
  * building Balanced KDtree for 3D points
- * Printing the B2DT
+ * Printing the tree
+ * Breadth-First Search to determine the bounding boxes for partitioning
  * */
  
 class KDtree() extends Serializable {
+  /**
+   * @param point  Value of Node's  (x,y,z)
+   * @param  box  Boundary box of the tree rooted at this node 
+   * @param level The level of the node compared to the root of original tree
+   * @param parent KDtree reference to the parent node  of the current node 
+   * @param left KDtree reference to the left node of the current node 
+   * @param parent KDtree reference to the right node of the current node 
+   */
+
+  //Initialization
   var point:Point3D=null
   var box: BoxEnvelope=null
   var level: Int=0
   var parent: KDtree = null
   var left: KDtree = null
   var right: KDtree = null
-  var check:Int=0
      
   /**
-   * Insert Element to build KDtree
+   * Insert an input object.3D point into the KDtree to build it
+   * @param current KDtree root
+   * @param value Input object/node (x,y,z)
+   * @param level The depth of the node compared to the root of original tree
+   * @return KDtree
    */
   def insertElement(current:KDtree, value:Point3D, level:Int):KDtree={
      
+    //To determine the dimension (x,y or z)
      var currentLevel=level%3
       
      // For x dimension
      if(currentLevel==0){
-       //left side
+       //left subtree
        if(value.x<current.point.x){
          if(current.left!=null ){
            insertElement(current.left,value,level+1)
           }
-          else { 
+          else { //Creating left KDtree node in  x dimension
             current.left=new KDtree()
             current.left.point=value
             current.left.parent=current
@@ -61,12 +76,12 @@ class KDtree() extends Serializable {
             current.left.box=BoxEnvelope.apply(current.box.minX,current.point.x,current.box.minY,current.box.maxY,current.box.minZ,current.box.maxZ)
          }
        }
-       //right side
-       else {
+       //right subtree
+       else { 
            if(current.right!=null ){
               insertElement(current.right,value,level+1)
             }
-            else { 
+            else { //Creating right KDtree node in x dimension
                  current.right=new KDtree()
                  current.right.point=value
                  current.right.parent=current
@@ -80,12 +95,12 @@ class KDtree() extends Serializable {
      
      // For y dimension
       else  if(currentLevel==1){
-       //left side
+       //left subtree
            if(value.y<current.point.y){
                if(current.left!=null ){
                   insertElement(current.left,value,level+1)
                 }
-               else { 
+               else { //Creating left KDtree node in y dimension
                    current.left=new KDtree()
                    current.left.point=value
                    current.left.parent=current
@@ -93,12 +108,12 @@ class KDtree() extends Serializable {
                    current.left.box=BoxEnvelope.apply(current.box.minX,current.box.maxX,current.box.minY,current.point.y,current.box.minZ,current.box.maxZ)
                  }
            }
-       //right side
+       //right subtree
          else {
              if(current.right!=null ){
                 insertElement(current.right,value,level+1)
             }
-            else { 
+            else { //Creating right KDtree node in y dimension
                  current.right=new KDtree()
                  current.right.point=value
                  current.right.parent=current
@@ -111,12 +126,12 @@ class KDtree() extends Serializable {
 
       // For z dimension
       else if(currentLevel==2){
-        //left side
+        //left subtree
             if(value.z<current.point.z){
                 if(current.left!=null ){
                    insertElement(current.left,value,level+1)
                  }
-                  else {
+                  else { //Creating left KDtree node in z dimension
                      current.left=new KDtree()
                      current.left.point=value
                      current.left.parent=current
@@ -124,12 +139,12 @@ class KDtree() extends Serializable {
                      current.left.box=BoxEnvelope.apply(box.minX,current.box.maxX,current.box.minY,current.box.maxY,current.box.minZ,current.point.z)
           }
         }
-           //right side
+           //right subtree
            else {
                if(current.right!=null ){
                   insertElement(current.right,value,level+1)
              }
-             else {
+             else { //Creating right KDtree node in z dimension
                   current.right=new KDtree()
                   current.right.point=value
                   current.right.parent=current
@@ -142,44 +157,49 @@ class KDtree() extends Serializable {
   } //end of inserElement mehod
   
   /**
-   * This is used to insert one point to KDtree 
-   * 
+   * This is used to add the new object/node to KDtree
+   * Also it prepares the first node(root) with it's boundary box (Initialization node)
+   * @param value  node's point(x,y,z)/input object
+   * @param initialBox Enclosing box for the data set.
    */
   def insert( value:Point3D, initialBox:BoxEnvelope):Unit={
-    
+     // Initialize the root and the  boundary box for the dataset
       if(this.point==null){ 
         this.point=value
         this.box=initialBox
-      }
+      } 
+      //
      else
-      insertElement(this,value,0)
-         
+      insertElement(this,value,0)   
     }
 
     /**
-     * Insert list of 3D points
-     * 
+     * This method receives list of 3D points, and it uses median technique to help insertElement method to build balanced KDtree
+     * @param points List of 3D points
+     * @param level The depth of the node compared to the root of original tree
+     * @param initialBox Enclosing box for the data set.
      */
     def insertList ( points: List[Point3D], level:Int, initialBox:BoxEnvelope ):Unit  ={
       if( points!=null)
       {   
          var sortedPoints:List[Point3D] =List()
          var currentLevel=level%3
-
+         //Ascending sorting based on the x coordinate.
          if(currentLevel == 0)
             {
               sortedPoints=points.sortWith(_.x<_.x)
             
             }
+            //Ascending sorting based on the y coordinate
           else if(currentLevel == 1){
               sortedPoints=points.sortWith(_.y<_.y)
               
              }
+             //Ascending sorting based on the z coordinate
                else  
                sortedPoints=points.sortWith(_.z<_.z)
           
-
-                
+    
           var medianIndex:Int=(sortedPoints.length)/2 
           insert(sortedPoints(medianIndex),initialBox)
           var leftSubtree:  List[Point3D]=List()
@@ -199,6 +219,7 @@ class KDtree() extends Serializable {
     }
   /**
    * Print the content of the KDtree
+   * @param current KDtree root
    * 
    */
   def printKDtree(current:KDtree):Unit={
@@ -211,7 +232,10 @@ class KDtree() extends Serializable {
   }
 
   /**
-   * Breadth-First Search (BFS) and it determines the boundary boxes for partitioning
+   * Applying Breadth-First Search (BFS) to determine the boundary boxes for partitioning
+   * @param current KDtree root
+   * @param level The depth of the node compared to the root of original tree
+   * @return ListBuffer[BoxEnvelope]
    */
    var partitionBoundary= new ListBuffer[BoxEnvelope]
    var partitionID=0

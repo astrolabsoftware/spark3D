@@ -22,7 +22,6 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D.Shape3D
 import scala.collection.mutable.{HashSet, ListBuffer}
 
 class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends SpatialPartitioner(grids) {
-
   /**
     * Get the number of partitions in this partitioning
     *
@@ -44,8 +43,7 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     *
     */
   override def placeObject[T <: Shape3D](spatialObject: T): Iterator[Tuple2[Int, T]] = {
-
-    val result = HashSet.empty[Tuple2[Int, T]]
+     val result = HashSet.empty[Tuple2[Int, T]]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
     matchedPartitions ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
     for(partition <- matchedPartitions) {
@@ -66,8 +64,7 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     *
     */
   override def placePoints(c0: Double, c1: Double, c2: Double, isSpherical: Boolean) : Int = {
-
-    val spatialObject = new Point3D(c0, c1, c2, isSpherical)
+     val spatialObject = new Point3D(c0, c1, c2, isSpherical)
     val result = HashSet.empty[Int]
     var matchedPartitions = new ListBuffer[BoxEnvelope]
     matchedPartitions ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
@@ -84,7 +81,7 @@ class OctreePartitioner (octree: Octree, grids : List[BoxEnvelope]) extends Spat
     * @return list of Tuple of containing partitions and their index/partition ID's
     */
   override def getPartitionNodes[T <: Shape3D](spatialObject: T): List[Tuple2[Int, Shape3D]] = {
-
+    println("getPartitionNodes")
     var partitionNodes = new ListBuffer[Shape3D]
     partitionNodes ++= octree.getMatchedLeafBoxes(spatialObject.getEnvelope)
     var partitionNodesIDs = partitionNodes.map(x => new Tuple2(x.getEnvelope.indexID, x))

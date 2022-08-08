@@ -31,7 +31,7 @@ import com.astrolabsoftware.spark3d.geometryObjects.Shape3D._
   *
   */
 class OnionPartitioning extends Serializable {
-
+println ("OnionPartitionong")
   /**
     * Elements of the Grid as List[ShellEnvelope]
     */
@@ -84,6 +84,7 @@ class OnionPartitioning extends Serializable {
 
       grids += shell
     }
+   
   }
 
   /**

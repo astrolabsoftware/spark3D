@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the License.env
  */
 package com.astrolabsoftware.spark3d.geometryObjects
 
@@ -67,7 +67,10 @@ class BoxEnvelope private(
       min(p1.y, min(p2.y, p3.y)), max(p1.y, max(p2.y, p3.y)),
       min(p1.z, min(p2.z, p3.z)), max(p1.z, max(p2.z, p3.z))
     )
-
+   
+     
+         
+     
     // Trigger an AssertionError if Point3D is spherical.
     // Unfortunately, one cannot put the logic first in an
     // overloaded constructor in scala. Another option would
@@ -624,23 +627,49 @@ class BoxEnvelope private(
     *           being checked for containment
     * @param  z the z-coordinate of the point for which this cube Envelope is
     *           being checked for containment
-    * @return true if (x, y, z) lies in the interior or
-    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
+    * @return true if (x, y, z) lies in the interior  of this cube Envelope, false if the cube Envelope is null.
     */
   def covers(x: Double, y: Double, z: Double): Boolean = {
+     
     if (isNull) {
       return false
     }
-
-    x >= minX   &&
+    
+      x >= minX &&
       x < maxX  &&
       y >= minY &&
       y < maxY  &&
       z >= minZ &&
-      z < maxZ
+      z < maxZ 
 
+        
   }
-
+ 
+  /**
+   * Tests if the given tuple/point lies inside or in the border of the envelope. This method is used to assign the tuple to its partitioner in KD tree partitioner
+   * @param  x the x-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @param  y the y-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @param  z the z-coordinate of the point for which this cube Envelope is
+    *           being checked for containment
+    * @return true if (x, y, z) lies in the interior or
+    *         on the boundary of this cube Envelope, false if the cube Envelope is null.
+   * 
+   */
+  def coversKD(x: Double, y: Double, z: Double): Boolean = {
+    
+    if (isNull) {
+      return false
+    }
+   
+      x >= minX &&
+      x <= maxX &&
+      y >= minY &&
+      y <= maxY &&
+      z >= minZ &&
+      z <= maxZ 
+  }
   /**
     * Tests if the cube Envelope other
     * lies completely inside this cube Envelope (inclusive of the boundary).
@@ -653,7 +682,7 @@ class BoxEnvelope private(
       return false
     }
 
-    env.minX >= minX   &&
+      env.minX >= minX &&
       env.maxX < maxX  &&
       env.minY >= minY &&
       env.maxY < maxY  &&
@@ -661,6 +690,7 @@ class BoxEnvelope private(
       env.maxZ < maxZ
   }
 
+  
   /**
     * Computes the distance between this and another cube Envelope
     * The distance between overlapping cube Envelopes is 0.  Otherwise, the
@@ -754,6 +784,8 @@ object BoxEnvelope {
       min(x1, x2), max(x1, x2),
       min(y1, y2), max(y1, y2),
       min(z1, z2), max(z1, z2)
+        
+      
     )
   }
 }
